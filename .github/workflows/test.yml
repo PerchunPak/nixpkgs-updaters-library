@@ -1,0 +1,118 @@
+name: Test
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup poetry
+      id: poetry_setup
+      uses: ItsDrike/setup-poetry@v1
+      with:
+          python-version: ${{ matrix.python-version }}
+          install-args: --without docs --with github_hooks --sync
+
+    - name: Run checks
+      run: poetry run make test
+
+  post-test:
+    runs-on: ubuntu-latest
+    needs: 'test'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup poetry
+      id: poetry_setup
+      uses: ItsDrike/setup-poetry@v1
+      with:
+          python-version: 3.12
+          install-args: --only main --only make --only github_hooks --only typing --sync
+
+    - name: Apply codestyle
+      run: |
+        poetry run make format
+
+    - name: Commit changes
+      run: |
+        poetry run python .github/commit_and_push.py \
+          --token ${{ secrets.GITHUB_TOKEN }} \
+          PerchunPak/nixpkgs-updaters-library \
+          ${{ github.head_ref || github.ref_name }} \
+          "Apply codestyle :pencil2:"
+
+    - name: Update poetry.lock
+      run: |
+        poetry update --lock
+
+    - name: Commit changes
+      run: |
+        poetry run python .github/commit_and_push.py \
+          --token ${{ secrets.GITHUB_TOKEN }} \
+          PerchunPak/nixpkgs-updaters-library \
+          ${{ github.head_ref || github.ref_name }} \
+          "Update poetry.lock :chart_with_upwards_trend:"
+
+    - name: Bump template
+      run: |
+        set -o pipefail
+
+        function print_conflicts_list() {
+          find . -regex '^.*\.rej$';
+        }
+        function update_count_of_conflicts() {
+          CONFLICTS_COUNT=$(find . -regex '^.*\.rej$' -printf '.' | wc -c)
+        }
+
+        echo "::group::Bump template (first try)"
+        cruft update -y
+        echo "::endgroup::"
+
+        echo "::group::List of conflicts"
+        print_conflicts_list
+        echo "::endgroup::"
+
+        update_count_of_conflicts
+        if [[ $CONFLICTS_COUNT -gt 0 ]]
+        then
+          echo "::group::Try to resolve conflicts"
+          rm -f poetry.lock.rej poetry.lock
+          git checkout master -- poetry.lock
+          poetry lock --no-update
+          echo "::endgroup::"
+
+          echo "::group::List of conflicts"
+          print_conflicts_list
+          echo "::endgroup::"
+
+          update_count_of_conflicts
+          if [[ $CONFLICTS_COUNT -gt 0 ]]
+          then
+            exit 1
+          fi
+        else
+          echo "No conflicts found"
+        fi
+
+    - name: Commit changes
+      run: |
+        poetry run python .github/commit_and_push.py \
+          --token ${{ secrets.GITHUB_TOKEN }} \
+          PerchunPak/nixpkgs-updaters-library \
+          ${{ github.head_ref || github.ref_name }} \
+          "Bump template :rocket:"

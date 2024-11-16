@@ -1,0 +1,47 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "00:00"
+  ignore:
+    - dependency-name: "*"
+      update-types: [ "version-update:semver-patch" ]
+    # Update these dependencies with python-template or `poetry update`
+    - dependency-name: "omegaconf"
+    - dependency-name: "structlog"
+    - dependency-name: "colorama"
+    # Make group
+    - dependency-name: "black"
+    - dependency-name: "isort"
+    - dependency-name: "pycln"
+    - dependency-name: "mypy"
+    - dependency-name: "pydocstyle"
+    - dependency-name: "cruft"
+    - dependency-name: "lice"
+    - dependency-name: "pre-commit"
+    # Tests group
+    - dependency-name: "pytest"
+    - dependency-name: "pytest-cov"
+    - dependency-name: "pytest-mock"
+    - dependency-name: "pytest-randomly"
+    - dependency-name: "Faker"
+    # Docs group
+    - dependency-name: "sphinx"
+    - dependency-name: "sphinx-autodoc-typehints"
+    - dependency-name: "sphinx-autoapi"
+    - dependency-name: "sphinx-intl"
+    - dependency-name: "furo"
+    - dependency-name: "m2r2"
+    - dependency-name: "tomli"
+    - dependency-name: "packaging"
+    # GitHub Hooks group
+    - dependency-name: "requests"
+    - dependency-name: "GitPython"
+
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "00:00"

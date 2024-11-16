@@ -1,0 +1,21 @@
+{
+  "template": "/home/perchun/dev/python-template",
+  "commit": "73755a62202fa3ce203aeec2265b2f1500246b2f",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "nixpkgs-updaters-library",
+      "organization": "PerchunPak",
+      "project_description": "Library for nixpkgs plugin updaters",
+      "other_languages_support": "n",
+      "ukrainian_language_support": "n",
+      "russian_language_support": "n",
+      "license": "MIT",
+      "_copy_without_render": [
+        "docs/_autoapi_templates/python"
+      ],
+      "_template": "/home/perchun/dev/python-template"
+    }
+  },
+  "directory": null
+}

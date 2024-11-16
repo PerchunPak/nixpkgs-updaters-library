@@ -1,0 +1,20 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.1.0
+  hooks:
+  - id: check-added-large-files
+  - id: check-vcs-permalinks
+  - id: check-yaml
+  - id: destroyed-symlinks
+  - id: detect-private-key
+  - id: mixed-line-ending
+    args: ["--fix=lf"]
+  - id: pretty-format-json
+    args: ["--autofix", "--no-ensure-ascii", "--no-sort-keys"]
+- repo: local
+  hooks:
+    - id: make-test
+      name: make-test
+      entry: make test
+      language: system
+      pass_filenames: false
