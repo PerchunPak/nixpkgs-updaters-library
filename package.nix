@@ -18,7 +18,7 @@ python3Packages.buildPythonPackage {
   ];
 
   meta = {
-    description = "Library for nixpkgs plugin updaters";
+    description = "A boilerplate-less updater for Nixpkgs ecosystems";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ perchun ];
   };
