@@ -26,7 +26,9 @@
         };
 
         devShell = pkgs.mkShell {
-          buildInputs = [ outputs.packages.${system}.default ];
+          inputsFrom = [ outputs.packages.${system}.default ];
+
+          PYTHONPATH = ".";
         };
       }
     );
