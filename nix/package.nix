@@ -11,6 +11,11 @@ python3Packages.buildPythonPackage {
 
   build-system = with python3Packages; [ setuptools ];
 
+  nativeCheckInputs = with python3Packages; [
+    pytestCheckHook
+    pytest-asyncio
+  ];
+
   dependencies = with python3Packages; [
     aiohttp
     attrs
