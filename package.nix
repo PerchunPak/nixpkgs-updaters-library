@@ -14,6 +14,7 @@ python3Packages.buildPythonPackage {
   dependencies = with python3Packages; [
     aiohttp
     attrs
+    loguru
     typer
   ];
 
