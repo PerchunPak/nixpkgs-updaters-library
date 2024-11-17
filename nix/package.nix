@@ -7,7 +7,7 @@ python3Packages.buildPythonPackage {
   version = "0.1.0";
   pyproject = true;
 
-  src = ./.;
+  src = ./..;
 
   build-system = with python3Packages; [ setuptools ];
 

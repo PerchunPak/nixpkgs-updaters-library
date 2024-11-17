@@ -56,7 +56,7 @@
           map
             (system: {
               name = system;
-              value.default = self.packages.${system}.default;
+              value.package = self.packages.${system}.default;
             })
             [
               "x86_64-linux"

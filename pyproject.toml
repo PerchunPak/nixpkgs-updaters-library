@@ -7,6 +7,10 @@ authors = [
 ]
 
 
+[tool.setuptools]
+packages = [ "nupd" ]
+
+
 [build-system]
 build-backend = 'setuptools.build_meta'
 requires = [ 'setuptools' ]
