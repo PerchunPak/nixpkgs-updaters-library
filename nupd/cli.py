@@ -87,7 +87,15 @@ async def add(
 
 @app.command()
 @coro
-async def update() -> None:
+async def update(
+    entry_ids: t.Annotated[
+        list[str],
+        typer.Argument(
+            help="Entries to add",
+            show_default=False,
+        ),
+    ],
+) -> None:
     """Update an entry (or multiple)."""
     raise NotImplementedError
 
