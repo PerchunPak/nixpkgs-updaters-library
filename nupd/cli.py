@@ -1,11 +1,12 @@
 import typing as t
 from pathlib import Path
 
+import inject
 import typer
 
 import nupd.logging
-from nupd.container import Container
-from nupd.utils import coro
+from nupd.injections import Config, inject_configure
+from nupd.utils import coro, skipped_option
 
 app = typer.Typer()
 
@@ -25,7 +26,7 @@ def callback(
         ),
     ] = Path.cwd(),
     input_file: t.Annotated[
-        t.Optional[Path],
+        Path | None,
         typer.Option(
             "--input-file",
             "-i",
@@ -35,7 +36,7 @@ def callback(
         ),
     ] = None,
     output_file: t.Annotated[
-        t.Optional[Path],
+        Path | None,
         typer.Option(
             "--output-file",
             "-o",
@@ -45,7 +46,7 @@ def callback(
         ),
     ] = None,
     jobs: t.Annotated[
-        t.Optional[int],
+        int | None,
         typer.Option(
             "--jobs",
             "-j",
@@ -56,16 +57,15 @@ def callback(
     log_level: nupd.logging.LoggingLevel = nupd.logging.LoggingLevel.INFO.value,
 ) -> None:
     """A boilerplate-less updater for Nixpkgs ecosystems."""
-    container = Container()
-
-    container.config.from_dict(
-        {
-            "nixpkgs_path": nixpkgs_path,
-            "input_file": input_file,
-            "output_file": output_file,
-            "jobs": jobs,
-            "log_level": log_level,
-        }
+    inject.configure(
+        inject_configure(
+            Config(
+                nixpkgs_path=nixpkgs_path,
+                input_file=input_file,
+                output_file=output_file,
+                jobs=jobs,
+            )
+        )
     )
 
 
@@ -81,7 +81,8 @@ async def add(
     ],
 ) -> None:
     """Add a new entry (or multiple)."""
-    raise NotImplementedError
+    config = inject.instance(Config)
+    print(config.nixpkgs_path)
 
 
 @app.command()
