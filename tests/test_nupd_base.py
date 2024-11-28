@@ -8,11 +8,13 @@ from nupd.models import Entry, EntryInfo
 
 
 @define(frozen=True)
+@t.final
 class DumbEntry(Entry):
     hash: str
 
 
 @define(frozen=True)
+@t.final
 class DumbEntryInfo(EntryInfo):
     name: str
 
@@ -21,6 +23,8 @@ class DumbEntryInfo(EntryInfo):
         return DumbEntry(self, "sha256-some/cool/hash")
 
 
+@define
+@t.final
 class DumbBase(ABCBase):
     @t.override
     async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:

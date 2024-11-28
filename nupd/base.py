@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import asyncio
 import collections.abc as c
+import typing as t
 
 import inject
 from attrs import define
@@ -20,6 +21,7 @@ class ABCBase(abc.ABC):
     async def get_all_entries(self) -> c.Sequence[EntryInfo]: ...
 
 
+@t.final
 class Nupd:
     async def fetch_entries(
         self, entries: c.Sequence[EntryInfo]
