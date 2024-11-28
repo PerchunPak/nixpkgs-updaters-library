@@ -10,11 +10,12 @@ from nupd.injections import Config, inject_configure
 def configure_injections() -> None:
     _ = inject.configure(
         inject_configure(
-            Config(
+            config=Config(
                 nixpkgs_path=Path.cwd(),
                 input_file=Path("/homeless-shelter"),
                 output_file=Path("/homeless-shelter"),
                 jobs=10,
-            )
+            ),
+            classes=None,  # pyright: ignore[reportArgumentType]
         )
     )

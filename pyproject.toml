@@ -39,6 +39,7 @@ reportUnknownLambdaType = true
 reportMissingTypeStubs = "information"
 reportUninitializedInstanceVariable = true
 reportMissingParameterType = false # ruff's flake8-annotations (ANN) already covers this + gives us more control
+reportImportCycles = false # tests catch that
 
 
 [build-system]

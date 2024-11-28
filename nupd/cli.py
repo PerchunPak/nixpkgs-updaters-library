@@ -3,16 +3,19 @@ from pathlib import Path
 
 import inject
 import typer
+from loguru import logger
 
 import nupd.logs
 from nupd.injections import Config, inject_configure
+from nupd.models import ImplClasses
 from nupd.utils import coro
 
-app = typer.Typer()
+app = typer.Typer(context_settings={})
 
 
 @app.callback()
 def callback(
+    ctx: typer.Context,
     nixpkgs_path: t.Annotated[
         Path,
         typer.Option(
@@ -57,15 +60,25 @@ def callback(
 ) -> None:
     """A boilerplate-less updater for Nixpkgs ecosystems."""
     nupd.logs.setup_logging(log_level)
+    if not isinstance(ctx.obj, ImplClasses):  # pyright: ignore[reportAny]
+        logger.error(
+            "You have to provide your implementation of `ABCBase`, `Entry`"
+            + " and `EntryInfo` using `app.info.context_settings`. Please see"
+            + " `example` directory."
+        )
+        raise typer.Exit(1)
+
     _ = inject.configure(
         inject_configure(
-            Config(
+            config=Config(
                 nixpkgs_path=nixpkgs_path,
                 input_file=input_file,
                 output_file=output_file,
                 jobs=jobs,
-            )
-        )
+            ),
+            classes=ctx.obj,
+        ),
+        allow_override=True,
     )
 
 
