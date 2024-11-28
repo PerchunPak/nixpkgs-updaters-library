@@ -4,7 +4,7 @@ from pathlib import Path
 import inject
 import typer
 
-import nupd.logging
+import nupd.logs
 from nupd.injections import Config, inject_configure
 from nupd.utils import coro
 
@@ -53,10 +53,10 @@ def callback(
             help="Limit for concurrent jobs.",
         ),
     ] = 32,
-    log_level: nupd.logging.LoggingLevel = nupd.logging.LoggingLevel.INFO,
+    log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO.value,  # pyright: ignore[reportArgumentType] # typer requires string here
 ) -> None:
     """A boilerplate-less updater for Nixpkgs ecosystems."""
-    nupd.logging.setup_logging(log_level)
+    nupd.logs.setup_logging(log_level)
     _ = inject.configure(
         inject_configure(
             Config(
