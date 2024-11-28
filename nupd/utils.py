@@ -8,7 +8,7 @@ import typer.models
 
 def coro[R](f: c.Callable[..., c.Coroutine[t.Any, t.Any, R]]) -> c.Callable[..., R]:
     @wraps(f)
-    def wrapper(*args: t.Any, **kwargs: t.Any) -> R:
+    def wrapper(*args: t.Any, **kwargs: t.Any) -> R:  # pyright: ignore[reportAny]
         return asyncio.run(f(*args, **kwargs))
 
     return wrapper

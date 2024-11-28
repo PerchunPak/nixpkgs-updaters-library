@@ -48,6 +48,7 @@
           packages = with pkgs; [
             ruff
             basedpyright
+            pre-commit
           ];
 
           PYTHONPATH = ".";

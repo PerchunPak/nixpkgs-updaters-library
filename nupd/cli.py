@@ -24,7 +24,7 @@ def callback(
             file_okay=False,
             writable=True,
         ),
-    ] = Path.cwd(),  # type: ignore[reportCallInDefaultInitializer]
+    ] = Path.cwd(),  # pyright: ignore[reportCallInDefaultInitializer]
     input_file: t.Annotated[
         Path | None,
         typer.Option(
