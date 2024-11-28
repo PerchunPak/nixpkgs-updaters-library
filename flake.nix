@@ -22,15 +22,7 @@
         inherit (self) outputs;
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            (final: prev: {
-              pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-                (pfinal: pprev: {
-                  inject = final.callPackage ./nix/python-inject.nix { pythonPackages = pfinal; };
-                })
-              ];
-            })
-          ];
+          overlays = [ (import ./nix/overlay.nix) ];
         };
         lib = pkgs.lib;
       in
