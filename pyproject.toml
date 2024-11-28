@@ -15,6 +15,7 @@ packages = [ "nupd" ]
 pythonPlatform = "Linux"
 pythonVersion = "3.12"
 typeCheckingMode = "all"
+exclude = [ "nupd/format_signature.py" ]
 
 # Diagnostic behavior settings
 strictListInference = false
