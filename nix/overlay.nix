@@ -1,4 +1,10 @@
 final: prev: {
+  pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+    (pfinal: pprev: {
+      # I will need this eventually
+    })
+  ];
+
   basedpyright = prev.basedpyright.overrideAttrs (oa: rec {
     version = "1.22.0";
     src = oa.src.override {
