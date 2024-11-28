@@ -45,6 +45,10 @@
 
         devShell = pkgs.mkShell {
           inputsFrom = [ self.packages.${system}.default ];
+          packages = with pkgs; [
+            ruff
+            basedpyright
+          ];
 
           PYTHONPATH = ".";
         };
