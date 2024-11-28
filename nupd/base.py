@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import asyncio
+import collections.abc as c
 
 import inject
 from attrs import define
@@ -15,17 +16,18 @@ from nupd.models import Entry, EntryInfo
 class ABCBase(abc.ABC):
     nupd: Nupd
 
-    async def get_all_entries(self) -> list[EntryInfo]: ...
+    @abc.abstractmethod
+    async def get_all_entries(self) -> c.Sequence[EntryInfo]: ...
 
 
 class Nupd:
-    @inject.autoparams("config")
     async def fetch_entries(
-        self, entries: list[EntryInfo], config: Config
-    ) -> set[Entry | Exception]:
+        self, entries: c.Sequence[EntryInfo]
+    ) -> set[Entry | BaseException]:
+        config = inject.instance(Config)
         limit = config.jobs
 
-        all_results: set[Entry | Exception] = set()
+        all_results: set[Entry | BaseException] = set()
         for chunk in utils.chunks(entries, limit):
             results = await asyncio.gather(
                 *(entry.fetch() for entry in chunk),

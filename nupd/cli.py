@@ -6,7 +6,7 @@ import typer
 
 import nupd.logging
 from nupd.injections import Config, inject_configure
-from nupd.utils import coro, skipped_option
+from nupd.utils import coro
 
 app = typer.Typer()
 
@@ -24,7 +24,7 @@ def callback(
             file_okay=False,
             writable=True,
         ),
-    ] = Path.cwd(),
+    ] = Path.cwd(),  # type: ignore[reportCallInDefaultInitializer]
     input_file: t.Annotated[
         Path | None,
         typer.Option(
@@ -46,18 +46,18 @@ def callback(
         ),
     ] = None,
     jobs: t.Annotated[
-        int | None,
+        int,
         typer.Option(
             "--jobs",
             "-j",
             help="Limit for concurrent jobs.",
-            show_default="automatically",
         ),
-    ] = None,
-    log_level: nupd.logging.LoggingLevel = nupd.logging.LoggingLevel.INFO.value,
+    ] = 32,
+    log_level: nupd.logging.LoggingLevel = nupd.logging.LoggingLevel.INFO,
 ) -> None:
     """A boilerplate-less updater for Nixpkgs ecosystems."""
-    inject.configure(
+    nupd.logging.setup_logging(log_level)
+    _ = inject.configure(
         inject_configure(
             Config(
                 nixpkgs_path=nixpkgs_path,
@@ -83,6 +83,7 @@ async def add(
     """Add a new entry (or multiple)."""
     config = inject.instance(Config)
     print(config.nixpkgs_path)
+    print(entry_ids)
 
 
 @app.command()
@@ -97,6 +98,7 @@ async def update(
     ] = None,
 ) -> None:
     """Update an entry (or multiple)."""
+    print(entry_ids)
     raise NotImplementedError
 
 

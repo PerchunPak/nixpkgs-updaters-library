@@ -11,6 +11,37 @@ authors = [
 packages = [ "nupd" ]
 
 
+[tool.basedpyright]
+pythonPlatform = "Linux"
+pythonVersion = "3.12"
+typeCheckingMode = "all"
+
+# Diagnostic behavior settings
+strictListInference = false
+strictDictionaryInference = false
+strictSetInference = false
+analyzeUnannotatedFunctions = true
+strictParameterNoneValue = true
+enableTypeIgnoreComments = true
+deprecateTypingAliases = true      # only applies up to pythonVersion
+enableExperimentalFeatures = false
+disableBytesTypePromotions = true
+
+# Diagnostic rules
+reportAny = false
+reportExplicitAny = false
+reportImplicitStringConcatenation = false
+reportUnreachable = "information"
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownLambdaType = false
+reportMissingTypeStubs = "information"
+reportUninitializedInstanceVariable = false # until [DetachHead/basedpyright#491](https://github.com/DetachHead/basedpyright/issues/491)
+reportMissingParameterType = false          # ruff's flake8-annotations (ANN) already covers this + gives us more control
+
+
 [build-system]
 build-backend = 'setuptools.build_meta'
 requires = [ 'setuptools' ]

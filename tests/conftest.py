@@ -8,12 +8,12 @@ from nupd.injections import Config, inject_configure
 
 @pytest.fixture(scope="session", autouse=True)
 def configure_injections() -> None:
-    inject.configure(
+    _ = inject.configure(
         inject_configure(
             Config(
                 nixpkgs_path=Path.cwd(),
-                input_file="/homeless-shelter",
-                output_file="/homeless-shelter",
+                input_file=Path("/homeless-shelter"),
+                output_file=Path("/homeless-shelter"),
                 jobs=10,
             )
         )
