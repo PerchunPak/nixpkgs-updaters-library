@@ -40,10 +40,8 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
     with open(
         "tests/fetchers/github/responses/graphql_lspconfig.json", "r"
     ) as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.post(  # pyright: ignore[reportUnknownMemberType]
-        "https://api.github.com/graphql", payload=response
-    )
+        response = json.load(f)
+    mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
     result = await github_fetch_graphql(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
@@ -55,10 +53,8 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
     with open(
         "tests/fetchers/github/responses/graphql_archived.json", "r"
     ) as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.post(  # pyright: ignore[reportUnknownMemberType]
-        "https://api.github.com/graphql", payload=response
-    )
+        response = json.load(f)
+    mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
     result = await github_fetch_graphql(
         "PerchunPak", "mcph", github_token="TOKEN"
@@ -82,8 +78,8 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
 
 async def test_404(mock_aiohttp: aioresponses) -> None:
     with open("tests/fetchers/github/responses/graphql_404.json", "r") as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.post(  # pyright: ignore[reportUnknownMemberType]
+        response = json.load(f)
+    mock_aiohttp.post(
         "https://api.github.com/graphql", payload=response, status=404
     )
 

@@ -27,13 +27,13 @@ enableExperimentalFeatures = false
 disableBytesTypePromotions = true
 
 # Diagnostic rules
-reportAny = true
+reportAny = false
 reportExplicitAny = false
 reportImplicitStringConcatenation = true
 reportUnreachable = "information"
-reportUnknownArgumentType = true
+reportUnknownArgumentType = false
 reportUnknownVariableType = true
-reportUnknownMemberType = true
+reportUnknownMemberType = false
 reportUnknownParameterType = true
 reportUnknownLambdaType = true
 reportMissingTypeStubs = "information"

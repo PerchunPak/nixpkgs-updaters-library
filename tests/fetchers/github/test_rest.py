@@ -38,8 +38,8 @@ LSPCONFIG_RESPONSE = GHRepository(
 
 async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
     with open("tests/fetchers/github/responses/rest_lspconfig.json", "r") as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.get(  # pyright: ignore[reportUnknownMemberType]
+        response = json.load(f)
+    mock_aiohttp.get(
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 
@@ -51,8 +51,8 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
 
 async def test_archived(mock_aiohttp: aioresponses) -> None:
     with open("tests/fetchers/github/responses/rest_archived.json", "r") as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.get(  # pyright: ignore[reportUnknownMemberType]
+        response = json.load(f)
+    mock_aiohttp.get(
         "https://api.github.com/repos/PerchunPak/mcph", payload=response
     )
 
@@ -76,8 +76,8 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
 
 async def test_404(mock_aiohttp: aioresponses) -> None:
     with open("tests/fetchers/github/responses/rest_404.json", "r") as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
-    mock_aiohttp.get(  # pyright: ignore[reportUnknownMemberType]
+        response = json.load(f)
+    mock_aiohttp.get(
         "https://api.github.com/repos/aaaa/bbbb", payload=response, status=404
     )
 
@@ -89,14 +89,14 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
 
 async def test_redirect(mock_aiohttp: aioresponses) -> None:
     with open("tests/fetchers/github/responses/rest_lspconfig.json", "r") as f:
-        response = json.load(f)  # pyright: ignore[reportAny]
+        response = json.load(f)
 
-    mock_aiohttp.get(  # pyright: ignore[reportUnknownMemberType]
+    mock_aiohttp.get(
         "https://api.github.com/repos/nvim/lspconfig",
         headers={"Location": "/repos/neovim/nvim-lspconfig"},
         status=307,
     )
-    mock_aiohttp.get(  # pyright: ignore[reportUnknownMemberType]
+    mock_aiohttp.get(
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 

@@ -18,7 +18,7 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
     @t.override
     def read(self, parse: c.Callable[[list[str]], I]) -> c.Iterable[I]:
         with self.file.open("r", newline="") as f:
-            parsed = csv.reader(f, **self.kwargs)  # pyright: ignore[reportAny]
+            parsed = csv.reader(f, **self.kwargs)
 
             for line in parsed:
                 yield parse(line)
@@ -31,6 +31,6 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
         sort: c.Callable[[I], t.Any],
     ) -> None:
         with self.file.open("w", newline="") as f:
-            writer = csv.writer(f, **self.kwargs)  # pyright: ignore[reportAny]
+            writer = csv.writer(f, **self.kwargs)
             for entry in sorted(entries, key=sort):
                 writer.writerow(serialize(entry))

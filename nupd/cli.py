@@ -60,7 +60,7 @@ def callback(
 ) -> None:
     """A boilerplate-less updater for Nixpkgs ecosystems."""
     nupd.logs.setup_logging(log_level)
-    if not isinstance(ctx.obj, ImplClasses):  # pyright: ignore[reportAny]
+    if not isinstance(ctx.obj, ImplClasses):
         logger.error(
             "You have to provide your implementation of `ABCBase`, `Entry`"
             + " and `EntryInfo` using `app.info.context_settings`. Please see"
