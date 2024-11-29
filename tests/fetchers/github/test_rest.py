@@ -5,7 +5,11 @@ import aiohttp
 import pytest
 from aioresponses import aioresponses
 
-from nupd.fetchers.github import GHRepository, MetaInformation, github_fetch_rest
+from nupd.fetchers.github import (
+    GHRepository,
+    MetaInformation,
+    github_fetch_rest,
+)
 
 LSPCONFIG_RESPONSE = GHRepository(
     owner="neovim",
@@ -39,7 +43,9 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 
-    result = await github_fetch_rest("neovim", "nvim-lspconfig", github_token=None)
+    result = await github_fetch_rest(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
     assert result == LSPCONFIG_RESPONSE
 
 

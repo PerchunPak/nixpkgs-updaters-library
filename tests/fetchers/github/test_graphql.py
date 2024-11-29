@@ -5,7 +5,11 @@ import aiohttp
 import pytest
 from aioresponses import aioresponses
 
-from nupd.fetchers.github import GHRepository, MetaInformation, github_fetch_graphql
+from nupd.fetchers.github import (
+    GHRepository,
+    MetaInformation,
+    github_fetch_graphql,
+)
 
 LSPCONFIG_RESPONSE = GHRepository(
     owner="neovim",
@@ -33,7 +37,9 @@ LSPCONFIG_RESPONSE = GHRepository(
 
 
 async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
-    with open("tests/fetchers/github/responses/graphql_lspconfig.json", "r") as f:
+    with open(
+        "tests/fetchers/github/responses/graphql_lspconfig.json", "r"
+    ) as f:
         response = json.load(f)  # pyright: ignore[reportAny]
     mock_aiohttp.post(  # pyright: ignore[reportUnknownMemberType]
         "https://api.github.com/graphql", payload=response
@@ -46,13 +52,17 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
 
 
 async def test_archived(mock_aiohttp: aioresponses) -> None:
-    with open("tests/fetchers/github/responses/graphql_archived.json", "r") as f:
+    with open(
+        "tests/fetchers/github/responses/graphql_archived.json", "r"
+    ) as f:
         response = json.load(f)  # pyright: ignore[reportAny]
     mock_aiohttp.post(  # pyright: ignore[reportUnknownMemberType]
         "https://api.github.com/graphql", payload=response
     )
 
-    result = await github_fetch_graphql("PerchunPak", "mcph", github_token="TOKEN")
+    result = await github_fetch_graphql(
+        "PerchunPak", "mcph", github_token="TOKEN"
+    )
     assert result == GHRepository(
         owner="PerchunPak",
         repo="mcph",
