@@ -4,7 +4,7 @@ from nupd.utils import chunks
 
 
 @pytest.mark.parametrize(
-    "n,result",
+    ("n", "result"),
     [
         (1, [[1], [2], [3], [4], [5]]),
         (3, [[1, 2, 3], [4, 5]]),

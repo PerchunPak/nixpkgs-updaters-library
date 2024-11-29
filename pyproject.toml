@@ -11,6 +11,114 @@ authors = [
 packages = [ "nupd" ]
 
 
+[tool.ruff]
+target-version = "py312"
+line-length = 80
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+ignore = [
+  "C90", # mccabe
+  "CPY", # flake8-copyright
+  "EM",  # flake8-errmsg
+  "SLF", # flake8-self
+  "ARG", # flake8-unused-arguments
+  "TD",  # flake8-todos
+  "FIX", # flake8-fixme
+
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class
+  "D102", # Missing docstring in public method
+  "D103", # Missing docstring in public function
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D106", # Missing docstring in public nested class
+  "D107", # Missing docstring in __init__
+  "D203", # Blank line required before class docstring
+  "D212", # Multi-line summary should start at first line (incompatible with D211)
+  "D301", # Use r""" if any backslashes in a docstring
+  "D400", # First line should end with a period (duplicate of D415)
+  "D401", # First line of docstring should be in imperative mood
+  "D404", # First word of the docstring should not be "This"
+  "D405", # Section name should be properly capitalized
+  "D406", # Section name should end with a newline
+  "D407", # Missing dashed underline after section
+  "D408", # Section underline should be in the line following the section's name
+  "D409", # Section underline should match the length of its name
+  "D410", # Missing blank line after section
+  "D411", # Missing blank line before section
+  "D412", # No blank lines allowed between a section header and its content
+  "D413", # Missing blank line after last section
+  "D414", # Section has no content
+  "D416", # Section name should end with a colon
+  "D417", # Missing argument description in the docstring
+
+  "ANN204", # Missing return type annotation for special method
+  "ANN401", # Dynamically typed expressions (typing.Any) disallowed
+
+  "SIM102", # use a single if statement instead of nested if statements
+  "SIM108", # Use ternary operator {contents} instead of if-else-block
+
+  "B904", # Raise without `from` within an `except` clause
+
+  "S101",    # Use of assert
+  "PLR2004", # Using unnamed numerical constants
+  "PGH003",  # Using specific rule codes in type ignores
+  "E731",    # Don't assign a lambda expression, use a def
+  "S311",    # Use `secrets` for random number generation, not `random`
+  "TRY003",  # Avoid specifying long messages outside the exception class
+
+  # Redundant rules with ruff-format:
+  "E111",   # Indentation of a non-multiple of 4 spaces
+  "E114",   # Comment with indentation  of a non-multiple of 4 spaces
+  "E117",   # Checks for over-indented code
+  "E501",   # Line too long
+  "D206",   # Checks for docstrings indented with tabs
+  "D300",   # Checks for docstring that use ''' instead of """
+  "Q000",   # Checks of inline strings that use wrong quotes (' instead of ")
+  "Q001",   # Multiline string that use wrong quotes (''' instead of """)
+  "Q002",   # Checks for docstrings that use wrong quotes (''' instead of """)
+  "Q003",   # Checks for avoidable escaped quotes ("\"" -> '"')
+  "COM812", # Missing trailing comma (in multi-line lists/tuples/...)
+  "COM819", # Prohibited trailing comma (in single-line lists/tuples/...)
+  "ISC001", # Single line implicit string concatenation ("hi" "hey" -> "hihey")
+  "ISC002", # Multi line implicit string concatenation
+]
+
+[tool.ruff.lint.isort]
+order-by-type = false
+case-sensitive = true
+combine-as-imports = true
+
+# Redundant rules with ruff-format
+force-single-line = false       # forces all imports to appear on their own line
+force-wrap-aliases = false      # Split imports with multiple members and at least one alias
+lines-after-imports = -1        # The number of blank lines to place after imports
+lines-between-types = 0         # Number of lines to place between "direct" and import from imports
+split-on-trailing-comma = false # if last member of multiline import has a comma, don't fold it to single line
+
+[tool.ruff.lint.pylint]
+max-args = 20
+max-branches = 20
+max-returns = 20
+max-statements = 250
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = [
+  "ANN",      # annotations
+  "D",        # docstrings
+  "ASYNC230", # Async functions should not open files with blocking methods like `open`
+  "S106",     # Possible hardcoded password assigned to argument
+]
+".github/scripts/**.py" = [
+  "INP001", # Implicit namespace package
+]
+
+[tool.ruff.format]
+line-ending = "lf"
+
+
 [tool.basedpyright]
 pythonPlatform = "Linux"
 pythonVersion = "3.12"
@@ -29,7 +137,7 @@ disableBytesTypePromotions = true
 # Diagnostic rules
 reportAny = false
 reportExplicitAny = false
-reportImplicitStringConcatenation = true
+reportImplicitStringConcatenation = false
 reportUnreachable = "information"
 reportUnknownArgumentType = false
 reportUnknownVariableType = true
@@ -40,10 +148,6 @@ reportMissingTypeStubs = "information"
 reportUninitializedInstanceVariable = true
 reportMissingParameterType = false # ruff's flake8-annotations (ANN) already covers this + gives us more control
 reportImportCycles = false # tests catch that
-
-
-[tool.ruff]
-line-length = 80
 
 
 [build-system]

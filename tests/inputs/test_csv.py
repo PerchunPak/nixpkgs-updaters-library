@@ -18,7 +18,7 @@ class CsvEntryInfo(EntryInfo):
         raise NotImplementedError
 
 
-@pytest.fixture()
+@pytest.fixture
 def csv_input(tmp_path: Path) -> CsvInput[CsvEntryInfo]:
     return CsvInput[CsvEntryInfo](file=tmp_path / "input.csv")
 

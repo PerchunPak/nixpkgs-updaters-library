@@ -82,8 +82,8 @@ async def github_fetch_graphql(
         if not response.ok:
             logger.error(data)
             response.raise_for_status()
-            raise Exception()  # dead code
-        elif data.get("errors"):
+            raise Exception  # dead code # noqa: TRY002
+        if data.get("errors"):
             logger.error(data)
             raise HTTPError(
                 "\n".join(error["message"] for error in data["errors"])
@@ -119,7 +119,8 @@ async def github_fetch_graphql(
 async def github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
-    """Fetch a GitHub repository using REST API.
+    """
+    Fetch a GitHub repository using REST API.
 
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
@@ -140,7 +141,7 @@ async def github_fetch_rest(
         if not response.ok:
             logger.error(data)
             response.raise_for_status()
-            raise Exception()  # dead code
+            raise Exception  # dead code # noqa: TRY002
 
     new_owner, new_repo = data["owner"]["login"], data["name"]
     if new_owner != owner:

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from pathlib import Path
 
 import aiohttp
 import pytest
@@ -37,8 +38,8 @@ LSPCONFIG_RESPONSE = GHRepository(
 
 
 async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
-    with open(
-        "tests/fetchers/github/responses/graphql_lspconfig.json", "r"
+    with Path("tests/fetchers/github/responses/graphql_lspconfig.json").open(
+        "r"
     ) as f:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
@@ -50,8 +51,8 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
 
 
 async def test_archived(mock_aiohttp: aioresponses) -> None:
-    with open(
-        "tests/fetchers/github/responses/graphql_archived.json", "r"
+    with Path("tests/fetchers/github/responses/graphql_archived.json").open(
+        "r"
     ) as f:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
@@ -77,7 +78,9 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
 
 
 async def test_404(mock_aiohttp: aioresponses) -> None:
-    with open("tests/fetchers/github/responses/graphql_404.json", "r") as f:
+    with Path("tests/fetchers/github/responses/graphql_404.json").open(
+        "r"
+    ) as f:
         response = json.load(f)
     mock_aiohttp.post(
         "https://api.github.com/graphql", payload=response, status=404

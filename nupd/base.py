@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import asyncio
-import collections.abc as c
 import typing as t
 
 import inject
@@ -10,7 +9,11 @@ from attrs import define
 
 from nupd import utils
 from nupd.injections import Config
-from nupd.models import Entry, EntryInfo
+
+if t.TYPE_CHECKING:
+    import collections.abc as c
+
+    from nupd.models import Entry, EntryInfo
 
 
 @define

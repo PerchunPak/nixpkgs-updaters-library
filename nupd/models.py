@@ -28,8 +28,8 @@ class Entry(abc.ABC):
 @t.final
 @define(frozen=True)
 class ImplClasses:
-    """Settings, passed to `app.info.context_settings["obj"] = HERE`"""
+    """Settings, passed to `app.info.context_settings["obj"] = HERE`."""
 
-    base: type["ABCBase"]
+    base: type[ABCBase]
     entry: type[Entry]
     entry_info: type[EntryInfo]

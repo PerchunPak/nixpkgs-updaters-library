@@ -11,6 +11,7 @@ from nupd.models import ImplClasses
 from nupd.utils import coro
 
 app = typer.Typer(context_settings={})
+_CWD = Path.cwd()
 
 
 @app.callback()
@@ -27,7 +28,7 @@ def callback(
             file_okay=False,
             writable=True,
         ),
-    ] = Path.cwd(),  # pyright: ignore[reportCallInDefaultInitializer]
+    ] = _CWD,
     input_file: t.Annotated[
         Path | None,
         typer.Option(
@@ -63,8 +64,8 @@ def callback(
     if not isinstance(ctx.obj, ImplClasses):
         logger.error(
             "You have to provide your implementation of `ABCBase`, `Entry`"
-            + " and `EntryInfo` using `app.info.context_settings`. Please see"
-            + " `example` directory."
+            " and `EntryInfo` using `app.info.context_settings`. Please see"
+            " `example` directory."
         )
         raise typer.Exit(1)
 
@@ -95,8 +96,8 @@ async def add(
 ) -> None:
     """Add a new entry (or multiple)."""
     config = inject.instance(Config)
-    print(config.nixpkgs_path)
-    print(entry_ids)
+    logger.debug(config.nixpkgs_path)
+    logger.debug(entry_ids)
 
 
 @app.command()
@@ -111,7 +112,7 @@ async def update(
     ] = None,
 ) -> None:
     """Update an entry (or multiple)."""
-    print(entry_ids)
+    logger.debug(entry_ids)
     raise NotImplementedError
 
 
