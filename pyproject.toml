@@ -63,6 +63,8 @@ ignore = [
   "B904", # Raise without `from` within an `except` clause
 
   "S101",    # Use of assert
+  "S607",    # Starting a process with a partial executable path
+
   "PLR2004", # Using unnamed numerical constants
   "PGH003",  # Using specific rule codes in type ignores
   "E731",    # Don't assign a lambda expression, use a def

@@ -6,6 +6,7 @@ from attrs import define
 from loguru import logger
 
 from nupd.exc import HTTPError
+from nupd.fetchers.nix_prefetch import prefetch_url
 
 
 @define
@@ -30,6 +31,17 @@ class GHRepository:
     commit: str | None
 
     meta: MetaInformation
+
+    async def prefetch_commit(self) -> str:
+        if self.commit is not None:
+            return self.commit
+
+        self.commit = commit = (
+            await prefetch_url(
+                f"https://github.com/{self.owner}/{self.repo}/archive/{self.branch}.tar.gz"
+            )
+        ).hash
+        return commit
 
 
 async def github_fetch_graphql(

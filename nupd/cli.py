@@ -8,7 +8,7 @@ from loguru import logger
 import nupd.logs
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
-from nupd.utils import coro
+from nupd.utils import async_to_sync
 
 app = typer.Typer(context_settings={})
 _CWD = Path.cwd()
@@ -84,7 +84,7 @@ def callback(
 
 
 @app.command()
-@coro
+@async_to_sync
 async def add(
     entry_ids: t.Annotated[
         list[str],
@@ -101,7 +101,7 @@ async def add(
 
 
 @app.command()
-@coro
+@async_to_sync
 async def update(
     entry_ids: t.Annotated[
         list[str] | None,
