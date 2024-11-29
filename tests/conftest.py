@@ -1,7 +1,9 @@
+import collections.abc as c
 from pathlib import Path
 
 import inject
 import pytest
+from aioresponses import aioresponses
 
 from nupd.injections import Config, inject_configure
 
@@ -19,3 +21,9 @@ def configure_injections() -> None:
             classes=None,  # pyright: ignore[reportArgumentType]
         )
     )
+
+
+@pytest.fixture
+def mock_aiohttp() -> c.Iterable[aioresponses]:
+    with aioresponses() as m:
+        yield m

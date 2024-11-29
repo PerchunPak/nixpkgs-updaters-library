@@ -1,0 +1,24 @@
+{
+  "data": {
+    "repository": null,
+    "rateLimit": {
+      "cost": 1,
+      "nodeCount": 100
+    }
+  },
+  "errors": [
+    {
+      "type": "NOT_FOUND",
+      "path": [
+        "repository"
+      ],
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "message": "Could not resolve to a Repository with the name 'PerchunaaaPak/auto-join-spam'."
+    }
+  ]
+}

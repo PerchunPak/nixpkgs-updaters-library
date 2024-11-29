@@ -1,0 +1,67 @@
+{
+  "data": {
+    "repository": {
+      "name": "nvim-lspconfig",
+      "isArchived": false,
+      "archivedAt": null,
+      "homepageUrl": "",
+      "stargazerCount": 10794,
+      "description": "Quickstart configs for Nvim LSP",
+      "owner": {
+        "login": "neovim"
+      },
+      "licenseInfo": {
+        "spdxId": "Apache-2.0"
+      },
+      "defaultBranchRef": {
+        "name": "master",
+        "target": {
+          "oid": "6a5ed22255bbe10104ff9b72c55ec2e233a8e571"
+        }
+      },
+      "repositoryTopics": {
+        "nodes": [
+          {
+            "topic": {
+              "name": "vim"
+            }
+          },
+          {
+            "topic": {
+              "name": "nvim"
+            }
+          },
+          {
+            "topic": {
+              "name": "neovim"
+            }
+          },
+          {
+            "topic": {
+              "name": "lsp"
+            }
+          },
+          {
+            "topic": {
+              "name": "language-server-protocol"
+            }
+          },
+          {
+            "topic": {
+              "name": "language-server"
+            }
+          },
+          {
+            "topic": {
+              "name": "plugin"
+            }
+          }
+        ]
+      }
+    },
+    "rateLimit": {
+      "cost": 1,
+      "nodeCount": 100
+    }
+  }
+}

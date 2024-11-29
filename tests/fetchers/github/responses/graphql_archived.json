@@ -1,0 +1,31 @@
+{
+  "data": {
+    "repository": {
+      "name": "mcph",
+      "isArchived": true,
+      "archivedAt": "2023-06-01T18:53:47Z",
+      "homepageUrl": null,
+      "stargazerCount": 1,
+      "description": "Minecraft plugin helper, updates and checks versions of all plugins on a server!",
+      "owner": {
+        "login": "PerchunPak"
+      },
+      "licenseInfo": {
+        "spdxId": "AGPL-3.0"
+      },
+      "defaultBranchRef": {
+        "name": "master",
+        "target": {
+          "oid": "693eb6aa038f832dc614052e6b98bf107f9fcb26"
+        }
+      },
+      "repositoryTopics": {
+        "nodes": []
+      }
+    },
+    "rateLimit": {
+      "cost": 1,
+      "nodeCount": 100
+    }
+  }
+}
