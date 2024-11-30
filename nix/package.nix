@@ -14,6 +14,7 @@ python3Packages.buildPythonPackage {
   nativeCheckInputs = with python3Packages; [
     pytestCheckHook
     pytest-asyncio
+    pytest-mock
     aioresponses
   ];
 
@@ -22,6 +23,7 @@ python3Packages.buildPythonPackage {
     attrs
     inject
     loguru
+    platformdirs
     typer
   ];
 
