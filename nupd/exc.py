@@ -1,2 +1,4 @@
-class HTTPError(Exception):
-    pass
+class NetworkError(Exception): ...
+
+
+class HTTPError(NetworkError): ...
