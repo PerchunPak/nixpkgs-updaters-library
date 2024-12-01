@@ -20,7 +20,6 @@ class MyEntryInfo(EntryInfo):
         return MyEntry(self, hash="sha256-test")
 
 
-@t.final
 @define
 class MyImpl(ABCBase):
     @t.override
