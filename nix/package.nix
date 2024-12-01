@@ -26,6 +26,7 @@ python3Packages.buildPythonPackage {
     loguru
     platformdirs
     typer
+    nbdb
   ];
 
   meta = {
