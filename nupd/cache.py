@@ -1,5 +1,6 @@
 import collections.abc as c
 import functools
+import inspect
 import json
 import shelve
 import typing as t
@@ -23,6 +24,48 @@ def _recursive_to_list[T](inp: c.Iterable[T]) -> list[T]:
             result.append(_recursive_to_list(v))
         else:
             result.append(v)
+
+    return result
+
+
+def _get_key_for_caching[R](
+    signature: inspect.Signature,
+    args: c.Sequence[R],
+    kwargs: c.Mapping[str, R],
+    *,
+    function_name: str,
+) -> dict[str, list[R] | R]:
+    pos_args: list[str] = []
+    var_pos_arg: str | None = None
+    for name, arg in signature.parameters.items():
+        if arg.kind in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        ):
+            pos_args.append(name)
+        elif arg.kind is inspect.Parameter.VAR_POSITIONAL:
+            var_pos_arg = name
+
+    if len(args) > len(pos_args) and var_pos_arg is None:
+        raise RuntimeError("You provided wrong amount of positional arguments!")
+
+    result: dict[str, list[R] | R] = t.cast(
+        dict[str, list[R] | R], kwargs
+    ).copy()
+
+    for i in range(len(args)):
+        try:
+            name = pos_args[i]
+        except IndexError:
+            assert var_pos_arg is not None
+            _ = result.setdefault(var_pos_arg, [])
+            t.cast(list[R], result[var_pos_arg]).append(args[i])
+        else:
+            if name in kwargs:
+                raise TypeError(
+                    f"{function_name}() got multiple values for argument '{name}'"
+                )
+            result[name] = args[i]
 
     return result
 
@@ -79,10 +122,15 @@ def cache_result[**P, R](
         func._data = (  # pyright: ignore[reportFunctionMemberAccess]
             data  # for tests
         )
+        signature = inspect.signature(func)
 
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            key = json.dumps(_recursive_to_list((args, kwargs.items())))
+            key = json.dumps(
+                _get_key_for_caching(
+                    signature, args, kwargs, function_name=func.__name__
+                )
+            )
             if (cached := data.get(key)) is not None:
                 return cached
 
