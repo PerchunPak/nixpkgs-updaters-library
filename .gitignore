@@ -1,3 +1,4 @@
+.direnv/
 outputs/
 result-*
 result
