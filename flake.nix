@@ -38,9 +38,10 @@
         devShell = pkgs.mkShell {
           inputsFrom = [ self.packages.${system}.default ];
           packages = with pkgs; [
-            ruff
             basedpyright
+            python312Packages.debugpy
             pre-commit
+            ruff
           ];
 
           PYTHONPATH = ".";
