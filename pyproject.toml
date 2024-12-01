@@ -165,6 +165,7 @@ addopts = [
   "--cov-report=html",
   "--cov-report=xml",
   "--cov-branch",
+  "--cov-fail-under=80"
 ]
 
 
