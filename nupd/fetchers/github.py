@@ -94,7 +94,7 @@ async def github_fetch_graphql(
         if not response.ok:
             logger.error(data)
             response.raise_for_status()
-            raise Exception  # dead code # noqa: TRY002
+            raise RuntimeError("dead code")  # pragma: no cover
         if data.get("errors"):
             logger.error(data)
             raise HTTPError(
@@ -153,7 +153,7 @@ async def github_fetch_rest(
         if not response.ok:
             logger.error(data)
             response.raise_for_status()
-            raise Exception  # dead code # noqa: TRY002
+            raise RuntimeError("dead code")  # pragma: no cover
 
     new_owner, new_repo = data["owner"]["login"], data["name"]
     if new_owner != owner:

@@ -8,7 +8,7 @@ from functools import wraps
 import typer.models
 
 
-def async_to_sync[**P, R](
+def async_to_sync[**P, R](  # pragma: no cover
     f: c.Callable[P, c.Coroutine[t.Any, t.Any, R]],
 ) -> c.Callable[P, R]:
     @wraps(f)
@@ -18,7 +18,7 @@ def async_to_sync[**P, R](
     return wrapper
 
 
-def sync_to_async[**P, R](
+def sync_to_async[**P, R](  # pragma: no cover
     f: c.Callable[P, R],
 ) -> c.Callable[P, c.Awaitable[R]]:
     executor = ThreadPoolExecutor(1)
@@ -33,7 +33,7 @@ def sync_to_async[**P, R](
     return wrapper
 
 
-skipped_option: typer.models.OptionInfo = typer.Option(
+skipped_option: typer.models.OptionInfo = typer.Option(  # pragma: no cover
     parser=lambda _: _, hidden=True, expose_value=False
 )
 

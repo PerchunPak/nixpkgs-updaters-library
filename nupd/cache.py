@@ -4,7 +4,6 @@ import inspect
 import json
 import shelve
 import typing as t
-from collections import OrderedDict
 from pathlib import Path
 
 import platformdirs
@@ -73,16 +72,6 @@ def _get_key_for_caching[R](
 type CACHE_STORAGE[R] = dict[
     tuple[tuple[t.Any, ...], frozenset[tuple[c.Hashable, c.Hashable]]], R
 ]
-
-
-def _to_ordered_dict[K, V](kwargs: dict[K, V]) -> OrderedDict[K, V]:
-    sorted_dict: OrderedDict[K, V] = OrderedDict()
-    for key, value in kwargs.items():
-        if isinstance(value, dict):
-            sorted_dict[key] = _to_ordered_dict(value)
-        else:
-            sorted_dict[key] = value
-    return sorted_dict
 
 
 @t.overload

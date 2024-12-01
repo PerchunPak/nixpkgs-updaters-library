@@ -14,6 +14,7 @@ python3Packages.buildPythonPackage {
   nativeCheckInputs = with python3Packages; [
     pytestCheckHook
     pytest-asyncio
+    pytest-cov
     pytest-mock
     aioresponses
   ];

@@ -1,0 +1,9 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    if (t|typing)?\.?TYPE_CHECKING:
+    ^\s\.\.\.\s$
+    def __repr__
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+    raise NotImplementedError
