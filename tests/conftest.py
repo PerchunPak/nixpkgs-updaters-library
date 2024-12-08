@@ -1,11 +1,11 @@
 import collections.abc as c
+import sys
 from pathlib import Path
 
 import inject
 import pytest
 from aioresponses import aioresponses
 from loguru import logger
-from py import sys
 from pytest_mock import MockerFixture
 
 from nupd.cache import Cache
