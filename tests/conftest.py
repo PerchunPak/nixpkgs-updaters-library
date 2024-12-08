@@ -8,6 +8,7 @@ from loguru import logger
 from py import sys
 from pytest_mock import MockerFixture
 
+from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.logs import LoggingLevel
 
@@ -23,6 +24,7 @@ def configure_injections() -> None:
                 jobs=10,
             ),
             classes=None,  # pyright: ignore[reportArgumentType]
+            cache=Cache(),
         )
     )
 

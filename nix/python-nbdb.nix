@@ -7,14 +7,14 @@
 
 pythonPackages.buildPythonPackage rec {
   pname = "nbdb";
-  version = "0.1.1";
+  version = "0.1.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "PerchunPak";
     repo = "nonbloat-db";
     rev = "refs/tags/v${version}";
-    hash = "sha256-hSErNsGmKK56+anGNmghLX6Vkn7gtVhokBS69fGoAIw=";
+    hash = "sha256-WFN7rJec1jviP39S2LlhVxqB2GQVbm3jm1b+KXkHoYM=";
   };
 
   build-system = with pythonPackages; [

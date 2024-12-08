@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from nupd.fetchers.nix_prefetch import (
     URLPrefetchError,
     URLPrefetchResult,
-    prefetch_url,
+    _prefetch_url,  # pyright: ignore[reportPrivateUsage]
 )
 
 
@@ -27,7 +27,7 @@ async def test_prefetch_url(
     )
     mock.return_value.returncode = 0
 
-    assert await prefetch_url(
+    assert await _prefetch_url(
         "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         unpack=unpack,
         name=name,
@@ -74,7 +74,7 @@ async def test_prefetch_url_return_code_non_zero(
             "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await prefetch_url(
+        _ = await _prefetch_url(
             "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
             unpack=unpack,
             name=name,
@@ -118,7 +118,7 @@ async def test_prefetch_url_return_stderr(
             "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await prefetch_url(
+        _ = await _prefetch_url(
             "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
             unpack=unpack,
             name=name,

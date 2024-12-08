@@ -6,6 +6,7 @@ import typer
 from loguru import logger
 
 import nupd.logs
+from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
 from nupd.utils import async_to_sync
@@ -78,6 +79,7 @@ def callback(
                 jobs=jobs,
             ),
             classes=ctx.obj,
+            cache=Cache(),
         ),
         allow_override=True,
     )

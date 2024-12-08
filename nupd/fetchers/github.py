@@ -1,15 +1,18 @@
 from datetime import datetime
 
 import aiohttp
+import attrs
 import inject
 from attrs import define
 from loguru import logger
 
+from nupd.cache import Cache
 from nupd.exc import HTTPError
 from nupd.fetchers.nix_prefetch import prefetch_url
+from nupd.utils import json_serialize, json_transformer
 
 
-@define
+@define(field_transformer=json_transformer)
 class MetaInformation:
     description: str | None
     homepage: str | None
@@ -45,6 +48,21 @@ class GHRepository:
 
 
 async def github_fetch_graphql(
+    owner: str, repo: str, github_token: str
+) -> GHRepository:
+    cache = inject.instance(Cache)["github_fetch"]
+    try:
+        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
+    except KeyError:
+        result = await _github_fetch_graphql(owner, repo, github_token)
+        await cache.set(
+            f"{owner}/{repo}",
+            attrs.asdict(result, value_serializer=json_serialize),
+        )
+        return result
+
+
+async def _github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
     session = inject.instance(aiohttp.ClientSession)
@@ -129,6 +147,23 @@ async def github_fetch_graphql(
 
 
 async def github_fetch_rest(
+    owner: str, repo: str, *, github_token: str | None
+) -> GHRepository:
+    cache = inject.instance(Cache)["github_fetch"]
+    try:
+        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
+    except KeyError:
+        result = await _github_fetch_rest(
+            owner, repo, github_token=github_token
+        )
+        await cache.set(
+            f"{owner}/{repo}",
+            attrs.asdict(result, value_serializer=json_serialize),
+        )
+        return result
+
+
+async def _github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
     """

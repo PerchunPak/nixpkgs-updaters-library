@@ -1,8 +1,10 @@
 import asyncio
 
-from attrs import define
+import inject
+from attrs import asdict, define
 
 from nupd import exc
+from nupd.cache import Cache
 
 
 class URLPrefetchError(exc.NetworkError): ...
@@ -15,6 +17,32 @@ class URLPrefetchResult:
 
 
 async def prefetch_url(
+    url: str,
+    *,
+    unpack: bool = True,
+    name: str | None = None,
+) -> URLPrefetchResult:
+    cache = inject.instance(Cache)["nix-prefetch"]
+    key = f"{url}?name={name}&unpack={unpack}"
+    try:
+        result = await cache.get(key)
+    except KeyError:
+        try:
+            result = await _prefetch_url(url, unpack=unpack, name=name)
+        except URLPrefetchError as e:
+            await cache.set(key, {"error": True, "msg": e.args[0]})
+            raise
+
+        await cache.set(key, asdict(result))
+        return result
+    else:
+        assert isinstance(result, dict)
+        if result.get("error", False):
+            raise URLPrefetchError(result.get("msg", ""))
+        return URLPrefetchResult(**result)  # pyright: ignore[reportArgumentType]
+
+
+async def _prefetch_url(
     url: str,
     *,
     unpack: bool = True,

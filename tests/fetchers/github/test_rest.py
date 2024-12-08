@@ -9,7 +9,7 @@ from aioresponses import aioresponses
 from nupd.fetchers.github import (
     GHRepository,
     MetaInformation,
-    github_fetch_rest,
+    _github_fetch_rest,  # pyright: ignore[reportPrivateUsage]
 )
 
 LSPCONFIG_RESPONSE = GHRepository(
@@ -46,7 +46,7 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 
-    result = await github_fetch_rest(
+    result = await _github_fetch_rest(
         "neovim", "nvim-lspconfig", github_token=None
     )
     assert result == LSPCONFIG_RESPONSE
@@ -61,7 +61,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/PerchunPak/mcph", payload=response
     )
 
-    result = await github_fetch_rest("PerchunPak", "mcph", github_token=None)
+    result = await _github_fetch_rest("PerchunPak", "mcph", github_token=None)
     assert result == GHRepository(
         owner="PerchunPak",
         repo="mcph",
@@ -87,7 +87,7 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
     )
 
     with pytest.raises(aiohttp.ClientResponseError) as error:
-        _ = await github_fetch_rest("aaaa", "bbbb", github_token=None)
+        _ = await _github_fetch_rest("aaaa", "bbbb", github_token=None)
 
     assert error.match("^404, message='Not Found'.*")
 
@@ -107,5 +107,5 @@ async def test_redirect(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 
-    result = await github_fetch_rest("nvim", "lspconfig", github_token=None)
+    result = await _github_fetch_rest("nvim", "lspconfig", github_token=None)
     assert result == LSPCONFIG_RESPONSE

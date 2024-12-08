@@ -9,7 +9,7 @@ from aioresponses import aioresponses
 from nupd.fetchers.github import (
     GHRepository,
     MetaInformation,
-    github_fetch_graphql,
+    _github_fetch_graphql,  # pyright: ignore[reportPrivateUsage]
 )
 
 LSPCONFIG_RESPONSE = GHRepository(
@@ -44,7 +44,7 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await github_fetch_graphql(
+    result = await _github_fetch_graphql(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     assert result == LSPCONFIG_RESPONSE
@@ -57,7 +57,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await github_fetch_graphql(
+    result = await _github_fetch_graphql(
         "PerchunPak", "mcph", github_token="TOKEN"
     )
     assert result == GHRepository(
@@ -87,6 +87,6 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
     )
 
     with pytest.raises(aiohttp.ClientResponseError) as error:
-        _ = await github_fetch_graphql("aaaa", "bbbb", github_token="TOKEN")
+        _ = await _github_fetch_graphql("aaaa", "bbbb", github_token="TOKEN")
 
     assert error.match("^404, message='Not Found'.*")
