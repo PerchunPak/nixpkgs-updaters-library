@@ -8,7 +8,7 @@ from loguru import logger
 
 from nupd.cache import Cache
 from nupd.exc import HTTPError
-from nupd.fetchers.nix_prefetch import prefetch_url
+from nupd.fetchers import nix_prefetch
 from nupd.utils import json_serialize, json_transformer
 
 
@@ -40,11 +40,22 @@ class GHRepository:
             return self.commit
 
         self.commit = commit = (
-            await prefetch_url(
+            await nix_prefetch.prefetch_url(
                 f"https://github.com/{self.owner}/{self.repo}/archive/{self.branch}.tar.gz"
             )
         ).hash
         return commit
+
+    @property
+    def url(self) -> str:
+        return f"https://github.com/{self.owner}/{self.repo}"
+
+    def get_prefetch_url(self) -> str:
+        if self.commit is None:
+            raise ValueError(
+                "To get archive URL, you have to prefetch commit first"
+            )
+        return f"{self.url}/archive/{self.commit}.tar.gz"
 
 
 async def github_fetch_graphql(

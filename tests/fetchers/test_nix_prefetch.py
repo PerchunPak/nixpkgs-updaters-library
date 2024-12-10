@@ -1,4 +1,5 @@
 import asyncio
+import typing as t
 
 import pytest
 from pytest_mock import MockerFixture
@@ -7,7 +8,11 @@ from nupd.fetchers.nix_prefetch import (
     URLPrefetchError,
     URLPrefetchResult,
     _prefetch_url,  # pyright: ignore[reportPrivateUsage]
+    prefetch_obj,
 )
+
+if t.TYPE_CHECKING:
+    import unittest.mock
 
 
 @pytest.mark.parametrize("unpack", [True, False])
@@ -139,4 +144,14 @@ async def test_prefetch_url_return_stderr(
         *args,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+    )
+
+
+async def test_prefetch_obj(mocker: MockerFixture) -> None:
+    mock: unittest.mock.MagicMock = mocker.MagicMock()  # pyright: ignore[reportUnknownVariableType]
+    mock_prefetch = mocker.patch("nupd.fetchers.nix_prefetch.prefetch_url")
+    assert await prefetch_obj(mock) == mock_prefetch.return_value
+    mock.get_prefetch_url.assert_called_once_with()
+    _ = mock_prefetch.assert_awaited_once_with(
+        mock.get_prefetch_url.return_value
     )

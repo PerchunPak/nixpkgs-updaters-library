@@ -1,4 +1,5 @@
 import asyncio
+import typing as t
 
 import inject
 from attrs import asdict, define
@@ -72,3 +73,11 @@ async def _prefetch_url(
 
     hash, path = stdout.decode().strip().split("\n")  # noqa: A001
     return URLPrefetchResult(hash=hash, path=path)
+
+
+class Prefetchable(t.Protocol):
+    def get_prefetch_url(self, /) -> str: ...
+
+
+async def prefetch_obj(obj: Prefetchable) -> URLPrefetchResult:
+    return await prefetch_url(obj.get_prefetch_url())
