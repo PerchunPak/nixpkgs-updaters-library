@@ -166,8 +166,7 @@ async def github_fetch_rest(
 async def _github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
-    """
-    Fetch a GitHub repository using REST API.
+    """Fetch a GitHub repository using REST API.
 
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
