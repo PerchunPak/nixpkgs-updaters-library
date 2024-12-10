@@ -7,9 +7,12 @@ from nupd.base import ABCBase, Nupd
 from nupd.models import Entry, EntryInfo
 
 
-@define(frozen=True)
+@define
 class DumbEntry(Entry):
     hash: str
+
+    @t.override
+    async def resolve(self, /) -> None: ...
 
 
 @define(frozen=True)
