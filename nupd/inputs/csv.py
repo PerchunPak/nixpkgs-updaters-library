@@ -16,7 +16,7 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
     """Kwargs, passed to `csv` functions."""
 
     @t.override
-    def read(self, parse: c.Callable[[list[str]], I]) -> c.Iterable[I]:
+    def read(self, parse: c.Callable[[c.Sequence[str]], I]) -> c.Iterable[I]:
         with self.file.open("r", newline="") as f:
             parsed = csv.reader(f, **self.kwargs)
 
@@ -27,7 +27,7 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
     def write(
         self,
         entries: c.Iterable[I],
-        serialize: c.Callable[[I], list[str]],
+        serialize: c.Callable[[I], c.Sequence[str]],
         sort: c.Callable[[I], t.Any],
     ) -> None:
         with self.file.open("w", newline="") as f:
