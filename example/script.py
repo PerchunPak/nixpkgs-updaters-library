@@ -22,13 +22,9 @@ INPUT_FILE = ROOT / "input.txt"
 OUTPUT_FILE = ROOT / "output.json"
 
 
-@define
+@define(frozen=True)
 class MyEntry(Entry):
     fetched: GHRepository
-
-    @t.override
-    async def resolve(self, /) -> None:
-        _ = await self.fetched.prefetch_commit()
 
 
 @define(frozen=True)

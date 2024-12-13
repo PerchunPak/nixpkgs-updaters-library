@@ -18,18 +18,11 @@ class EntryInfo(abc.ABC):
         raise NotImplementedError
 
 
-@define
+@define(frozen=True)
 class Entry(abc.ABC):
     """All information about the entry, that we need to generate Nix code."""
 
     info: EntryInfo
-
-    @abc.abstractmethod
-    async def resolve(self, /) -> None:
-        """Do all work so this instance is ready to be serialized to another format.
-
-        Example would be network operations: prefetch commit, prefetch hash, etc.
-        """
 
 
 @t.final
