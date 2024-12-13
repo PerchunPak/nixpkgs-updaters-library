@@ -48,6 +48,7 @@ class MyEntryInfo(EntryInfo):
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
+        _ = await result.prefetch_commit()
         return MyEntry(self, result)
 
 
