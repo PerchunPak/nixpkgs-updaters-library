@@ -1,36 +1,40 @@
-import collections.abc as c
+from __future__ import annotations
+
 import os
 import typing as t
 from pathlib import Path
 
-import inject
-from attrs import define
+import attrs
+from attrs import define, field
 
 from nupd.base import ABCBase
 from nupd.cli import app
+from nupd.exc import InvalidArgumentError
+from nupd.fetchers import nix_prefetch
 from nupd.fetchers.github import (
     GHRepository,
     github_fetch_graphql,
     github_fetch_rest,
 )
-from nupd.injections import Config
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses
 
+if t.TYPE_CHECKING:
+    import collections.abc as c
+
 ROOT = Path(__file__).parent
-INPUT_FILE = ROOT / "input.txt"
-OUTPUT_FILE = ROOT / "output.json"
-
-
-@define(frozen=True)
-class MyEntry(Entry):
-    fetched: GHRepository
 
 
 @define(frozen=True)
 class MyEntryInfo(EntryInfo):
     owner: str
     repo: str
+
+    def __attrs_post_init__(self) -> None:
+        # default id to repository name
+        # (in csv, default value is an empty string)
+        if self.id == "":
+            object.__setattr__(self, "id", self.repo)
 
     @t.override
     async def fetch(self) -> MyEntry:
@@ -44,26 +48,58 @@ class MyEntryInfo(EntryInfo):
                 self.owner, self.repo, github_token=None
             )
 
-        # NOTE: We could also handle redirects
+        # NOTE: We could also handle redirects like this
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
-        _ = await result.prefetch_commit()
-        return MyEntry(self, result)
+        result = await result.prefetch_commit()
+        prefetched = await nix_prefetch.prefetch_url(result.get_prefetch_url())
+        return MyEntry(info=self, fetched=result, hash=prefetched.hash)
+
+
+@define(frozen=True)
+class MyEntry(Entry[EntryInfo]):
+    fetched: GHRepository
+    hash: str
+    info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
 
 
 @define
-class MyImpl(ABCBase):
-    @t.override
-    async def get_all_entries(self) -> c.Sequence[EntryInfo]:
-        config = inject.instance(Config)
-        input_file = config.input_file
-        if input_file is None:
-            input_file = INPUT_FILE
+class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
+    _default_input_file: Path = field(init=False, default=ROOT / "input.txt")
+    _default_output_file: Path = field(init=False, default=ROOT / "output.json")
 
+    @t.override
+    def init_entry(self, id: str, data: c.Mapping[str, t.Any], /) -> MyEntry:
+        data["info"]["id"] = id
+        return MyEntry(**data)
+
+    @t.override
+    async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
         return list(
-            CsvInput[MyEntryInfo](input_file).read(lambda x: MyEntryInfo(*x))
+            CsvInput[MyEntryInfo](self.input_file).read(
+                lambda x: MyEntryInfo(*x)
+            )
         )
+
+    @t.override
+    def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
+        CsvInput[MyEntryInfo](self.input_file).write(
+            entries_info,
+            serialize=attrs.astuple,
+        )
+
+    @t.override
+    def parse_entry_id(self, to_parse: str) -> MyEntryInfo:
+        split = to_parse.split("/")
+        if len(split) != 2:
+            raise InvalidArgumentError(
+                f"Invalid value passed: {to_parse!r}. "
+                "Should be something like 'owner/repo'"
+            )
+
+        owner, repo = split
+        return MyEntryInfo(id=repo, owner=owner, repo=repo)
 
 
 if __name__ == "__main__":

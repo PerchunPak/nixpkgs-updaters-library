@@ -1,50 +1,46 @@
+import typing as t
 from datetime import datetime
 
 import aiohttp
 import attrs
 import inject
-from attrs import define
+from attrs import define, field
 from loguru import logger
 
 from nupd.cache import Cache
 from nupd.exc import HTTPError
-from nupd.fetchers import nix_prefetch
 from nupd.utils import json_serialize, json_transformer
 
 
-@define(field_transformer=json_transformer)
+@define(frozen=True, field_transformer=json_transformer)
 class MetaInformation:
     description: str | None
     homepage: str | None
     license: str | None
     stars: int
-    topics: list[str]
+    topics: frozenset[str] = field(converter=frozenset)
     archived: bool
     archived_at: datetime | None
 
-    def __attrs_post_init__(self) -> None:
-        self.topics = sorted(self.topics)
 
-
-@define
+@define(frozen=True)
 class GHRepository:
     owner: str
     repo: str
     branch: str
     commit: str | None
 
-    meta: MetaInformation
+    meta: MetaInformation = field(
+        converter=lambda x: MetaInformation(**x)
+        if not isinstance(x, MetaInformation)
+        else x
+    )
 
-    async def prefetch_commit(self) -> str:
-        if self.commit is not None:
-            return self.commit
-
-        self.commit = commit = (
-            await nix_prefetch.prefetch_url(
-                f"https://github.com/{self.owner}/{self.repo}/archive/{self.branch}.tar.gz"
-            )
-        ).hash
-        return commit
+    async def prefetch_commit(
+        self, *, github_token: str | None = None
+    ) -> t.Self:
+        commit = await github_prefetch_commit(self, github_token=github_token)
+        return attrs.evolve(self, commit=commit)
 
     @property
     def url(self) -> str:
@@ -230,3 +226,40 @@ async def _github_fetch_rest(
             else None,
         ),
     )
+
+
+async def github_prefetch_commit(
+    repo: GHRepository, *, github_token: str | None
+) -> str:
+    cache = inject.instance(Cache)["github_commit_prefetch"]
+    try:
+        return t.cast(str, await cache.get(repo.url))
+    except KeyError:
+        result = await _github_prefetch_commit(repo, github_token=github_token)
+        await cache.set(repo.url, result)
+        return result
+
+
+async def _github_prefetch_commit(
+    repo: GHRepository, *, github_token: str | None = None
+) -> str:
+    if repo.commit is not None:
+        return repo.commit
+
+    session = inject.instance(aiohttp.ClientSession)
+    async with session.get(
+        f"https://api.github.com/repos/{repo.owner}/{repo.repo}/commits/{repo.branch}",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {github_token}" if github_token else "",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    ) as response:
+        data = await response.json()
+
+        if not response.ok:
+            logger.error(data)
+            response.raise_for_status()
+            raise RuntimeError("dead code")  # pragma: no cover
+
+    return data["sha"]

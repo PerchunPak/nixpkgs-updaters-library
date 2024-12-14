@@ -6,6 +6,7 @@ import typer
 from loguru import logger
 
 import nupd.logs
+from nupd.base import Nupd
 from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
@@ -97,9 +98,7 @@ async def add(
     ],
 ) -> None:
     """Add a new entry (or multiple)."""
-    config = inject.instance(Config)
-    logger.debug(config.nixpkgs_path)
-    logger.debug(entry_ids)
+    await Nupd().add_cmd(entry_ids)
 
 
 @app.command()
@@ -114,8 +113,7 @@ async def update(
     ] = None,
 ) -> None:
     """Update an entry (or multiple)."""
-    logger.debug(entry_ids)
-    raise NotImplementedError
+    await Nupd().update_cmd(entry_ids)
 
 
 if __name__ == "__main__":

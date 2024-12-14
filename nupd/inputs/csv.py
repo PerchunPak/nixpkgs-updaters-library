@@ -28,9 +28,8 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
         self,
         entries: c.Iterable[I],
         serialize: c.Callable[[I], c.Sequence[str]],
-        sort: c.Callable[[I], t.Any],
     ) -> None:
         with self.file.open("w", newline="") as f:
             writer = csv.writer(f, **self.kwargs)
-            for entry in sorted(entries, key=sort):
+            for entry in sorted(entries, key=lambda x: x.id):
                 writer.writerow(serialize(entry))

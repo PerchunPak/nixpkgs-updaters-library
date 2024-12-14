@@ -1,7 +1,12 @@
+import aiohttp
 import pytest
+from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
 from nupd.fetchers import github
+from nupd.fetchers.github import (
+    _github_prefetch_commit,  # pyright: ignore[reportPrivateUsage]
+)
 
 
 @pytest.fixture
@@ -31,29 +36,61 @@ def example_obj() -> github.GHRepository:
     )
 
 
-async def test_prefetch_commit(
+async def test_prefetch_commit_on_repo_class(
     mocker: MockerFixture, example_obj: github.GHRepository
 ) -> None:
-    mock = mocker.patch("nupd.fetchers.nix_prefetch.prefetch_url")
+    mock = mocker.patch("nupd.fetchers.github.github_prefetch_commit")
+    o = object()
 
-    assert await example_obj.prefetch_commit() == mock.return_value.hash
-    _ = mock.assert_awaited_once_with(
-        "https://github.com/neovim/nvim-lspconfig/archive/master.tar.gz"
+    assert (
+        await example_obj.prefetch_commit(github_token=o)  # pyright: ignore[reportArgumentType]
+    ).commit == mock.return_value
+    _ = mock.assert_awaited_once_with(example_obj, github_token=o)
+
+
+async def test_github_prefetch_commit(
+    example_obj: github.GHRepository, mock_aiohttp: aioresponses
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/commits/master",
+        payload={"sha": "abcabcabc"},
     )
+
+    assert (
+        await _github_prefetch_commit(example_obj, github_token=None)
+    ) == "abcabcabc"
 
 
 async def test_prefetch_commit_already_fetched(
-    mocker: MockerFixture, example_obj: github.GHRepository
+    example_obj: github.GHRepository,
 ) -> None:
-    mock = mocker.patch("nupd.fetchers.nix_prefetch.prefetch_url")
-    example_obj.commit = "abc"
+    object.__setattr__(example_obj, "commit", "abc")
 
-    assert await example_obj.prefetch_commit() == "abc"
-    _ = mock.assert_not_called()
+    assert (
+        await _github_prefetch_commit(example_obj, github_token=None) == "abc"
+    )
+
+
+async def test_prefetch_commit_fail(
+    example_obj: github.GHRepository, mock_aiohttp: aioresponses
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/commits/master",
+        payload={
+            "message": "No commit found for SHA: 404",
+            "documentation_url": "https://docs.github.com/rest/commits/commits#get-a-commit",
+            "status": "422",
+        },
+        status=404,
+    )
+
+    with pytest.raises(aiohttp.ClientResponseError) as error:
+        _ = await _github_prefetch_commit(example_obj, github_token=None)
+    assert error.match("^404, message='Not Found'.*")
 
 
 async def test_get_prefetch_url(example_obj: github.GHRepository) -> None:
-    example_obj.commit = "abc"
+    object.__setattr__(example_obj, "commit", "abc")
 
     assert (
         example_obj.get_prefetch_url()

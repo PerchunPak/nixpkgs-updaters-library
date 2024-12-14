@@ -14,7 +14,6 @@ class ABCInput[I: EntryInfo](abc.ABC):
         self,
         entries: c.Iterable[I],
         serialize: c.Callable[[I], t.Any],
-        sort: c.Callable[[t.Any], t.Any],
     ) -> None: ...
 
 
@@ -27,7 +26,6 @@ class ABCAsyncInput[I: EntryInfo](abc.ABC):
         self,
         entries: c.Iterable[I],
         serialize: c.Callable[[I], t.Any],
-        sort: c.Callable[[t.Any], t.Any],
     ) -> None: ...
 
 

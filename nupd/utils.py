@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import collections.abc as c
 import functools
 import types
 import typing as t
@@ -11,8 +12,6 @@ from functools import wraps
 import typer.models
 
 if t.TYPE_CHECKING:
-    import collections.abc as c
-
     import attrs
 
 
@@ -84,4 +83,6 @@ def json_serialize(
 ) -> t.Any:
     if isinstance(value, datetime):
         return value.isoformat()
+    if isinstance(value, c.Iterable) and not isinstance(value, str):
+        return list(value)
     return value

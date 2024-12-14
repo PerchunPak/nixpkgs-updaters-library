@@ -1,5 +1,6 @@
 import collections.abc as c
 import sys
+import typing as t
 from pathlib import Path
 
 import inject
@@ -19,13 +20,14 @@ def configure_injections() -> None:
         inject_configure(
             config=Config(
                 nixpkgs_path=Path.cwd(),
-                input_file=Path("/homeless-shelter"),
-                output_file=Path("/homeless-shelter"),
+                input_file=None,
+                output_file=None,
                 jobs=10,
             ),
             classes=None,  # pyright: ignore[reportArgumentType]
             cache=Cache(),
-        )
+        ),
+        clear=True,
     )
 
 
@@ -65,3 +67,24 @@ def configure_loguru(request: pytest.FixtureRequest) -> None:
         backtrace=True,
         diagnose=True,
     )
+
+
+T = t.TypeVar("T")
+type MOCK_INJECT = c.Callable[[type[T], T], None]  # pyright: ignore[reportGeneralTypeIssues]
+
+
+@pytest.fixture
+def mock_inject(mocker: MockerFixture) -> MOCK_INJECT:
+    def wrapped[T](type_: type[T], value: T) -> None:
+        real_impl = inject.instance
+
+        def my_impl(
+            type_to_get: type[t.Any], *args: t.Any, **kwargs: t.Any
+        ) -> t.Any:
+            if type_to_get == type_:
+                return value
+            return real_impl(type_to_get, *args, **kwargs)
+
+        _ = mocker.patch("inject.instance", my_impl)
+
+    return wrapped
