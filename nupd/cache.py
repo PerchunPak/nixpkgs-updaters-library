@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import platformdirs
-from attrs import define
+from attrs import define, field
 from nbdb.storage import SERIALIZABLE_TYPE, Storage
 
 
@@ -31,5 +31,11 @@ class CacheInstance:
 
 @define
 class Cache:
+    _instances: dict[str, CacheInstance] = field(factory=dict)
+
     def __getitem__(self, name: str) -> CacheInstance:
-        return CacheInstance(name)
+        if inst := self._instances.get(name):
+            return inst
+        inst = CacheInstance(name)
+        self._instances[name] = inst
+        return inst

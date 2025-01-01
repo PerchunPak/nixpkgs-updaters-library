@@ -31,3 +31,8 @@ async def test_cache() -> None:
         "9": 362880,
         "10": 3628800,
     }
+
+
+def test_cache_doesnt_recreate_instance() -> None:
+    cache = Cache()
+    assert cache["abcde"] is cache["abcde"]
