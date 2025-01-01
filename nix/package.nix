@@ -52,7 +52,7 @@ buildPythonPackage {
   ];
 
   meta = {
-    description = "A boilerplate-less updater for Nixpkgs ecosystems";
+    description = "A boilerplate-less updater library for Nixpkgs ecosystems";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ perchun ];
   };

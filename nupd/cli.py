@@ -61,7 +61,7 @@ def callback(
     ] = 32,
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO.value,  # pyright: ignore[reportArgumentType] # typer requires string here
 ) -> None:
-    """A boilerplate-less updater for Nixpkgs ecosystems."""
+    """A boilerplate-less updater library for Nixpkgs ecosystems."""
     nupd.logs.setup_logging(log_level)
     if not isinstance(ctx.obj, ImplClasses):
         logger.error(

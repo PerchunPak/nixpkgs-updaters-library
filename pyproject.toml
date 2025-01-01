@@ -1,6 +1,6 @@
 [project]
 name = "nixpkgs-updaters-library"
-description = "A boilerplate-less updater for Nixpkgs ecosystems"
+description = "A boilerplate-less updater library for Nixpkgs ecosystems"
 version = "0.1.0"
 authors = [
   { name = "Perchun Pak}", email = "pypi@perchun.it" },

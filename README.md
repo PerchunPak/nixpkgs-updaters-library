@@ -6,7 +6,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Python support versions badge (from pypi)](https://img.shields.io/pypi/pyversions/nixpkgs-updaters-library)](https://www.python.org/downloads/)
 
-Library for nixpkgs plugin updaters
+A boilerplate-less updater library for Nixpkgs ecosystems
 
 ## Features
 
