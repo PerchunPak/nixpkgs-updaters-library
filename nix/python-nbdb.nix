@@ -26,6 +26,9 @@ buildPythonPackage rec {
   version = "0.1.2";
   pyproject = true;
 
+  # tests do crash often in CI on python 3.13
+  enableParallelBuilding = false;
+
   src = fetchFromGitHub {
     owner = "PerchunPak";
     repo = "nonbloat-db";
