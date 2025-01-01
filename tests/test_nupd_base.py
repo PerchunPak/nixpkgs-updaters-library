@@ -36,7 +36,7 @@ class DumbEntryInfo(EntryInfo):
 @define(frozen=True, field_transformer=json_transformer)
 class DumbEntry(Entry[DumbEntryInfo]):
     info: DumbEntryInfo = field(
-        converter=lambda x: DumbEntryInfo(**x)  # pyright: ignore[reportUnknownLambdaType]
+        converter=lambda x: DumbEntryInfo(**x)
         if not isinstance(x, DumbEntryInfo)
         else x
     )

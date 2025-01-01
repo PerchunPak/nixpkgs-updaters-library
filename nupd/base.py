@@ -75,7 +75,7 @@ class Nupd:
     impl: ABCBase[Entry[t.Any], EntryInfo] = field(init=False)
 
     @impl.default  # pyright: ignore[reportUntypedFunctionDecorator,reportAttributeAccessIssue]
-    def _impl_default(self) -> ABCBase[Entry[t.Any], EntryInfo]:
+    def _impl_default(self) -> ABCBase[Entry[t.Any], EntryInfo]:  # pyright: ignore[reportUnusedFunction]
         return self.impls.base(self)
 
     async def add_cmd(self, entry_ids: c.Sequence[str]) -> None:
