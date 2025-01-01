@@ -100,8 +100,30 @@ class Nupd:
             f"Changed amount of entries from {old_len} to {len(all_entries)}"
         )
 
-    async def update_cmd(self, _entry_ids: c.Sequence[str] | None) -> None:
-        raise NotImplementedError
+    async def update_cmd(self, entry_ids: c.Sequence[str] | None) -> None:
+        entries_info: set[EntryInfo] = (
+            {self.impl.parse_entry_id(entry_id) for entry_id in entry_ids}
+            if entry_ids is not None
+            else set()
+        )
+        all_entries_info = set(await self.impl.get_all_entries())
+
+        if len(entries_info) == 0:  # update all entries
+            all_entries = {
+                await entry_info.fetch() for entry_info in all_entries_info
+            }
+        else:  # update only selected entries
+            all_entries = set(self.get_all_entries_from_the_output_file())
+            all_entries.update(
+                {await entry_info.fetch() for entry_info in entries_info}
+            )
+
+        self.impl.write_entries_info(entries_info.union(all_entries_info))
+        self.write_entries(all_entries)
+
+        logger.success(
+            f"Successfully updated {len(all_entries_info) or len(all_entries)} entries!"
+        )
 
     async def fetch_entries(
         self, entries: c.Sequence[EntryInfo]
