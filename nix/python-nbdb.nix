@@ -23,17 +23,14 @@
 
 buildPythonPackage rec {
   pname = "nbdb";
-  version = "0.1.2";
+  version = "0.1.3";
   pyproject = true;
-
-  # tests do crash often in CI on python 3.13
-  enableParallelBuilding = false;
 
   src = fetchFromGitHub {
     owner = "PerchunPak";
     repo = "nonbloat-db";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-WFN7rJec1jviP39S2LlhVxqB2GQVbm3jm1b+KXkHoYM=";
+    tag = "v${version}";
+    hash = "sha256-eYYLXs8Uk1LH3VvLqe8IkzsotNFFV3ZKsT/UjXIJuow=";
   };
 
   build-system = [
