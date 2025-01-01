@@ -30,11 +30,11 @@ class MyEntryInfo(EntryInfo):
     owner: str
     repo: str
 
-    def __attrs_post_init__(self) -> None:
-        # default id to repository name
-        # (in csv, default value is an empty string)
-        if self.id == "":
-            object.__setattr__(self, "id", self.repo)
+    @property
+    @t.override
+    def id(self) -> str:
+        # This is a property, because we could implement e.g. aliases
+        return self.repo
 
     @t.override
     async def fetch(self) -> MyEntry:
@@ -99,7 +99,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
             )
 
         owner, repo = split
-        return MyEntryInfo(id=repo, owner=owner, repo=repo)
+        return MyEntryInfo(owner=owner, repo=repo)
 
 
 if __name__ == "__main__":

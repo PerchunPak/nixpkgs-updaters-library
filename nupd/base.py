@@ -135,8 +135,6 @@ class Nupd:
             data[entry.info.id] = attrs.asdict(
                 entry, value_serializer=utils.json_serialize
             )
-            # don't allow two sources of truth
-            del data[entry.info.id]["info"]["id"]
 
         with self.impl.output_file.open("w") as f:
             json.dump(data, f, indent=2)

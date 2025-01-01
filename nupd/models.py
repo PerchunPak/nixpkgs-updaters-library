@@ -14,11 +14,12 @@ if t.TYPE_CHECKING:
 class EntryInfo(abc.ABC):
     """A minimal amount of information that is only enough to prefetch the entry."""
 
-    id: str
+    @property
+    @abc.abstractmethod
+    def id(self) -> str: ...
 
     @abc.abstractmethod
-    async def fetch(self) -> Entry[t.Any]:
-        raise NotImplementedError
+    async def fetch(self) -> Entry[t.Any]: ...
 
 
 @define(frozen=True)

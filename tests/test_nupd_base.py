@@ -21,6 +21,13 @@ if t.TYPE_CHECKING:
 
 @define(frozen=True)
 class DumbEntryInfo(EntryInfo):
+    name: str
+
+    @property
+    @t.override
+    def id(self) -> str:
+        return self.name
+
     @t.override
     async def fetch(self) -> DumbEntry:
         return DumbEntry(self, "sha256-some/cool/hash")
@@ -44,7 +51,6 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
 
     @t.override
     def init_entry(self, id: str, data: c.Mapping[str, t.Any], /) -> DumbEntry:
-        data["info"]["id"] = id
         return DumbEntry(**data)
 
     @t.override

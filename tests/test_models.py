@@ -11,6 +11,13 @@ from nupd.models import Entry, EntryInfo
 
 @define(frozen=True)
 class MyEntryInfo(EntryInfo):
+    name: str
+
+    @property
+    @t.override
+    def id(self) -> str:
+        return self.name
+
     @t.override
     async def fetch(self) -> Entry[t.Any]:
         raise NotImplementedError
@@ -30,7 +37,7 @@ def test_entry_post_init_invalid() -> None:
         _ = InvalidMyEntry(MyEntryInfo(""))
 
 
-@pytest.mark.parametrize("value", [MyEntryInfo("some"), {"id": "some"}])
+@pytest.mark.parametrize("value", [MyEntryInfo("some"), {"name": "some"}])
 def test_entry_post_init_valid(value: t.Any) -> None:
     assert ValidMyEntry(value) == ValidMyEntry(MyEntryInfo("some"))
 
