@@ -50,10 +50,6 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     _default_output_file: Path = Path("/homeless-shelter")
 
     @t.override
-    def init_entry(self, id: str, data: c.Mapping[str, t.Any], /) -> DumbEntry:
-        return DumbEntry(**data)
-
-    @t.override
     async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
         return [
             DumbEntryInfo("one"),

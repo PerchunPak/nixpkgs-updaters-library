@@ -70,11 +70,6 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     _default_output_file: Path = field(init=False, default=ROOT / "output.json")
 
     @t.override
-    def init_entry(self, id: str, data: c.Mapping[str, t.Any], /) -> MyEntry:
-        data["info"]["id"] = id
-        return MyEntry(**data)
-
-    @t.override
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
         return list(
             CsvInput[MyEntryInfo](self.input_file).read(

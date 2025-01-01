@@ -55,9 +55,6 @@ class ABCBase[E: Entry[t.Any], I: EntryInfo](abc.ABC):
         return output_file
 
     @abc.abstractmethod
-    def init_entry(self, id: str, data: c.Mapping[str, t.Any], /) -> E: ...  # noqa: A002
-
-    @abc.abstractmethod
     async def get_all_entries(self, /) -> c.Iterable[I]: ...
 
     @abc.abstractmethod
@@ -149,8 +146,8 @@ class Nupd:
         with self.impl.output_file.open("r") as f:
             data = json.load(f)
 
-        for id, entry in data.items():  # noqa: A001
-            yield self.impl.init_entry(id, entry)
+        for entry in data.values():
+            yield self.impls.entry(**entry)
 
     def write_entries(self, entries: c.Iterable[Entry[t.Any]]) -> None:
         data: dict[str, t.Any] = {}
