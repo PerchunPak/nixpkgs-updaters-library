@@ -39,7 +39,7 @@
           inputsFrom = [ self.packages.${system}.default ];
           packages = with pkgs; [
             basedpyright
-            python312Packages.debugpy
+            python313Packages.debugpy
             pre-commit
             ruff
           ];

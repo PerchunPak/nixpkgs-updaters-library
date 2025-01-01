@@ -2,6 +2,7 @@ final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pfinal: pprev: {
       nbdb = final.callPackage ./python-nbdb.nix { pythonPackages = pfinal; };
+      loguru = pfinal.callPackage ./python-loguru.nix { };
 
       inject = pprev.inject.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [

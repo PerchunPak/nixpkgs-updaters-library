@@ -1,7 +1,10 @@
 {
   lib,
-  python3Packages,
+  python313Packages,
 }:
+let
+  python3Packages = python313Packages;
+in
 python3Packages.buildPythonPackage {
   pname = "nixpkgs-updaters-library";
   version = "0.1.0";
