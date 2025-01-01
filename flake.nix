@@ -20,17 +20,18 @@
       system:
       let
         inherit (self) outputs;
+        inherit (pkgs) lib;
+
         pkgs = import nixpkgs {
           inherit system;
           overlays = [ (import ./nix/overlay.nix) ];
         };
-        lib = pkgs.lib;
       in
       {
         inherit pkgs;
 
         packages = {
-          default = pkgs.callPackage ./nix/package.nix { };
+          default = pkgs.python313Packages.nixpkgs-updaters-library;
           nixpkgs-updaters-library = self.packages.${system}.default;
           nupd = self.packages.${system}.default;
         };

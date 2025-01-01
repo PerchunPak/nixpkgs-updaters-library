@@ -1,28 +1,39 @@
 {
   lib,
-  python313Packages,
+  buildPythonPackage,
+  pythonOlder,
+
+  # build-system
+  setuptools,
+
+  # dependencies
+  aiohttp,
+  attrs,
+  inject,
+  loguru,
+  platformdirs,
+  typer,
+  nbdb,
+
+  # tests
+  pytestCheckHook,
+  pytest-asyncio,
+  pytest-cov,
+  pytest-mock,
+  aioresponses,
 }:
-let
-  python3Packages = python313Packages;
-in
-python3Packages.buildPythonPackage {
+buildPythonPackage {
   pname = "nixpkgs-updaters-library";
   version = "0.1.0";
   pyproject = true;
 
+  disabled = pythonOlder "3.13";
+
   src = ./..;
 
-  build-system = with python3Packages; [ setuptools ];
+  build-system = [ setuptools ];
 
-  nativeCheckInputs = with python3Packages; [
-    pytestCheckHook
-    pytest-asyncio
-    pytest-cov
-    pytest-mock
-    aioresponses
-  ];
-
-  dependencies = with python3Packages; [
+  dependencies = [
     aiohttp
     attrs
     inject
@@ -30,6 +41,14 @@ python3Packages.buildPythonPackage {
     platformdirs
     typer
     nbdb
+  ];
+
+  nativeCheckInputs = [
+    pytestCheckHook
+    pytest-asyncio
+    pytest-cov
+    pytest-mock
+    aioresponses
   ];
 
   meta = {

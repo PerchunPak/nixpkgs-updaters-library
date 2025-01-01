@@ -1,11 +1,27 @@
 {
-  fetchFromGitHub,
   lib,
+  buildPythonPackage,
+  fetchFromGitHub,
   nix-update-script,
-  pythonPackages,
+
+  # build-system
+  poetry-core,
+  poetry-dynamic-versioning,
+
+  # dependencies
+  aiofile,
+  typing-extensions,
+
+  # tests
+  pytestCheckHook,
+  pytest-asyncio,
+  pytest-cov,
+  pytest-mock,
+  pytest-randomly,
+  faker,
 }:
 
-pythonPackages.buildPythonPackage rec {
+buildPythonPackage rec {
   pname = "nbdb";
   version = "0.1.2";
   pyproject = true;
@@ -17,17 +33,17 @@ pythonPackages.buildPythonPackage rec {
     hash = "sha256-WFN7rJec1jviP39S2LlhVxqB2GQVbm3jm1b+KXkHoYM=";
   };
 
-  build-system = with pythonPackages; [
+  build-system = [
     poetry-core
     poetry-dynamic-versioning
   ];
 
-  dependencies = with pythonPackages; [
+  dependencies = [
     aiofile
     typing-extensions
   ];
 
-  nativeCheckInputs = with pythonPackages; [
+  nativeCheckInputs = [
     pytestCheckHook
     pytest-asyncio
     pytest-cov

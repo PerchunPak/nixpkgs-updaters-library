@@ -1,7 +1,8 @@
 final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pfinal: pprev: {
-      nbdb = final.callPackage ./python-nbdb.nix { pythonPackages = pfinal; };
+      nixpkgs-updaters-library = pfinal.callPackage ./package.nix { };
+      nbdb = pfinal.callPackage ./python-nbdb.nix { };
       loguru = pfinal.callPackage ./python-loguru.nix { };
 
       inject = pprev.inject.overrideAttrs (old: {
