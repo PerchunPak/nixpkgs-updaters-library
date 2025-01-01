@@ -16,11 +16,13 @@
   nbdb,
 
   # tests
-  pytestCheckHook,
+  aioresponses,
+  basedpyright,
   pytest-asyncio,
   pytest-cov,
   pytest-mock,
-  aioresponses,
+  pytestCheckHook,
+  ruff,
 }:
 buildPythonPackage {
   pname = "nixpkgs-updaters-library";
@@ -44,12 +46,25 @@ buildPythonPackage {
   ];
 
   nativeCheckInputs = [
-    pytestCheckHook
+    aioresponses
+    basedpyright
     pytest-asyncio
     pytest-cov
     pytest-mock
-    aioresponses
+    pytestCheckHook
+    ruff
   ];
+
+  installCheckPhase = ''
+    echo Running linter
+    ruff check --show-fixes --exit-non-zero-on-fix .
+
+    echo Running formatter
+    ruff format --diff .
+
+    echo Running basedpyright
+    basedpyright .
+  '';
 
   meta = {
     description = "A boilerplate-less updater library for Nixpkgs ecosystems";
