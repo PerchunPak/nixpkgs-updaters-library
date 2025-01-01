@@ -1,24 +1,24 @@
 {
   "nvim-treesitter": {
     "fetched": {
-      "owner": "nvim-treesitter",
-      "repo": "nvim-treesitter",
       "branch": "master",
       "commit": "e947d35bbf919ea88a24c21cb8afa4621e3cf547",
       "meta": {
+        "archived": false,
+        "archived_at": null,
         "description": "Nvim Treesitter configurations and abstraction layer",
         "homepage": "",
         "license": "Apache-2.0",
-        "stars": 11101,
+        "stars": 11102,
         "topics": [
           "neovim",
           "nvim-treesitter",
           "hacktoberfest",
           "tree-sitter"
-        ],
-        "archived": false,
-        "archived_at": null
-      }
+        ]
+      },
+      "owner": "nvim-treesitter",
+      "repo": "nvim-treesitter"
     },
     "hash": "1iw5899wahijkcxk3q67ca4pczfx4vkgwvk0cbwqi498zgq5fc2i",
     "info": {
@@ -26,35 +26,13 @@
       "repo": "nvim-treesitter"
     }
   },
-  "vim-surround": {
-    "fetched": {
-      "owner": "tpope",
-      "repo": "vim-surround",
-      "branch": "master",
-      "commit": "3d188ed2113431cf8dac77be61b842acb64433d9",
-      "meta": {
-        "description": "surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
-        "homepage": "https://www.vim.org/scripts/script.php?script_id=1697",
-        "license": null,
-        "stars": 13530,
-        "topics": [],
-        "archived": false,
-        "archived_at": null
-      }
-    },
-    "hash": "0lfnhwcgfxcg4n59xjxc29fhj08jhdv41l8zpx0fjkx796v3k48d",
-    "info": {
-      "owner": "tpope",
-      "repo": "vim-surround"
-    }
-  },
   "todo-comments.nvim": {
     "fetched": {
-      "owner": "folke",
-      "repo": "todo-comments.nvim",
       "branch": "main",
       "commit": "ae0a2afb47cf7395dc400e5dc4e05274bf4fb9e0",
       "meta": {
+        "archived": false,
+        "archived_at": null,
         "description": "\u2705  Highlight, list and search todo comments in your projects",
         "homepage": "",
         "license": "Apache-2.0",
@@ -62,15 +40,37 @@
         "topics": [
           "neovim",
           "neovim-plugin"
-        ],
-        "archived": false,
-        "archived_at": null
-      }
+        ]
+      },
+      "owner": "folke",
+      "repo": "todo-comments.nvim"
     },
     "hash": "0v6vn3f9svj756ds8cp0skpw65xixlx1f3aj0fh374wdpb5i4zhh",
     "info": {
       "owner": "folke",
       "repo": "todo-comments.nvim"
+    }
+  },
+  "vim-surround": {
+    "fetched": {
+      "branch": "master",
+      "commit": "3d188ed2113431cf8dac77be61b842acb64433d9",
+      "meta": {
+        "archived": false,
+        "archived_at": null,
+        "description": "surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
+        "homepage": "https://www.vim.org/scripts/script.php?script_id=1697",
+        "license": null,
+        "stars": 13530,
+        "topics": []
+      },
+      "owner": "tpope",
+      "repo": "vim-surround"
+    },
+    "hash": "0lfnhwcgfxcg4n59xjxc29fhj08jhdv41l8zpx0fjkx796v3k48d",
+    "info": {
+      "owner": "tpope",
+      "repo": "vim-surround"
     }
   }
 }

@@ -158,4 +158,4 @@ class Nupd:
             )
 
         with self.impl.output_file.open("w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(data, f, indent=2, sort_keys=True)
