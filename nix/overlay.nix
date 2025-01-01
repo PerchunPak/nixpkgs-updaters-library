@@ -13,6 +13,8 @@ final: prev: {
           })
         ];
       });
+
+      lint-hook = pfinal.callPackage ./lint-hook/lint-hook.nix { };
     })
   ];
 }

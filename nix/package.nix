@@ -16,12 +16,13 @@
   nbdb,
 
   # tests
+  lint-hook,
+  pytestCheckHook,
   aioresponses,
   basedpyright,
   pytest-asyncio,
   pytest-cov,
   pytest-mock,
-  pytestCheckHook,
   ruff,
 }:
 buildPythonPackage {
@@ -46,25 +47,16 @@ buildPythonPackage {
   ];
 
   nativeCheckInputs = [
+    lint-hook
+    pytestCheckHook
+
     aioresponses
     basedpyright
     pytest-asyncio
     pytest-cov
     pytest-mock
-    pytestCheckHook
     ruff
   ];
-
-  installCheckPhase = ''
-    echo Running linter
-    ruff check --show-fixes --exit-non-zero-on-fix .
-
-    echo Running formatter
-    ruff format --diff .
-
-    echo Running basedpyright
-    basedpyright .
-  '';
 
   meta = {
     description = "A boilerplate-less updater library for Nixpkgs ecosystems";
