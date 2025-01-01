@@ -108,18 +108,18 @@ class Nupd:
         )
         all_entries_info = set(await self.impl.get_all_entries())
 
+        all_entries: dict[EntryInfo, Entry[t.Any]] = {}
         if len(entries_info) == 0:  # update all entries
-            all_entries = {
-                await entry_info.fetch() for entry_info in all_entries_info
-            }
+            for entry_info in all_entries_info:
+                all_entries[entry_info] = await entry_info.fetch()
         else:  # update only selected entries
-            all_entries = set(self.get_all_entries_from_the_output_file())
-            all_entries.update(
-                {await entry_info.fetch() for entry_info in entries_info}
-            )
+            for entry in self.get_all_entries_from_the_output_file():
+                all_entries[entry.info] = entry
 
-        self.impl.write_entries_info(entries_info.union(all_entries_info))
-        self.write_entries(all_entries)
+            for entry_info in entries_info:
+                all_entries[entry_info] = await entry_info.fetch()
+
+        self.write_entries(set(all_entries.values()))
 
         logger.success(
             f"Successfully updated {len(all_entries_info) or len(all_entries)} entries!"

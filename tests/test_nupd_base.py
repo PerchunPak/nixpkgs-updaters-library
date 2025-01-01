@@ -120,6 +120,54 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     )
 
 
+async def test_update_cmd_everything(mocker: MockerFixture) -> None:
+    entries_info = {
+        DumbEntryInfo("one"),
+        DumbEntryInfo("two"),
+        DumbEntryInfo("three"),
+    }
+    mocked_gaeftof = mocker.patch(
+        "nupd.base.Nupd.get_all_entries_from_the_output_file"
+    )
+    mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
+    mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
+
+    await Nupd().update_cmd(entry_ids=None)
+
+    mocked_gaeftof.assert_not_called()
+    mocked_write_info.assert_not_called()
+    mocked_write_entries.assert_called_once_with(
+        {DumbEntry(info, "sha256-some/cool/hash") for info in entries_info}
+    )
+
+
+async def test_update_cmd_specific(mocker: MockerFixture) -> None:
+    entries_info = {
+        DumbEntryInfo("one"),
+        DumbEntryInfo("two"),
+        DumbEntryInfo("three"),
+    }
+    _ = mocker.patch(
+        "nupd.base.Nupd.get_all_entries_from_the_output_file",
+        return_value=[
+            DumbEntry(info, "sha256-some/old/hash") for info in entries_info
+        ],
+    )
+    mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
+    mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
+
+    await Nupd().update_cmd(["one", "three"])
+
+    mocked_write_info.assert_not_called()
+    mocked_write_entries.assert_called_once_with(
+        {
+            DumbEntry(DumbEntryInfo("two"), "sha256-some/old/hash"),
+            DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
+            DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),
+        }
+    )
+
+
 def test_get_all_entries_from_the_output_file(
     mocker: MockerFixture, tmp_path: Path
 ) -> None:
