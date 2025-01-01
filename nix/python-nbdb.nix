@@ -29,8 +29,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "PerchunPak";
     repo = "nonbloat-db";
-    tag = "v${version}";
-    hash = "sha256-eYYLXs8Uk1LH3VvLqe8IkzsotNFFV3ZKsT/UjXIJuow=";
+    rev = "f126ffb6cdcc2cbc7e2bec8b58d27be31e3036f2";
+    hash = "sha256-wbWgUK6ZSXeDguCDynizYHgV4U2+hiu6/hJLDWvDb8Y=";
   };
 
   build-system = [

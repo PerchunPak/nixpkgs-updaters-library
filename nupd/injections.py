@@ -6,6 +6,7 @@ from attrs import define
 
 from nupd.cache import Cache
 from nupd.models import ImplClasses
+from nupd.shutdown import Shutdowner
 
 
 @define
@@ -17,11 +18,15 @@ class Config:
 
 
 def inject_configure(
-    config: Config, classes: ImplClasses, cache: Cache
+    config: Config,
+    classes: ImplClasses,
+    cache: Cache,
+    shutdowner: Shutdowner | None = None,
 ) -> t.Callable[[inject.Binder], None]:
     def wrapped(binder: inject.Binder) -> None:
         _ = binder.bind(Config, config)
         _ = binder.bind(ImplClasses, classes)
         _ = binder.bind(Cache, cache)
+        _ = binder.bind(Shutdowner, shutdowner if shutdowner else Shutdowner())
 
     return wrapped

@@ -10,6 +10,7 @@ from nupd.base import Nupd
 from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
+from nupd.shutdown import Shutdowner
 from nupd.utils import async_to_sync
 
 app = typer.Typer(context_settings={})
@@ -99,6 +100,7 @@ async def add(
 ) -> None:
     """Add a new entry (or multiple)."""
     await Nupd().add_cmd(entry_ids)
+    await inject.instance(Shutdowner).shutdown()
 
 
 @app.command()
@@ -114,6 +116,7 @@ async def update(
 ) -> None:
     """Update an entry (or multiple)."""
     await Nupd().update_cmd(entry_ids)
+    await inject.instance(Shutdowner).shutdown()
 
 
 if __name__ == "__main__":
