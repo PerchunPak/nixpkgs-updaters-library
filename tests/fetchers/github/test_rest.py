@@ -1,3 +1,4 @@
+import copy
 import json
 from datetime import datetime
 from pathlib import Path
@@ -109,3 +110,21 @@ async def test_redirect(mock_aiohttp: aioresponses) -> None:
 
     result = await _github_fetch_rest("nvim", "lspconfig", github_token=None)
     assert result == LSPCONFIG_RESPONSE
+
+
+async def test_no_license(mock_aiohttp: aioresponses) -> None:
+    with Path("tests/fetchers/github/responses/rest_lspconfig.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+        response["license"] = None
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
+    )
+
+    result = await _github_fetch_rest(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+    expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
+    object.__setattr__(expected_response.meta, "license", None)
+    assert result == expected_response

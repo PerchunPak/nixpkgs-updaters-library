@@ -139,7 +139,7 @@ async def _github_fetch_graphql(
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepageUrl"],
-            license=data["licenseInfo"]["spdxId"],
+            license=(data["licenseInfo"] or {}).get("spdxId"),
             stars=data["stargazerCount"],
             topics=[
                 node["topic"]["name"]
@@ -214,7 +214,7 @@ async def _github_fetch_rest(
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepage"],
-            license=data["license"]["spdx_id"],
+            license=(data["license"] or {}).get("spdx_id"),
             stars=data["stargazers_count"],
             topics=data["topics"],
             archived=data["archived"],
