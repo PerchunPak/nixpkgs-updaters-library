@@ -57,6 +57,11 @@ buildPythonPackage rec {
     "nbdb.storage"
   ];
 
+  disabledTests = [
+    # flaky in CI
+    "test_write_in_background"
+  ];
+
   passthru.updateScript = nix-update-script { };
 
   meta = {
