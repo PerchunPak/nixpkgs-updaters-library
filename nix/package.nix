@@ -9,11 +9,13 @@
   # dependencies
   aiohttp,
   attrs,
+  frozendict,
   inject,
   loguru,
+  nbdb,
+  nurl,
   platformdirs,
   typer,
-  nbdb,
 
   # tests
   lint-hook,
@@ -39,11 +41,13 @@ buildPythonPackage {
   dependencies = [
     aiohttp
     attrs
+    frozendict
     inject
     loguru
+    nbdb
+    nurl
     platformdirs
     typer
-    nbdb
   ];
 
   nativeCheckInputs = [
