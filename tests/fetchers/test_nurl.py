@@ -53,7 +53,7 @@ async def test_nurl_implementation_basic(
     )
     mock.return_value.communicate.return_value = (
         json.dumps(EXAMPLE_RESPONSE).encode(),
-        b"",
+        b"stderr",
     )
     mock.return_value.returncode = 0
 
@@ -108,30 +108,6 @@ async def test_nurl_implementation_return_code_non_zero(
         NurlError,
         match=(
             "^nurl returned exit code 1\nstdout=b'stdout'\nstderr=b'stderr'$"
-        ),
-    ):
-        _ = await _nurl_implementation("https://github.com/NixOS/patsh")
-
-    mock.assert_called_once_with(
-        "nurl",
-        "https://github.com/NixOS/patsh",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-
-
-async def test_nurl_implementation_return_stderr(mocker: MockerFixture) -> None:
-    mock = mocker.patch(
-        "asyncio.create_subprocess_exec",
-    )
-    mock.return_value.communicate.return_value = (b"stdout", b"stderr")
-    mock.return_value.returncode = 0
-
-    with pytest.raises(
-        NurlError,
-        match=(
-            r"^nurl wrote something to stderr! \(unexpected\)\n"
-            "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
         _ = await _nurl_implementation("https://github.com/NixOS/patsh")

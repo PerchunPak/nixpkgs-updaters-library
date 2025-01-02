@@ -7,6 +7,7 @@ import typing as t
 import inject
 from attrs import asdict, define
 from frozendict import frozendict
+from loguru import logger
 
 from nupd import exc
 from nupd.cache import Cache
@@ -100,10 +101,7 @@ async def _nurl_implementation(
             f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
-        raise NurlError(
-            "nurl wrote something to stderr! (unexpected)"
-            f"\n{stdout=}\n{stderr=}"
-        )
+        logger.debug(f"nurl wrote something to stderr!\n{stdout=}\n{stderr=}")
 
     return NurlResult(**json.loads(stdout.decode()))
 
