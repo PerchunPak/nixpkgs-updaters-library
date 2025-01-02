@@ -11,6 +11,7 @@ from loguru import logger
 
 from nupd import exc
 from nupd.cache import Cache
+from nupd.utils import json_serialize
 
 type FETCHERS = t.Literal[
     "builtins.fetchGit",
@@ -61,7 +62,7 @@ async def _cache_nurl_call[**P](
             await cache.set(key, {"error": True, "msg": e.args[0]})
             raise
 
-        await cache.set(key, asdict(result))
+        await cache.set(key, asdict(result, value_serializer=json_serialize))
         return result
     else:
         assert isinstance(result, dict)
