@@ -10,7 +10,7 @@ from attrs import define, field
 from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
-from nupd.fetchers import nix_prefetch
+from nupd.fetchers import nurl
 from nupd.fetchers.github import (
     GHRepository,
     github_fetch_graphql,
@@ -53,15 +53,15 @@ class MyEntryInfo(EntryInfo):
             ...
 
         result = await result.prefetch_commit()
-        prefetched = await nix_prefetch.prefetch_url(result.get_prefetch_url())
-        return MyEntry(info=self, fetched=result, hash=prefetched.hash)
+        prefetched = await nurl.nurl(result.url)
+        return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
 @define(frozen=True)
 class MyEntry(Entry[EntryInfo]):
     fetched: GHRepository
-    hash: str
     info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
+    nurl_result: nurl.NurlResult
 
 
 @define
