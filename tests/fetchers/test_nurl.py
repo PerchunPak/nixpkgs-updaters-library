@@ -10,8 +10,8 @@ from nupd.fetchers.nurl import (
     FETCHERS,
     NurlError,
     NurlResult,
-    _nurl_implementation,
-    nurl,  # pyright: ignore[reportPrivateUsage]
+    _nurl_implementation,  # pyright: ignore[reportPrivateUsage]
+    nurl,
     nurl_parse,
 )
 
