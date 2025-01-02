@@ -5,7 +5,7 @@ import json
 import typing as t
 
 import inject
-from attrs import asdict, define
+from attrs import asdict, define, field
 from frozendict import frozendict
 from loguru import logger
 
@@ -35,7 +35,7 @@ class NurlError(exc.NetworkError): ...
 
 @define(frozen=True)
 class NurlResult:
-    args: frozendict[str, str | int]
+    args: frozendict[str, str | int] = field(converter=frozendict)
     fetcher: FETCHERS
 
 
