@@ -66,7 +66,7 @@ class MyEntry(Entry[EntryInfo]):
 
 @define
 class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
-    _default_input_file: Path = field(init=False, default=ROOT / "input.txt")
+    _default_input_file: Path = field(init=False, default=ROOT / "input.csv")
     _default_output_file: Path = field(init=False, default=ROOT / "output.json")
 
     @t.override
