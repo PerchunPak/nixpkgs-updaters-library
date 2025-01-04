@@ -34,13 +34,14 @@ def test_csv_read(csv_input: CsvInput[CsvEntryInfo]) -> None:
         f.writelines(
             [
                 "name,value\n",
+                "some,thing\n",
                 "example1,example2\n",
                 "aaaa,bbbb\n",
             ]
         )
 
-    assert list(csv_input.read(lambda x: CsvEntryInfo(*x))) == [
-        CsvEntryInfo("name", "value"),
+    assert list(csv_input.read(lambda x: CsvEntryInfo(**x))) == [
+        CsvEntryInfo("some", "thing"),
         CsvEntryInfo("example1", "example2"),
         CsvEntryInfo("aaaa", "bbbb"),
     ]
@@ -49,16 +50,17 @@ def test_csv_read(csv_input: CsvInput[CsvEntryInfo]) -> None:
 def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
     csv_input.write(
         [
-            CsvEntryInfo("name", "value"),
+            CsvEntryInfo("some", "thing"),
             CsvEntryInfo("example1", "example2"),
             CsvEntryInfo("aaaa", "bbbb"),
         ],
-        serialize=attrs.astuple,
+        serialize=attrs.asdict,
     )
 
     with csv_input.file.open("r") as f:
         assert f.readlines() == [
+            "name,value\n",
             "aaaa,bbbb\n",
             "example1,example2\n",
-            "name,value\n",
+            "some,thing\n",
         ]
