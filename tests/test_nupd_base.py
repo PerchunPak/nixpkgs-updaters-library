@@ -50,7 +50,7 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     _default_output_file: Path = Path("/homeless-shelter")
 
     @t.override
-    async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
+    async def get_all_entries(self) -> c.Iterable[DumbEntryInfo]:
         return [
             DumbEntryInfo("one"),
             DumbEntryInfo("two"),

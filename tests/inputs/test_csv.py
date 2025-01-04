@@ -12,7 +12,7 @@ from nupd.models import Entry, EntryInfo
 @define(frozen=True)
 class CsvEntryInfo(EntryInfo):
     name: str
-    value: str
+    value: str | None
 
     @property
     @t.override
@@ -39,7 +39,7 @@ def test_csv_read(csv_input: CsvInput[CsvEntryInfo]) -> None:
             ]
         )
 
-    assert list(csv_input.read(lambda x: CsvEntryInfo(*x))) == [
+    assert list(csv_input.read(lambda x: CsvEntryInfo(*x))) == [  # pyright: ignore[reportArgumentType]
         CsvEntryInfo("name", "value"),
         CsvEntryInfo("example1", "example2"),
         CsvEntryInfo("aaaa", "bbbb"),
@@ -61,4 +61,39 @@ def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
             "aaaa,bbbb\n",
             "example1,example2\n",
             "name,value\n",
+        ]
+
+
+def test_read_none(csv_input: CsvInput[CsvEntryInfo]) -> None:
+    with csv_input.file.open("w") as f:
+        f.writelines(
+            [
+                "name,\n",
+                "example1,\n",
+                "aaaa,\n",
+            ]
+        )
+
+    assert list(csv_input.read(lambda x: CsvEntryInfo(*x))) == [  # pyright: ignore[reportArgumentType]
+        CsvEntryInfo("name", None),
+        CsvEntryInfo("example1", None),
+        CsvEntryInfo("aaaa", None),
+    ]
+
+
+def test_write_none(csv_input: CsvInput[CsvEntryInfo]) -> None:
+    csv_input.write(
+        [
+            CsvEntryInfo("name", None),
+            CsvEntryInfo("example1", None),
+            CsvEntryInfo("aaaa", None),
+        ],
+        serialize=attrs.astuple,
+    )
+
+    with csv_input.file.open("r") as f:
+        assert f.readlines() == [
+            "aaaa,\n",
+            "example1,\n",
+            "name,\n",
         ]
