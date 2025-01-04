@@ -83,14 +83,15 @@ class Nupd:
         }
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries = set(self.get_all_entries_from_the_output_file())
+        all_entries: dict[str, Entry[t.Any] | Exception] = {
+            entry.info: entry
+            for entry in self.get_all_entries_from_the_output_file()
+        }
         old_len = len(all_entries)
-        all_entries.update(
-            {await entry_info.fetch() for entry_info in entries_info}
-        )
+        all_entries.update(await self.fetch_entries(entries_info))
 
         self.impl.write_entries_info(entries_info.union(all_entries_info))
-        self.write_entries(all_entries)
+        self.write_entries(all_entries.values())
 
         logger.success(f"Successfully added {len(entry_ids)} entries!")
         logger.info(
@@ -105,16 +106,15 @@ class Nupd:
         )
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries: dict[EntryInfo, Entry[t.Any]] = {}
+        all_entries: dict[str, Entry[t.Any] | Exception] = {}
         if len(entries_info) == 0:  # update all entries
-            for entry_info in all_entries_info:
-                all_entries[entry_info] = await entry_info.fetch()
+            all_entries = await self.fetch_entries(all_entries_info)
         else:  # update only selected entries
+            all_entries = {}
             for entry in self.get_all_entries_from_the_output_file():
-                all_entries[entry.info] = entry
+                all_entries[entry.info.id] = entry
 
-            for entry_info in entries_info:
-                all_entries[entry_info] = await entry_info.fetch()
+            all_entries.update(await self.fetch_entries(entries_info))
 
         self.write_entries(set(all_entries.values()))
 
@@ -123,8 +123,10 @@ class Nupd:
         )
 
     async def fetch_entries(
-        self, entries: c.Sequence[EntryInfo]
-    ) -> set[Entry[t.Any] | BaseException]:
+        self,
+        entries: c.Collection[EntryInfo],
+        timeout: float = 60,  # seconds # noqa: ASYNC109
+    ) -> dict[str, Entry[t.Any] | Exception]:
         config = inject.instance(Config)
         limit = config.jobs
         logger.info(
@@ -132,15 +134,27 @@ class Nupd:
             " simultaneously"
         )
 
-        all_results: set[Entry[t.Any] | BaseException] = set()
-        for chunk in utils.chunks(entries, limit):
+        all_results: dict[str, Entry[t.Any] | Exception] = {}
+        for chunk in utils.chunks(list(entries), limit):
             logger.debug(f"Next chunk ({len(chunk)})")
-            results = await asyncio.gather(
-                *(entry.fetch() for entry in chunk),
-                return_exceptions=True,
+
+            done, pending = await asyncio.wait(
+                {
+                    asyncio.create_task(entry.fetch(), name=entry.id)
+                    for entry in chunk
+                },
+                timeout=timeout,
             )
 
-            all_results.update(set(results))
+            for task in pending:  # timeouted
+                _ = task.cancel()
+                try:
+                    raise TimeoutError  # noqa: TRY301
+                except TimeoutError as exc:  # to add traceback
+                    all_results[task.get_name()] = exc
+
+            for task in done:
+                all_results[task.get_name()] = task.result()
 
         return all_results
 
@@ -154,10 +168,16 @@ class Nupd:
         for entry in data.values():
             yield self.impls.entry(**entry)
 
-    def write_entries(self, entries: c.Iterable[Entry[t.Any]]) -> None:
+    def write_entries(
+        self, entries: c.Iterable[Entry[t.Any] | Exception]
+    ) -> None:
         data: dict[str, t.Any] = {}
 
         for entry in entries:
+            if isinstance(entry, Exception):
+                logger.exception(entry)
+                continue
+
             data[entry.info.id] = attrs.asdict(
                 entry, value_serializer=utils.json_serialize
             )

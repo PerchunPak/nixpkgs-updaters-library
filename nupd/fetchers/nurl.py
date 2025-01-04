@@ -103,7 +103,7 @@ async def _nurl_implementation(
             f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
-        logger.debug(f"nurl wrote something to stderr!\n{stdout=}\n{stderr=}")
+        logger.trace(f"nurl wrote something to stderr!\n{stdout=}\n{stderr=}")
 
     return NurlResult(**json.loads(stdout.decode()))
 

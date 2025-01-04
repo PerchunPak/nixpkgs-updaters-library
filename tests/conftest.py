@@ -22,7 +22,7 @@ def configure_injections() -> None:
                 nixpkgs_path=Path.cwd(),
                 input_file=None,
                 output_file=None,
-                jobs=10,
+                jobs=1,
             ),
             classes=None,  # pyright: ignore[reportArgumentType]
             cache=Cache(),

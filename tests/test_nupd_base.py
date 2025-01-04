@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import typing as t
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 from attrs import define, field
+from loguru import logger
 
 from nupd.base import ABCBase, Nupd
 from nupd.models import Entry, EntryInfo, ImplClasses
@@ -30,7 +32,15 @@ class DumbEntryInfo(EntryInfo):
 
     @t.override
     async def fetch(self) -> DumbEntry:
+        logger.debug(f"Fetching {self!r}")
         return DumbEntry(self, "sha256-some/cool/hash")
+
+
+@define(frozen=True)
+class TimeoutEntryInfo(DumbEntryInfo):
+    @t.override
+    async def fetch(self) -> t.Never:
+        await asyncio.sleep(10)
 
 
 @define(frozen=True, field_transformer=json_transformer)
@@ -83,11 +93,26 @@ def mock_inject_impl_classes(mock_inject: MOCK_INJECT) -> None:
 async def test_nupd_fetch_entries() -> None:
     nupd = Nupd()
     res = await nupd.fetch_entries(await DumbBase(nupd).get_all_entries())
-    assert sorted(res, key=lambda x: x.info.id) == [  # pyright: ignore[reportAttributeAccessIssue,reportUnknownLambdaType]
+    assert sorted(res.values(), key=lambda x: x.info.id) == [  # pyright: ignore[reportAttributeAccessIssue,reportUnknownLambdaType]
         DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
         DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),
         DumbEntry(DumbEntryInfo("two"), "sha256-some/cool/hash"),
     ]
+
+
+async def test_nupd_fetch_entries_timeout() -> None:
+    nupd = Nupd()
+    all_entries = list(await DumbBase(nupd).get_all_entries())
+    all_entries[1] = TimeoutEntryInfo("two")
+
+    res = await nupd.fetch_entries(all_entries, timeout=0.1)
+
+    assert isinstance(res["two"], TimeoutError)
+    del res["two"]
+    assert res == {
+        "one": DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
+        "three": DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),
+    }
 
 
 async def test_add_cmd(mocker: MockerFixture) -> None:
@@ -102,18 +127,27 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
             DumbEntry(info, "sha256-some/cool/hash") for info in entries_info
         ],
     )
+    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
     mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
     await Nupd().add_cmd(["four", "five"])
 
-    entries_info.add(DumbEntryInfo("four"))
-    entries_info.add(DumbEntryInfo("five"))
+    new_entries_info = {
+        DumbEntryInfo("four"),
+        DumbEntryInfo("five"),
+    }
+    entries_info = entries_info.union(new_entries_info)
 
+    spy_fetch_entries.assert_called_once()
+    assert spy_fetch_entries.await_args.args[1] == new_entries_info  # pyright: ignore[reportOptionalMemberAccess]
     mocked_write_info.assert_called_once_with(entries_info)
-    mocked_write_entries.assert_called_once_with(
-        {DumbEntry(info, "sha256-some/cool/hash") for info in entries_info}
-    )
+    mocked_write_entries.assert_called_once()
+    assert len(mocked_write_entries.call_args.args) == 1
+    assert list(mocked_write_entries.call_args.args[0]) == [
+        DumbEntry(info=DumbEntryInfo(name=name), hash="sha256-some/cool/hash")
+        for name in ["two", "one", "three", "four", "five"]
+    ]
 
 
 async def test_update_cmd_everything(mocker: MockerFixture) -> None:
@@ -122,6 +156,7 @@ async def test_update_cmd_everything(mocker: MockerFixture) -> None:
         DumbEntryInfo("two"),
         DumbEntryInfo("three"),
     }
+    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
     mocked_gaeftof = mocker.patch(
         "nupd.base.Nupd.get_all_entries_from_the_output_file"
     )
@@ -130,6 +165,7 @@ async def test_update_cmd_everything(mocker: MockerFixture) -> None:
 
     await Nupd().update_cmd(entry_ids=None)
 
+    spy_fetch_entries.assert_called_once()
     mocked_gaeftof.assert_not_called()
     mocked_write_info.assert_not_called()
     mocked_write_entries.assert_called_once_with(
@@ -149,11 +185,17 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
             DumbEntry(info, "sha256-some/old/hash") for info in entries_info
         ],
     )
+    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
     mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
     await Nupd().update_cmd(["one", "three"])
 
+    spy_fetch_entries.assert_called_once()
+    assert spy_fetch_entries.await_args.args[1] == {  # pyright: ignore[reportOptionalMemberAccess]
+        DumbEntryInfo("one"),
+        DumbEntryInfo("three"),
+    }
     mocked_write_info.assert_not_called()
     mocked_write_entries.assert_called_once_with(
         {
@@ -164,8 +206,11 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
     )
 
 
+@pytest.mark.parametrize("file_exists", [True, False])
 def test_get_all_entries_from_the_output_file(
-    mocker: MockerFixture, tmp_path: Path
+    mocker: MockerFixture,
+    tmp_path: Path,
+    file_exists: bool,  # noqa: FBT001
 ) -> None:
     output_file = tmp_path / "output.json"
     _ = mocker.patch.object(DumbBase, "output_file", output_file)
@@ -177,5 +222,8 @@ def test_get_all_entries_from_the_output_file(
         DumbEntry(DumbEntryInfo("two"), "sha256-some/cool/hash"),
     ]
 
-    nupd.write_entries(entries)
-    assert list(nupd.get_all_entries_from_the_output_file()) == entries
+    if file_exists:
+        nupd.write_entries(entries)
+    assert list(nupd.get_all_entries_from_the_output_file()) == (
+        entries if file_exists else []
+    )
