@@ -83,7 +83,7 @@ class Nupd:
         }
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries: dict[str, Entry[t.Any] | Exception] = {
+        all_entries: dict[str, Entry[t.Any]] = {
             entry.info: entry
             for entry in self.get_all_entries_from_the_output_file()
         }
@@ -106,7 +106,7 @@ class Nupd:
         )
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries: dict[str, Entry[t.Any] | Exception] = {}
+        all_entries: dict[str, Entry[t.Any]] = {}
         if len(entries_info) == 0:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info)
         else:  # update only selected entries
@@ -125,8 +125,7 @@ class Nupd:
     async def fetch_entries(
         self,
         entries: c.Collection[EntryInfo],
-        timeout: float = 60,  # seconds # noqa: ASYNC109
-    ) -> dict[str, Entry[t.Any] | Exception]:
+    ) -> dict[str, Entry[t.Any]]:
         config = inject.instance(Config)
         limit = config.jobs
         logger.info(
@@ -134,7 +133,7 @@ class Nupd:
             " simultaneously"
         )
 
-        all_results: dict[str, Entry[t.Any] | Exception] = {}
+        all_results: dict[str, Entry[t.Any]] = {}
         for chunk in utils.chunks(list(entries), limit):
             logger.debug(f"Next chunk ({len(chunk)})")
 
@@ -143,16 +142,9 @@ class Nupd:
                     asyncio.create_task(entry.fetch(), name=entry.id)
                     for entry in chunk
                 },
-                timeout=timeout,
             )
 
-            for task in pending:  # timeouted
-                _ = task.cancel()
-                try:
-                    raise TimeoutError  # noqa: TRY301
-                except TimeoutError as exc:  # to add traceback
-                    all_results[task.get_name()] = exc
-
+            assert len(pending) == 0
             for task in done:
                 all_results[task.get_name()] = task.result()
 
@@ -168,16 +160,10 @@ class Nupd:
         for entry in data.values():
             yield self.impls.entry(**entry)
 
-    def write_entries(
-        self, entries: c.Iterable[Entry[t.Any] | Exception]
-    ) -> None:
+    def write_entries(self, entries: c.Iterable[Entry[t.Any]]) -> None:
         data: dict[str, t.Any] = {}
 
         for entry in entries:
-            if isinstance(entry, Exception):
-                logger.exception(entry)
-                continue
-
             data[entry.info.id] = attrs.asdict(
                 entry, value_serializer=utils.json_serialize
             )

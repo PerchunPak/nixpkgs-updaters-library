@@ -93,26 +93,11 @@ def mock_inject_impl_classes(mock_inject: MOCK_INJECT) -> None:
 async def test_nupd_fetch_entries() -> None:
     nupd = Nupd()
     res = await nupd.fetch_entries(await DumbBase(nupd).get_all_entries())
-    assert sorted(res.values(), key=lambda x: x.info.id) == [  # pyright: ignore[reportAttributeAccessIssue,reportUnknownLambdaType]
+    assert sorted(res.values(), key=lambda x: x.info.id) == [
         DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
         DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),
         DumbEntry(DumbEntryInfo("two"), "sha256-some/cool/hash"),
     ]
-
-
-async def test_nupd_fetch_entries_timeout() -> None:
-    nupd = Nupd()
-    all_entries = list(await DumbBase(nupd).get_all_entries())
-    all_entries[1] = TimeoutEntryInfo("two")
-
-    res = await nupd.fetch_entries(all_entries, timeout=0.1)
-
-    assert isinstance(res["two"], TimeoutError)
-    del res["two"]
-    assert res == {
-        "one": DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
-        "three": DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),
-    }
 
 
 async def test_add_cmd(mocker: MockerFixture) -> None:
