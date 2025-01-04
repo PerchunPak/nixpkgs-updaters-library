@@ -84,7 +84,7 @@ def json_serialize(
     if isinstance(value, datetime):
         return value.isoformat()
     if isinstance(value, c.Iterable) and (
-        not isinstance(value, str) and not isinstance(value, dict)
+        not isinstance(value, str) and not isinstance(value, c.Mapping)
     ):
         return list(value)
     return value  # pyright: ignore[reportUnknownVariableType]
