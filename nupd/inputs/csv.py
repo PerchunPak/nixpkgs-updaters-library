@@ -16,20 +16,22 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
     """Kwargs, passed to `csv` functions."""
 
     @t.override
-    def read(
-        self, parse: c.Callable[[c.Iterable[str | None]], I]
-    ) -> c.Iterable[I]:
+    def read(self, parse: c.Callable[[c.Sequence[str]], I]) -> c.Iterable[I]:
         with self.file.open("r", newline="") as f:
             parsed = csv.reader(f, **self.kwargs)
 
             for line in parsed:
-                yield parse(item if item else None for item in line)
+                # TODO reference that item in a line can be an empty string
+                # instead of a None. We don't handle it, as "not optional"
+                # value would be opt-in and it is pretty annoying to handle
+                # that
+                yield parse(line)
 
     @t.override
     def write(
         self,
         entries: c.Iterable[I],
-        serialize: c.Callable[[I], c.Iterable[str | None]],
+        serialize: c.Callable[[I], c.Sequence[str]],
     ) -> None:
         with self.file.open("w", newline="") as f:
             writer = csv.writer(f, **self.kwargs)
