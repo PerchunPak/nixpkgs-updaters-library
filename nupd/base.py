@@ -127,9 +127,14 @@ class Nupd:
     ) -> set[Entry[t.Any] | BaseException]:
         config = inject.instance(Config)
         limit = config.jobs
+        logger.info(
+            f"Going to fetch {len(entries)} entries with limit of {limit}"
+            " simultaneously"
+        )
 
         all_results: set[Entry[t.Any] | BaseException] = set()
         for chunk in utils.chunks(entries, limit):
+            logger.debug(f"Next chunk ({len(chunk)})")
             results = await asyncio.gather(
                 *(entry.fetch() for entry in chunk),
                 return_exceptions=True,

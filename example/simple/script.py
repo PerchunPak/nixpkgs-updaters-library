@@ -6,6 +6,7 @@ from pathlib import Path
 
 import attrs
 from attrs import define, field
+from loguru import logger
 
 from nupd.base import ABCBase
 from nupd.cli import app
@@ -38,6 +39,7 @@ class MyEntryInfo(EntryInfo):
 
     @t.override
     async def fetch(self) -> MyEntry:
+        logger.debug(f"Fetching {self.owner}/{self.repo}")
         github_token = os.environ.get("GITHUB_TOKEN")
         if github_token is not None:
             result = await github_fetch_graphql(

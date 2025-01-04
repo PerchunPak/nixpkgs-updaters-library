@@ -80,6 +80,7 @@ async def _nurl_implementation(
     fetcher: FETCHERS | None = None,
     fallback: FETCHERS | None = None,
 ) -> NurlResult:
+    logger.debug(f"Running nurl on {url}")
     if additional_arguments is None:
         additional_arguments = []
 
