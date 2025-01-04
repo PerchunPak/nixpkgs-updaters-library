@@ -16,3 +16,20 @@ This is still very work and progress, but for more context you can check out:
 
 Feel free to reach out to me if you have any questions/concerns/requests for
 features.
+
+## TODO
+
+- [ ] Sourcehut does not support fetching the latest revision???
+- [ ] Cache invalidation
+- [ ] progress bar
+- [ ] Documentation
+- [ ] Some abstract class for implementing redirects
+- [ ] Handle redirects for Git (not GitHub) repositories.
+
+  https://github.com/nix-community/nurl/issues/384
+
+## Known bugs
+
+- If GitHub repository has multiple licenses, GitHub API will show only the first one.
+- Subprojects on GitLab are not supported
+- Some Git hosts are not supported yet, e.g. Sourcehut
