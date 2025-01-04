@@ -99,8 +99,10 @@ async def add(
     ],
 ) -> None:
     """Add a new entry (or multiple)."""
-    await Nupd().add_cmd(entry_ids)
-    await inject.instance(Shutdowner).shutdown()
+    try:
+        await Nupd().add_cmd(entry_ids)
+    finally:
+        await inject.instance(Shutdowner).shutdown()
 
 
 @app.command()
@@ -115,8 +117,10 @@ async def update(
     ] = None,
 ) -> None:
     """Update an entry (or multiple)."""
-    await Nupd().update_cmd(entry_ids)
-    await inject.instance(Shutdowner).shutdown()
+    try:
+        await Nupd().update_cmd(entry_ids)
+    finally:
+        await inject.instance(Shutdowner).shutdown()
 
 
 if __name__ == "__main__":
