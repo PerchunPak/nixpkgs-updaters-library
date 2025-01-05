@@ -126,14 +126,13 @@ class Nupd:
         entries: c.Collection[EntryInfo],
     ) -> dict[str, Entry[t.Any]]:
         config = inject.instance(Config)
-        limit = config.jobs
         logger.info(
-            f"Going to fetch {len(entries)} entries with limit of {limit}"
+            f"Going to fetch {len(entries)} entries with limit of {config.jobs}"
             " simultaneously"
         )
 
         all_results: dict[str, Entry[t.Any]] = {}
-        for chunk in utils.chunks(list(entries), limit):
+        for chunk in utils.chunks(list(entries), config.jobs):
             logger.debug(f"Next chunk ({len(chunk)})")
 
             done, pending = await asyncio.wait(

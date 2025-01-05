@@ -178,7 +178,7 @@ async def _github_fetch_rest(
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
 
-    Do not forget to handle redirects!
+    Do not forget to handle redirects (see `example/simple` directory)!
     """
     session = inject.instance(aiohttp.ClientSession)
     async with session.get(

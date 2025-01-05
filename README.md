@@ -20,6 +20,8 @@ features.
 ## TODO
 
 - [x] Sourcehut does not support fetching the latest revision???
+- [ ] Check that IDs are equal
+- [ ] Test fetching specific branch
 - [ ] Cache invalidation
 - [ ] progress bar
 - [ ] Duplicate plugins?

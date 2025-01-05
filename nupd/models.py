@@ -49,7 +49,7 @@ class Entry[I: EntryInfo](abc.ABC):
             raise TypeError(
                 "You have to set converter to something like "
                 "'Entry.info_converter(MyEntryInfo)' in order to be "
-                "able to transform dict to Entry instance."
+                "able to transform dict to an Entry instance."
             )
 
 

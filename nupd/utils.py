@@ -9,8 +9,6 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import wraps
 
-import typer.models
-
 if t.TYPE_CHECKING:
     import attrs
 
@@ -38,11 +36,6 @@ def sync_to_async[**P, R](  # pragma: no cover
         )
 
     return wrapper
-
-
-skipped_option: typer.models.OptionInfo = typer.Option(  # pragma: no cover
-    parser=lambda _: _, hidden=True, expose_value=False
-)
 
 
 def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
@@ -73,6 +66,7 @@ def json_transformer(
             converter = None
 
         results.append(field.evolve(converter=converter))
+
     return results
 
 
