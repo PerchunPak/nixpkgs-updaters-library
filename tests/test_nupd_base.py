@@ -91,8 +91,7 @@ def mock_inject_impl_classes(mock_inject: MOCK_INJECT) -> None:
 
 
 async def test_nupd_fetch_entries() -> None:
-    nupd = Nupd()
-    res = await nupd.fetch_entries(await DumbBase(nupd).get_all_entries())
+    res = await Nupd().fetch_entries(await DumbBase().get_all_entries())
     assert sorted(res.values(), key=lambda x: x.info.id) == [
         DumbEntry(DumbEntryInfo("one"), "sha256-some/cool/hash"),
         DumbEntry(DumbEntryInfo("three"), "sha256-some/cool/hash"),

@@ -21,7 +21,6 @@ if t.TYPE_CHECKING:
 
 @define
 class ABCBase[E: Entry[t.Any], I: EntryInfo](abc.ABC):
-    nupd: Nupd
     config: Config = field(factory=lambda: inject.instance(Config))
     _default_input_file: Path = field(init=False)
     _default_output_file: Path = field(init=False)
@@ -75,7 +74,7 @@ class Nupd:
     def _impl_default(self) -> ABCBase[Entry[t.Any], EntryInfo]:  # pyright: ignore[reportUnusedFunction]
         return t.cast(
             "type[ABCBase[Entry[t.Any], EntryInfo]]", self.impls.base
-        )(self)
+        )()
 
     async def add_cmd(self, entry_ids: c.Sequence[str]) -> None:
         entries_info = {
