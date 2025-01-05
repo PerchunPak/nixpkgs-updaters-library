@@ -13,6 +13,7 @@
   inject,
   loguru,
   nbdb,
+  nix-prefetch-git,
   nurl,
   platformdirs,
   typer,
@@ -45,6 +46,7 @@ buildPythonPackage {
     inject
     loguru
     nbdb
+    nix-prefetch-git
     nurl
     platformdirs
     typer

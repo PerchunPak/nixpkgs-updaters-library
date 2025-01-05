@@ -4,7 +4,7 @@ import typing as t
 import pytest
 from pytest_mock import MockerFixture
 
-from nupd.fetchers.nix_prefetch import (
+from nupd.fetchers.nix_prefetch_url import (
     URLPrefetchError,
     URLPrefetchResult,
     _prefetch_url,  # pyright: ignore[reportPrivateUsage]
@@ -149,7 +149,7 @@ async def test_prefetch_url_return_stderr(
 
 async def test_prefetch_obj(mocker: MockerFixture) -> None:
     mock: unittest.mock.MagicMock = mocker.MagicMock()  # pyright: ignore[reportUnknownVariableType]
-    mock_prefetch = mocker.patch("nupd.fetchers.nix_prefetch.prefetch_url")
+    mock_prefetch = mocker.patch("nupd.fetchers.nix_prefetch_url.prefetch_url")
     assert await prefetch_obj(mock) == mock_prefetch.return_value
     mock.get_prefetch_url.assert_called_once_with()
     _ = mock_prefetch.assert_awaited_once_with(
