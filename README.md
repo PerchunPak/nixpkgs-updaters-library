@@ -19,15 +19,12 @@ features.
 
 ## TODO
 
-- [ ] Sourcehut does not support fetching the latest revision???
+- [x] Sourcehut does not support fetching the latest revision???
 - [ ] Cache invalidation
 - [ ] progress bar
 - [ ] Duplicate plugins?
 - [ ] Documentation
 - [ ] Some abstract class for implementing redirects
-- [ ] Handle redirects for Git (not GitHub) repositories.
-
-  https://github.com/nix-community/nurl/issues/384
 
 ## Known bugs
 
