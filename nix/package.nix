@@ -22,11 +22,9 @@
   lint-hook,
   pytestCheckHook,
   aioresponses,
-  basedpyright,
   pytest-asyncio,
   pytest-cov,
   pytest-mock,
-  ruff,
 }:
 buildPythonPackage {
   pname = "nixpkgs-updaters-library";
@@ -57,11 +55,9 @@ buildPythonPackage {
     pytestCheckHook
 
     aioresponses
-    basedpyright
     pytest-asyncio
     pytest-cov
     pytest-mock
-    ruff
   ];
 
   meta = {
