@@ -78,11 +78,14 @@ class MyEntryInfo(EntryInfo):
                 self.repo.owner, self.repo.name, github_token=None
             )
 
+        if self.branch is not None:
+            result = attrs.evolve(result, branch=self.branch, commit=None)
+
         # TODO: We could also handle redirects like this
         if (self.repo.owner, self.repo.name) != (result.owner, result.repo):
             ...
 
-        result = await result.prefetch_commit()
+        result = await result.prefetch_commit(github_token=github_token)
         prefetched = await nurl.nurl(result.url, revision=result.commit)
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
