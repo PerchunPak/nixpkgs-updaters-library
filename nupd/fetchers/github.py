@@ -233,7 +233,7 @@ async def github_prefetch_commit(
 ) -> str:
     cache = inject.instance(Cache)["github_commit_prefetch"]
     try:
-        return t.cast(str, await cache.get(repo.url))
+        return t.cast(str, await cache.get(repo.url + "@" + repo.branch))
     except KeyError:
         result = await _github_prefetch_commit(repo, github_token=github_token)
         await cache.set(repo.url, result)
