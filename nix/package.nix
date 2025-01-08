@@ -31,7 +31,7 @@ buildPythonPackage {
   version = "0.1.0";
   pyproject = true;
 
-  disabled = pythonOlder "3.13";
+  disabled = pythonOlder "3.12";
 
   src = ./..;
 

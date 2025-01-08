@@ -31,7 +31,7 @@
         inherit pkgs;
 
         packages = {
-          default = pkgs.python313Packages.nixpkgs-updaters-library;
+          default = pkgs.python312Packages.nixpkgs-updaters-library;
           nixpkgs-updaters-library = self.packages.${system}.default;
           nupd = self.packages.${system}.default;
         };
@@ -40,7 +40,7 @@
           inputsFrom = [ self.packages.${system}.default ];
           packages = with pkgs; [
             basedpyright
-            python313Packages.debugpy
+            python312Packages.debugpy
             pre-commit
             ruff
           ];
