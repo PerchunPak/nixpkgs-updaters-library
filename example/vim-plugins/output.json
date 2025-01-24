@@ -3167,6 +3167,42 @@
       "fetcher": "fetchFromGitHub"
     }
   },
+  "aw-watcher-vim": {
+    "fetched": {
+      "branch": "master",
+      "commit": {
+        "date": "2023-10-09T14:19:45+00:00",
+        "id": "4ba86d05a940574000c33f280fd7f6eccc284331"
+      },
+      "meta": {
+        "archived": false,
+        "archived_at": null,
+        "description": null,
+        "homepage": null,
+        "license": null,
+        "stars": 114
+      },
+      "owner": "ActivityWatch",
+      "repo": "aw-watcher-vim"
+    },
+    "info": {
+      "alias": null,
+      "branch": null,
+      "repo": {
+        "name": "aw-watcher-vim",
+        "owner": "ActivityWatch"
+      }
+    },
+    "nurl_result": {
+      "args": {
+        "hash": "sha256-I7YYvQupeQxWr2HEpvba5n91+jYvJrcWZhQg+5rI908=",
+        "owner": "ActivityWatch",
+        "repo": "aw-watcher-vim",
+        "rev": "4ba86d05a940574000c33f280fd7f6eccc284331"
+      },
+      "fetcher": "fetchFromGitHub"
+    }
+  },
   "awesome-vim-colorschemes": {
     "fetched": {
       "branch": "master",
@@ -12239,42 +12275,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "fidget-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2025-01-08T17:13:59+00:00",
-        "id": "a0abbf18084b77d28bc70e24752e4f4fd54aea17"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "\ud83d\udcab  Extensible UI for Neovim notifications and LSP progress messages.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 2087
-      },
-      "owner": "j-hui",
-      "repo": "fidget.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "fidget.nvim",
-        "owner": "j-hui"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-o0za2NxFtzHZa7PRIm9U/P1/fwJrxS1G79ukdGLhJ4Q=",
-        "owner": "j-hui",
-        "repo": "fidget.nvim",
-        "rev": "a0abbf18084b77d28bc70e24752e4f4fd54aea17"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "file-line": {
     "fetched": {
       "branch": "main",
@@ -13819,42 +13819,6 @@
         "owner": "ruifm",
         "repo": "gitlinker.nvim",
         "rev": "cc59f732f3d043b626c8702cb725c82e54d35c25"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "gitsigns-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2025-01-23T17:00:39+00:00",
-        "id": "3ec5fbd9202ae3908551c98c4b6c3c05ff7c8e96"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Git integration for buffers",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 5404
-      },
-      "owner": "lewis6991",
-      "repo": "gitsigns.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "gitsigns.nvim",
-        "owner": "lewis6991"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-y+675GuLYHiz9jUefWc8aidbUr1iPehLk8/Ll/vW0kQ=",
-        "owner": "lewis6991",
-        "repo": "gitsigns.nvim",
-        "rev": "3ec5fbd9202ae3908551c98c4b6c3c05ff7c8e96"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -15979,42 +15943,6 @@
         "owner": "edwinb",
         "repo": "idris2-vim",
         "rev": "964cebee493c85f75796e4f4e6bbb4ac54e2da9e"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "image-nvim": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-17T22:25:05+00:00",
-        "id": "6ffafab2e98b5bda46bf227055aa84b90add8cdc"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "\ud83d\uddbc\ufe0f Bringing images to Neovim.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 1311
-      },
-      "owner": "3rd",
-      "repo": "image.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "image.nvim",
-        "owner": "3rd"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-/8kcG5chhugrzF4LSCFpKsA4mCILXgpOtd6isBkjs4A=",
-        "owner": "3rd",
-        "repo": "image.nvim",
-        "rev": "6ffafab2e98b5bda46bf227055aa84b90add8cdc"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -19295,42 +19223,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "luasnip": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-04T16:55:07+00:00",
-        "id": "c9b9a22904c97d0eb69ccb9bab76037838326817"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Snippet Engine for Neovim written in Lua.",
-        "homepage": "",
-        "license": "Apache-2.0",
-        "stars": 3645
-      },
-      "owner": "L3MON4D3",
-      "repo": "LuaSnip"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "luasnip",
-        "owner": "l3mon4d3"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-3ecm5SDTcSOh256xSQPHhddQfMpepiEIpv58fHXrVg0=",
-        "owner": "L3MON4D3",
-        "repo": "LuaSnip",
-        "rev": "c9b9a22904c97d0eb69ccb9bab76037838326817"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "luasnip-latex-snippets-nvim": {
     "fetched": {
       "branch": "main",
@@ -19399,42 +19291,6 @@
         "owner": "alvarosevilla95",
         "repo": "luatab.nvim",
         "rev": "7bc6e0f6957fbaa93c98529f2cf28052329002e0"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "lush-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2024-08-16T05:22:20+00:00",
-        "id": "45a79ec4acb5af783a6a29673a999ce37f00497e"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Create Neovim themes with real-time feedback, export anywhere.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 1538
-      },
-      "owner": "rktjmp",
-      "repo": "lush.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "lush.nvim",
-        "owner": "rktjmp"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-meUCXjJ9kHOOpRd4TR2dc7Ai97zOQX35hYFEDZseiSk=",
-        "owner": "rktjmp",
-        "repo": "lush.nvim",
-        "rev": "45a79ec4acb5af783a6a29673a999ce37f00497e"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -23831,42 +23687,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "neotest": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-02T15:34:22+00:00",
-        "id": "d66cf4e05a116957f0d3a7755a24291c7d1e1f72"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "An extensible framework for interacting with tests within NeoVim.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 2519
-      },
-      "owner": "nvim-neotest",
-      "repo": "neotest"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "neotest",
-        "owner": "nvim-neotest"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-OITV9BUgNZqJh2iJM7K57NkBPKjUaCrE9htbl3NWfSU=",
-        "owner": "nvim-neotest",
-        "repo": "neotest",
-        "rev": "d66cf4e05a116957f0d3a7755a24291c7d1e1f72"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "neotest-bash": {
     "fetched": {
       "branch": "main",
@@ -25883,42 +25703,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "nui-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2024-12-10T18:53:35+00:00",
-        "id": "53e907ffe5eedebdca1cd503b00aa8692068ca46"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "UI Component Library for Neovim.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 1728
-      },
-      "owner": "MunifTanjim",
-      "repo": "nui.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": "main",
-      "repo": {
-        "name": "nui.nvim",
-        "owner": "MunifTanjim"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-6U7E/i5FuNXQy+sF4C5DVxuTPqNKD5wxUgFohpOjm9Q=",
-        "owner": "MunifTanjim",
-        "repo": "nui.nvim",
-        "rev": "53e907ffe5eedebdca1cd503b00aa8692068ca46"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "null-ls-nvim": {
     "fetched": {
       "branch": "main",
@@ -27607,6 +27391,78 @@
         "owner": "nvim-java",
         "repo": "nvim-java-dap",
         "rev": "55f239532f7a3789d21ea68d1e795abc77484974"
+      },
+      "fetcher": "fetchFromGitHub"
+    }
+  },
+  "nvim-java-refactor": {
+    "fetched": {
+      "branch": "main",
+      "commit": {
+        "date": "2025-01-21T13:18:00+00:00",
+        "id": "5379779f4fc66e46eb9a636ba2b85f595cea8103"
+      },
+      "meta": {
+        "archived": false,
+        "archived_at": null,
+        "description": "Provides APIs related to refactoring Java code",
+        "homepage": null,
+        "license": "MIT",
+        "stars": 1
+      },
+      "owner": "nvim-java",
+      "repo": "nvim-java-refactor"
+    },
+    "info": {
+      "alias": null,
+      "branch": null,
+      "repo": {
+        "name": "nvim-java-refactor",
+        "owner": "nvim-java"
+      }
+    },
+    "nurl_result": {
+      "args": {
+        "hash": "sha256-12FT/zStzzh4PGzuzWolotwopR4z4WECzc8ulxpZZfY=",
+        "owner": "nvim-java",
+        "repo": "nvim-java-refactor",
+        "rev": "5379779f4fc66e46eb9a636ba2b85f595cea8103"
+      },
+      "fetcher": "fetchFromGitHub"
+    }
+  },
+  "nvim-java-test": {
+    "fetched": {
+      "branch": "main",
+      "commit": {
+        "date": "2024-07-19T16:16:36+00:00",
+        "id": "7f0f40e9c5b7eab5096d8bec6ac04251c6e81468"
+      },
+      "meta": {
+        "archived": false,
+        "archived_at": null,
+        "description": "Provides APIs related to testing Java",
+        "homepage": "https://github.com/nvim-java/nvim-java",
+        "license": "MIT",
+        "stars": 2
+      },
+      "owner": "nvim-java",
+      "repo": "nvim-java-test"
+    },
+    "info": {
+      "alias": null,
+      "branch": null,
+      "repo": {
+        "name": "nvim-java-test",
+        "owner": "nvim-java"
+      }
+    },
+    "nurl_result": {
+      "args": {
+        "hash": "sha256-aqFg+m8EMNpQkj5aQPZaW18dtez+AsxARiEiU3ycW6I=",
+        "owner": "nvim-java",
+        "repo": "nvim-java-test",
+        "rev": "7f0f40e9c5b7eab5096d8bec6ac04251c6e81468"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -30959,42 +30815,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "orgmode": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-23T22:18:20+00:00",
-        "id": "13924c0ee70e6a6e604a159261b72ab5901865c0"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Orgmode clone written in Lua for Neovim 0.10.0+.",
-        "homepage": "https://github.com/nvim-orgmode/orgmode/blob/master/docs/index.org",
-        "license": "MIT",
-        "stars": 3178
-      },
-      "owner": "nvim-orgmode",
-      "repo": "orgmode"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "orgmode",
-        "owner": "nvim-orgmode"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-3Q3mQQ6CiK9EuEBgMWsjmWJAYr/Cj+EwG37rUk9aMfc=",
-        "owner": "nvim-orgmode",
-        "repo": "orgmode",
-        "rev": "13924c0ee70e6a6e604a159261b72ab5901865c0"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "other-nvim": {
     "fetched": {
       "branch": "main",
@@ -31387,42 +31207,6 @@
         "owner": "NLKNguyen",
         "repo": "papercolor-theme",
         "rev": "0cfe64ffb24c21a6101b5f994ca342a74c977aef"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "papis-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2025-01-19T10:00:48+00:00",
-        "id": "0b9e8ef6ddbac0a2208b44ae660732b049a6d7a8"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Manage your bibliography from within your favourite editor",
-        "homepage": "",
-        "license": "GPL-3.0",
-        "stars": 159
-      },
-      "owner": "jghauser",
-      "repo": "papis.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "papis.nvim",
-        "owner": "jghauser"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-lKNY7bRxJ+XcyONvGWx2f7E03vLWQDBpin74mEja/zc=",
-        "owner": "jghauser",
-        "repo": "papis.nvim",
-        "rev": "0b9e8ef6ddbac0a2208b44ae660732b049a6d7a8"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -31855,42 +31639,6 @@
         "owner": "nvim-treesitter",
         "repo": "playground",
         "rev": "ba48c6a62a280eefb7c85725b0915e021a1a0749"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "plenary-nvim": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-12T09:53:15+00:00",
-        "id": "3707cdb1e43f5cea73afb6037e6494e7ce847a66"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "plenary: full; complete; entire; absolute; unqualified. All the lua functions I don't want to write twice.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 2921
-      },
-      "owner": "nvim-lua",
-      "repo": "plenary.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "plenary.nvim",
-        "owner": "nvim-lua"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-18zX3kZ42ynRefFP0mOcy6ESEpejTukjNi4jCRXx48A=",
-        "owner": "nvim-lua",
-        "repo": "plenary.nvim",
-        "rev": "3707cdb1e43f5cea73afb6037e6494e7ce847a66"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -33475,42 +33223,6 @@
         "owner": "stevearc",
         "repo": "resession.nvim",
         "rev": "271a6fd7afa90142be59fca3a5c3b9865e40e6b9"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "rest-nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2025-01-01T05:49:50+00:00",
-        "id": "62606c3599bd304227457d6e20580965939b191e"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "A very fast, powerful, extensible and asynchronous Neovim HTTP client written in Lua.",
-        "homepage": "",
-        "license": "GPL-3.0",
-        "stars": 1693
-      },
-      "owner": "rest-nvim",
-      "repo": "rest.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "rest.nvim",
-        "owner": "rest-nvim"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-5ahhcjeAhSv43o6GNm8GZV/Cc7Y+6S5t6lkoD7BDd2U=",
-        "owner": "rest-nvim",
-        "repo": "rest.nvim",
-        "rev": "62606c3599bd304227457d6e20580965939b191e"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -37511,42 +37223,6 @@
       "fetcher": "fetchFromGitHub"
     }
   },
-  "telescope-manix": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-19T00:22:19+00:00",
-        "id": "7fc130e920c702f0ff54ab25f45da821a3976a33"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "A telescope.nvim extension for Manix - A fast documentation searcher for Nix",
-        "homepage": "",
-        "license": "GPL-2.0",
-        "stars": 73
-      },
-      "owner": "mrcjkb",
-      "repo": "telescope-manix"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "telescope-manix",
-        "owner": "MrcJkb"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-cwFCWfnE9Hvp++p8hGaAxBYpWKxMOXAJ3+4coNimBAg=",
-        "owner": "mrcjkb",
-        "repo": "telescope-manix",
-        "rev": "7fc130e920c702f0ff54ab25f45da821a3976a33"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
   "telescope-media-files-nvim": {
     "fetched": {
       "branch": "master",
@@ -37579,42 +37255,6 @@
         "owner": "nvim-telescope",
         "repo": "telescope-media-files.nvim",
         "rev": "0826c7a730bc4d36068f7c85cf4c5b3fd9fb570a"
-      },
-      "fetcher": "fetchFromGitHub"
-    }
-  },
-  "telescope-nvim": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-08T09:26:12+00:00",
-        "id": "415af52339215926d705cccc08145f3782c4d132"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Find, Filter, Preview, Pick. All lua, all the time.",
-        "homepage": "",
-        "license": "MIT",
-        "stars": 16616
-      },
-      "owner": "nvim-telescope",
-      "repo": "telescope.nvim"
-    },
-    "info": {
-      "alias": null,
-      "branch": null,
-      "repo": {
-        "name": "telescope.nvim",
-        "owner": "nvim-telescope"
-      }
-    },
-    "nurl_result": {
-      "args": {
-        "hash": "sha256-5y8srYKaAqFplMtDjsc8GdDF8yui5vCNMiOeFLrC/sM=",
-        "owner": "nvim-telescope",
-        "repo": "telescope.nvim",
-        "rev": "415af52339215926d705cccc08145f3782c4d132"
       },
       "fetcher": "fetchFromGitHub"
     }
