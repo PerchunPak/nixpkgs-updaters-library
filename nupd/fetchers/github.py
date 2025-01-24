@@ -34,8 +34,12 @@ class GHRepository:
     owner: str
     repo: str
     branch: str
-    commit: Commit | None
 
+    commit: Commit | None = field(
+        converter=lambda x: Commit(**x)
+        if not isinstance(x, Commit | None)
+        else x
+    )
     meta: MetaInformation = field(
         converter=lambda x: MetaInformation(**x)
         if not isinstance(x, MetaInformation)
