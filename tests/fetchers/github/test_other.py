@@ -44,7 +44,10 @@ def example_obj() -> github.GHRepository:
 async def test_prefetch_commit_on_repo_class(
     mocker: MockerFixture, example_obj: github.GHRepository
 ) -> None:
-    mock = mocker.patch("nupd.fetchers.github.github_prefetch_commit")
+    mock = mocker.patch(
+        "nupd.fetchers.github.github_prefetch_commit",
+        return_value=example_obj.commit,
+    )
     o = object()
 
     assert (
