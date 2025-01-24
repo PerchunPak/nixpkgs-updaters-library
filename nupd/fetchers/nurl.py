@@ -56,18 +56,11 @@ async def _cache_nurl_call[**P](
     try:
         result = await cache.get(key)
     except KeyError:
-        try:
-            result = await __implementation(*args, **kwargs)
-        except NurlError as e:
-            await cache.set(key, {"error": True, "msg": e.args[0]})
-            raise
-
+        result = await __implementation(*args, **kwargs)
         await cache.set(key, asdict(result, value_serializer=json_serialize))
         return result
     else:
         assert isinstance(result, dict)
-        if result.get("error", False):
-            raise NurlError(result.get("msg", ""))
         return NurlResult(**result)  # pyright: ignore[reportArgumentType]
 
 

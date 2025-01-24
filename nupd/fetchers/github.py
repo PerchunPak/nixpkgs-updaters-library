@@ -18,7 +18,6 @@ class MetaInformation:
     homepage: str | None
     license: str | None
     stars: int
-    topics: frozenset[str] = field(converter=frozenset)
     archived: bool
     archived_at: datetime | None
 
@@ -112,13 +111,6 @@ async def _github_fetch_graphql(
                 "        }"
                 "      }"
                 "    }"
-                "    repositoryTopics(first:100) {"
-                "      nodes {"
-                "        topic {"
-                "          name"
-                "        }"
-                "      }"
-                "    }"
                 "  }"
                 "  rateLimit {"
                 "    cost"
@@ -164,10 +156,6 @@ async def _github_fetch_graphql(
             homepage=data["homepageUrl"],
             license=(data["licenseInfo"] or {}).get("spdxId"),
             stars=data["stargazerCount"],
-            topics=[
-                node["topic"]["name"]
-                for node in data["repositoryTopics"]["nodes"]
-            ],
             archived=data["isArchived"],
             archived_at=datetime.fromisoformat(data["archivedAt"])
             if data["archivedAt"] is not None
@@ -239,7 +227,6 @@ async def _github_fetch_rest(
             homepage=data["homepage"],
             license=(data["license"] or {}).get("spdx_id"),
             stars=data["stargazers_count"],
-            topics=data["topics"],
             archived=data["archived"],
             # this may not be always accurate, but it is the closest
             # we can get using REST API. Next time someone will use

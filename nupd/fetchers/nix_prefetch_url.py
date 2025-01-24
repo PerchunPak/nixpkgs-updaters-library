@@ -28,18 +28,11 @@ async def prefetch_url(
     try:
         result = await cache.get(key)
     except KeyError:
-        try:
-            result = await _prefetch_url(url, unpack=unpack, name=name)
-        except URLPrefetchError as e:
-            await cache.set(key, {"error": True, "msg": e.args[0]})
-            raise
-
+        result = await _prefetch_url(url, unpack=unpack, name=name)
         await cache.set(key, asdict(result))
         return result
     else:
         assert isinstance(result, dict)
-        if result.get("error", False):
-            raise URLPrefetchError(result.get("msg", ""))
         return URLPrefetchResult(**result)  # pyright: ignore[reportArgumentType]
 
 

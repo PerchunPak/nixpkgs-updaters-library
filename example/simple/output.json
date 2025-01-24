@@ -12,13 +12,7 @@
         "description": "Nvim Treesitter configurations and abstraction layer",
         "homepage": "",
         "license": "Apache-2.0",
-        "stars": 11258,
-        "topics": [
-          "neovim",
-          "nvim-treesitter",
-          "hacktoberfest",
-          "tree-sitter"
-        ]
+        "stars": 11258
       },
       "owner": "nvim-treesitter",
       "repo": "nvim-treesitter"
@@ -50,11 +44,7 @@
         "description": "\u2705  Highlight, list and search todo comments in your projects",
         "homepage": "",
         "license": "Apache-2.0",
-        "stars": 3433,
-        "topics": [
-          "neovim",
-          "neovim-plugin"
-        ]
+        "stars": 3433
       },
       "owner": "folke",
       "repo": "todo-comments.nvim"
@@ -86,8 +76,7 @@
         "description": "surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
         "homepage": "https://www.vim.org/scripts/script.php?script_id=1697",
         "license": null,
-        "stars": 13566,
-        "topics": []
+        "stars": 13566
       },
       "owner": "tpope",
       "repo": "vim-surround"
