@@ -48,15 +48,11 @@ async def prefetch_git(
     try:
         result = await cache.get(key)
     except KeyError:
-        try:
-            result = await _prefetch_git(
-                url,
-                revision=revision,
-                additional_args=additional_args if additional_args else [],
-            )
-        except GitPrefetchError as e:
-            await cache.set(key, {"error": True, "msg": e.args[0]})
-            raise
+        result = await _prefetch_git(
+            url,
+            revision=revision,
+            additional_args=additional_args if additional_args else [],
+        )
 
         await cache.set(
             key, asdict(result, value_serializer=utils.json_serialize)
@@ -64,8 +60,6 @@ async def prefetch_git(
         return result
     else:
         assert isinstance(result, dict)
-        if result.get("error", False):
-            raise GitPrefetchError(result.get("msg", ""))
         return GitPrefetchResult(
             url=result["url"],  # pyright: ignore[reportArgumentType]
             rev=result["rev"],  # pyright: ignore[reportArgumentType]
