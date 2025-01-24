@@ -8,6 +8,7 @@ import attrs
 from attrs import define, field
 from loguru import logger
 
+from nupd import utils
 from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.fetchers import nurl
@@ -48,12 +49,16 @@ class GHRepoInfo:
 
     @property
     def url(self) -> str:
-        return f"https://github.com/{self.owner}/{self.name}"
+        return f"https://github.com/{self.owner}/{self.name}/"
 
 
 @define(frozen=True)
 class MyEntryInfo(EntryInfo):
-    repo: GHRepoInfo
+    repo: GHRepoInfo = field(
+        converter=lambda x: GHRepoInfo(**x)
+        if not isinstance(x, GHRepoInfo)
+        else x
+    )
     branch: str | None
     alias: str | None
 
@@ -85,7 +90,10 @@ class MyEntryInfo(EntryInfo):
             ...
 
         result = await result.prefetch_commit(github_token=github_token)
-        prefetched = await nurl.nurl(result.url, revision=result.commit)
+        prefetched = await nurl.nurl(
+            result.url,
+            revision=result.commit.id if result.commit is not None else None,
+        )
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
@@ -105,7 +113,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
         def init_entry(args: c.Mapping[str, str]) -> MyEntryInfo:
             repo_url, branch, alias = (
-                args["repo_url"],
+                args["repo"],
                 args["branch"],
                 args["alias"],
             )
@@ -121,9 +129,18 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
 
     @t.override
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
-        CsvInput[MyEntryInfo](self.input_file).write(
+        def serialize(entry_info: MyEntryInfo) -> c.Mapping[str, str]:
+            res = attrs.asdict(
+                entry_info, value_serializer=utils.json_serialize
+            )
+            res["repo"] = entry_info.repo.url
+            return res
+
+        CsvInput[MyEntryInfo](
+            self.input_file, kwargs={"lineterminator": "\n"}
+        ).write(
             entries_info,
-            serialize=attrs.asdict,
+            serialize=serialize,
         )
 
     @t.override
