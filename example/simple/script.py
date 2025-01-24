@@ -74,7 +74,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     @t.override
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
         return CsvInput[MyEntryInfo](self.input_file).read(
-            lambda x: MyEntryInfo(*x)
+            lambda x: MyEntryInfo(**x)
         )
 
     @t.override

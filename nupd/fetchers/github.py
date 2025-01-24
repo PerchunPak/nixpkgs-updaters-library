@@ -23,13 +23,23 @@ class MetaInformation:
     archived_at: datetime | None
 
 
+@define(frozen=True, field_transformer=json_transformer)
+class Commit:
+    id: str
+    date: datetime
+
+
 @define(frozen=True)
 class GHRepository:
     owner: str
     repo: str
     branch: str
-    commit: str | None
 
+    commit: Commit | None = field(
+        converter=lambda x: Commit(**x)
+        if not isinstance(x, Commit | None)
+        else x
+    )
     meta: MetaInformation = field(
         converter=lambda x: MetaInformation(**x)
         if not isinstance(x, MetaInformation)
@@ -97,6 +107,9 @@ async def _github_fetch_graphql(
                 "      name"
                 "      target {"
                 "        oid"
+                "        ... on Commit {"
+                "          committedDate"
+                "        }"
                 "      }"
                 "    }"
                 "    repositoryTopics(first:100) {"
@@ -131,11 +144,21 @@ async def _github_fetch_graphql(
     )
     data = data["data"]["repository"]
 
+    if not (
+        commit_date := data["defaultBranchRef"]["target"].get("committedDate")
+    ):
+        raise RuntimeError(
+            "You've encountered a weird edge-case. Please open a bug report"
+        )
+
     return GHRepository(
         owner=data["owner"]["login"],
         repo=data["name"],
         branch=data["defaultBranchRef"]["name"],
-        commit=data["defaultBranchRef"]["target"]["oid"],
+        commit=Commit(
+            id=data["defaultBranchRef"]["target"]["oid"],
+            date=commit_date,
+        ),
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepageUrl"],
@@ -230,19 +253,25 @@ async def _github_fetch_rest(
 
 async def github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None
-) -> str:
+) -> Commit:
     cache = inject.instance(Cache)["github_commit_prefetch"]
     try:
-        return t.cast(str, await cache.get(repo.url))
+        return Commit(
+            **t.cast(
+                dict[str, t.Any], await cache.get(repo.url + "@" + repo.branch)
+            )
+        )
     except KeyError:
         result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(repo.url, result)
+        await cache.set(
+            repo.url, attrs.asdict(result, value_serializer=json_serialize)
+        )
         return result
 
 
 async def _github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None = None
-) -> str:
+) -> Commit:
     if repo.commit is not None:
         return repo.commit
 
@@ -262,4 +291,7 @@ async def _github_prefetch_commit(
             response.raise_for_status()
             raise RuntimeError("dead code")  # pragma: no cover
 
-    return data["sha"]
+    return Commit(
+        id=data["sha"],
+        date=datetime.fromisoformat(data["commit"]["author"]["date"]),
+    )

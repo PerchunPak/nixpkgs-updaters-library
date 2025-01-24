@@ -22,18 +22,16 @@
   lint-hook,
   pytestCheckHook,
   aioresponses,
-  basedpyright,
   pytest-asyncio,
   pytest-cov,
   pytest-mock,
-  ruff,
 }:
 buildPythonPackage {
   pname = "nixpkgs-updaters-library";
   version = "0.1.0";
   pyproject = true;
 
-  disabled = pythonOlder "3.13";
+  disabled = pythonOlder "3.12";
 
   src = ./..;
 
@@ -57,11 +55,9 @@ buildPythonPackage {
     pytestCheckHook
 
     aioresponses
-    basedpyright
     pytest-asyncio
     pytest-cov
     pytest-mock
-    ruff
   ];
 
   meta = {

@@ -16,7 +16,8 @@
       "defaultBranchRef": {
         "name": "master",
         "target": {
-          "oid": "693eb6aa038f832dc614052e6b98bf107f9fcb26"
+          "oid": "693eb6aa038f832dc614052e6b98bf107f9fcb26",
+          "committedDate": "2023-06-01T18:52:58Z"
         }
       },
       "repositoryTopics": {

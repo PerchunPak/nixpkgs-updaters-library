@@ -1,3 +1,7 @@
+import json
+from datetime import datetime
+from pathlib import Path
+
 import aiohttp
 import pytest
 from aioresponses import aioresponses
@@ -5,6 +9,7 @@ from pytest_mock import MockerFixture
 
 from nupd.fetchers import github
 from nupd.fetchers.github import (
+    Commit,
     _github_prefetch_commit,  # pyright: ignore[reportPrivateUsage]
 )
 
@@ -51,14 +56,22 @@ async def test_prefetch_commit_on_repo_class(
 async def test_github_prefetch_commit(
     example_obj: github.GHRepository, mock_aiohttp: aioresponses
 ) -> None:
+    with Path("tests/fetchers/github/responses/prefetch_commit.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+
     mock_aiohttp.get(
         "https://api.github.com/repos/neovim/nvim-lspconfig/commits/master",
-        payload={"sha": "abcabcabc"},
+        payload=response,
     )
 
     assert (
         await _github_prefetch_commit(example_obj, github_token=None)
-    ) == "abcabcabc"
+    ) == Commit(
+        id="b4d65bce97795438ab6e1974b3672c17a4865e3c",
+        date=datetime.fromisoformat("2025-01-23T11:38:51Z"),
+    )
 
 
 async def test_prefetch_commit_already_fetched(
