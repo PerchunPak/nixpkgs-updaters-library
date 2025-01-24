@@ -9,27 +9,54 @@
 A boilerplate-less updater library for Nixpkgs ecosystems, that aims to replace
 [`pluginupdate.py`](https://github.com/NixOS/nixpkgs/blob/76d002f98bff2df45147d02d828315aeab934da7/maintainers/scripts/pluginupdate-py/pluginupdate.py).
 
-This is still very work and progress, but for more context you can check out:
+If you want to know more, I wrote an entire draft RFC for this (but commenters
+told me to just write the library):
 
 - https://discourse.nixos.org/t/new-rfc-draft-standardize-updater-scripts-successor-of-rfc-109/54290
-- https://github.com/NixOS/nixpkgs/pull/336137
 
 Feel free to reach out to me if you have any questions/concerns/requests for
 features.
+
+## Quick tour
+
+The main design idea is that you implement your ecosystem-specifics, and this
+library handles all boilerplate it could possible handle, while still being not
+too specific.
+
+### Terms
+
+- The library — this package.
+- An updater script — this is what you would run to add/update plugins in
+  specific ecosystems.
+- An input — list of references to the outputs. As an example, for Vim plugins,
+  this would be a CSV table with GitHub URLs and other data.
+- An output — what is generated at the end. This can be for example a plugin or
+  an extension.
+- An entry — a single unit of what updater updates. For Vim plugins this would
+  be a plugin, for Gnome extensions this would be an extension.
+
+### Technical details
+
+Generally you have to implement three classes:
+- `EntryInfo`: information about the entry. This must include only information
+  that is stored in your input file (e.g. a CSV table) and it is used to fetch
+  your output data.
+- `Entry`: fetched information about the entry. You cannot have here some hanging
+  information (e.g. commit is None means use latest commit).
+- `ABCBase`: your ecosystem specific functions.
+
+The design is intentionally done this way, so you have either nothing but a URL
+for a prefetch or completely fetched everything. Look at `examples/simple` and
+[`examples/vim-plugins`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/vim-plugins-updater/example/vim-plugins)
+for a complete implementation of everything.
 
 ## TODO
 
 - [x] Sourcehut does not support fetching the latest revision???
 - [ ] Check that IDs are equal
-- [ ] Test fetching specific branch
+- [x] Test fetching specific branch
 - [ ] Cache invalidation
 - [ ] progress bar
 - [ ] Duplicate plugins?
 - [ ] Documentation
-- [ ] Some abstract class for implementing redirects
-
-## Known bugs
-
-- If GitHub repository has multiple licenses, GitHub API will show only the first one.
-- Subprojects on GitLab are not supported
-- Some Git hosts are not supported yet, e.g. Sourcehut
+- [ ] Some abstraction for implementing redirects & deprecations
