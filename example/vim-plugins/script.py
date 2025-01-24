@@ -60,9 +60,8 @@ class MyEntryInfo(EntryInfo):
     @property
     @t.override
     def id(self) -> str:
-        if self.alias:
-            return self.alias
-        return self.repo.name
+        id = self.alias or self.repo.name  # noqa: A001
+        return id.strip().replace(".", "-")
 
     @t.override
     async def fetch(self) -> Entry[t.Any]:
