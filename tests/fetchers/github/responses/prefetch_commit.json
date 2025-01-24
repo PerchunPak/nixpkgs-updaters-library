@@ -1,0 +1,101 @@
+{
+  "sha": "b4d65bce97795438ab6e1974b3672c17a4865e3c",
+  "node_id": "C_kwDODTQC19oAKGI0ZDY1YmNlOTc3OTU0MzhhYjZlMTk3NGIzNjcyYzE3YTQ4NjVlM2M",
+  "commit": {
+    "author": {
+      "name": "dundargoc",
+      "email": "gocdundar@gmail.com",
+      "date": "2025-01-23T11:38:51Z"
+    },
+    "committer": {
+      "name": "dundargoc",
+      "email": "33953936+dundargoc@users.noreply.github.com",
+      "date": "2025-01-23T18:07:17Z"
+    },
+    "message": "fix: remove validation from configs.lua\n\nThis is because using the old syntax for vim.validate causes\n`:checkhealth vim.deprecated` to be flooded with deprecated messages.\n\nIt would also be possible to do a version check and use the newer syntax\nfor vim.validate, but since configs.lua will be replaced by\nvim.lsp.config in the future there is little need to future-proof it.\n\nCloses https://github.com/neovim/nvim-lspconfig/issues/3583.",
+    "tree": {
+      "sha": "b8a76de4149c3d62097713a7c1664e5bd95ff2c4",
+      "url": "https://api.github.com/repos/neovim/nvim-lspconfig/git/trees/b8a76de4149c3d62097713a7c1664e5bd95ff2c4"
+    },
+    "url": "https://api.github.com/repos/neovim/nvim-lspconfig/git/commits/b4d65bce97795438ab6e1974b3672c17a4865e3c",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/neovim/nvim-lspconfig/commits/b4d65bce97795438ab6e1974b3672c17a4865e3c",
+  "html_url": "https://github.com/neovim/nvim-lspconfig/commit/b4d65bce97795438ab6e1974b3672c17a4865e3c",
+  "comments_url": "https://api.github.com/repos/neovim/nvim-lspconfig/commits/b4d65bce97795438ab6e1974b3672c17a4865e3c/comments",
+  "author": {
+    "login": "dundargoc",
+    "id": 33953936,
+    "node_id": "MDQ6VXNlcjMzOTUzOTM2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/33953936?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/dundargoc",
+    "html_url": "https://github.com/dundargoc",
+    "followers_url": "https://api.github.com/users/dundargoc/followers",
+    "following_url": "https://api.github.com/users/dundargoc/following{/other_user}",
+    "gists_url": "https://api.github.com/users/dundargoc/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/dundargoc/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/dundargoc/subscriptions",
+    "organizations_url": "https://api.github.com/users/dundargoc/orgs",
+    "repos_url": "https://api.github.com/users/dundargoc/repos",
+    "events_url": "https://api.github.com/users/dundargoc/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/dundargoc/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "dundargoc",
+    "id": 33953936,
+    "node_id": "MDQ6VXNlcjMzOTUzOTM2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/33953936?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/dundargoc",
+    "html_url": "https://github.com/dundargoc",
+    "followers_url": "https://api.github.com/users/dundargoc/followers",
+    "following_url": "https://api.github.com/users/dundargoc/following{/other_user}",
+    "gists_url": "https://api.github.com/users/dundargoc/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/dundargoc/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/dundargoc/subscriptions",
+    "organizations_url": "https://api.github.com/users/dundargoc/orgs",
+    "repos_url": "https://api.github.com/users/dundargoc/repos",
+    "events_url": "https://api.github.com/users/dundargoc/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/dundargoc/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "c31abb8e7cde38b8d664338b39d9c8d51ccd28e7",
+      "url": "https://api.github.com/repos/neovim/nvim-lspconfig/commits/c31abb8e7cde38b8d664338b39d9c8d51ccd28e7",
+      "html_url": "https://github.com/neovim/nvim-lspconfig/commit/c31abb8e7cde38b8d664338b39d9c8d51ccd28e7"
+    }
+  ],
+  "stats": {
+    "total": 42,
+    "additions": 2,
+    "deletions": 40
+  },
+  "files": [
+    {
+      "sha": "3cb30a37951d9ff4721162e5e3aaab21d009fb78",
+      "filename": "lua/lspconfig/configs.lua",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 40,
+      "changes": 42,
+      "blob_url": "https://github.com/neovim/nvim-lspconfig/blob/b4d65bce97795438ab6e1974b3672c17a4865e3c/lua%2Flspconfig%2Fconfigs.lua",
+      "raw_url": "https://github.com/neovim/nvim-lspconfig/raw/b4d65bce97795438ab6e1974b3672c17a4865e3c/lua%2Flspconfig%2Fconfigs.lua",
+      "contents_url": "https://api.github.com/repos/neovim/nvim-lspconfig/contents/lua%2Flspconfig%2Fconfigs.lua?ref=b4d65bce97795438ab6e1974b3672c17a4865e3c",
+      "patch": "@@ -5,7 +5,7 @@\n \n local util = require 'lspconfig.util'\n local async = require 'lspconfig.async'\n-local api, validate, lsp, fn = vim.api, vim.validate, vim.lsp, vim.fn\n+local api, lsp, fn = vim.api, vim.lsp, vim.fn\n local tbl_deep_extend = vim.tbl_deep_extend\n \n local configs = {}\n@@ -39,14 +39,6 @@ end\n ---@param config_name string\n ---@param config_def table Config definition read from `lspconfig.configs.<name>`.\n function configs.__newindex(t, config_name, config_def)\n-  validate {\n-    name = { config_name, 's' },\n-    default_config = { config_def.default_config, 't' },\n-    on_new_config = { config_def.on_new_config, 'f', true },\n-    on_attach = { config_def.on_attach, 'f', true },\n-    commands = { config_def.commands, 't', true },\n-  }\n-\n   if config_def.default_config.deprecate then\n     vim.deprecate(\n       config_name,\n@@ -57,16 +49,7 @@ function configs.__newindex(t, config_name, config_def)\n     )\n   end\n \n-  if config_def.commands then\n-    for k, v in pairs(config_def.commands) do\n-      validate {\n-        ['command.name'] = { k, 's' },\n-        ['command.fn'] = { v[1], 'f' },\n-      }\n-    end\n-  else\n-    config_def.commands = {}\n-  end\n+  config_def.commands = config_def.commands or {}\n \n   local M = {}\n \n@@ -79,27 +62,6 @@ function configs.__newindex(t, config_name, config_def)\n   function M.setup(user_config)\n     local lsp_group = api.nvim_create_augroup('lspconfig', { clear = false })\n \n-    validate {\n-      cmd = {\n-        user_config.cmd,\n-        { 'f', 't' },\n-        true,\n-      },\n-      root_dir = { user_config.root_dir, { 's', 'f' }, true },\n-      filetypes = { user_config.filetype, 't', true },\n-      on_new_config = { user_config.on_new_config, 'f', true },\n-      on_attach = { user_config.on_attach, 'f', true },\n-      commands = { user_config.commands, 't', true },\n-    }\n-    if user_config.commands then\n-      for k, v in pairs(user_config.commands) do\n-        validate {\n-          ['command.name'] = { k, 's' },\n-          ['command.fn'] = { v[1], 'f' },\n-        }\n-      end\n-    end\n-\n     local config = tbl_deep_extend('keep', user_config, default_config)\n \n     sanitize_cmd(config.cmd)"
+    }
+  ]
+}
