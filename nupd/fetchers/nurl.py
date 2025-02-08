@@ -11,6 +11,7 @@ from loguru import logger
 
 from nupd import exc
 from nupd.cache import Cache
+from nupd.executables import Executable
 from nupd.utils import json_serialize
 
 type FETCHERS = t.Literal[
@@ -78,7 +79,7 @@ async def _nurl_implementation(
         additional_arguments = []
 
     process = await asyncio.create_subprocess_exec(
-        "nurl",
+        Executable.NURL,
         url,
         *((revision,) if revision else ()),
         *(("--submodules=true",) if submodules else ()),

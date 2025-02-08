@@ -5,6 +5,7 @@ import json
 import pytest
 from pytest_mock import MockerFixture
 
+from nupd.executables import Executable
 from nupd.fetchers.nix_prefetch_git import (
     GitPrefetchError,
     GitPrefetchResult,
@@ -73,7 +74,7 @@ async def test_prefetch_git(
     )
 
     args = [
-        "nix-prefetch-git",
+        Executable.NIX_PREFETCH_GIT,
         "https://git.sr.ht/~sircmpwn/hare.vim",
     ]
     if rev:
@@ -113,7 +114,7 @@ async def test_prefetch_git_return_code_non_zero(
         )
 
     args = [
-        "nix-prefetch-git",
+        Executable.NIX_PREFETCH_GIT,
         "https://git.sr.ht/~sircmpwn/hare.vim",
     ]
     if rev:

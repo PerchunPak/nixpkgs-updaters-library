@@ -6,6 +6,7 @@ import pytest
 from frozendict import frozendict
 from pytest_mock import MockerFixture
 
+from nupd.executables import Executable
 from nupd.fetchers.nurl import (
     FETCHERS,
     NurlError,
@@ -72,7 +73,7 @@ async def test_nurl_implementation_basic(
     )
 
     args = [
-        "nurl",
+        Executable.NURL,
         "https://github.com/nix-community/patsh",
     ]
     if revision:
@@ -113,7 +114,7 @@ async def test_nurl_implementation_return_code_non_zero(
         _ = await _nurl_implementation("https://github.com/NixOS/patsh")
 
     mock.assert_called_once_with(
-        "nurl",
+        Executable.NURL,
         "https://github.com/NixOS/patsh",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,

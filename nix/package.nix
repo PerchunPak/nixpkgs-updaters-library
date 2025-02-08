@@ -13,6 +13,7 @@
   inject,
   loguru,
   nbdb,
+  nix,
   nix-prefetch-git,
   nurl,
   platformdirs,
@@ -35,6 +36,13 @@ buildPythonPackage {
 
   src = ./..;
 
+  postPatch = ''
+    substituteInPlace nupd/executables.py \
+      --replace-fail '"nurl"' '"${lib.getExe nurl}"' \
+      --replace-fail '"nix-prefetch-url"' '"${nix}/bin/nix-prefetch-url"' \
+      --replace-fail '"nix-prefetch-git"' '"${nix-prefetch-git}/bin/nix-prefetch-git"'
+  '';
+
   build-system = [ hatchling ];
 
   dependencies = [
@@ -44,8 +52,6 @@ buildPythonPackage {
     inject
     loguru
     nbdb
-    nix-prefetch-git
-    nurl
     platformdirs
     typer
   ];

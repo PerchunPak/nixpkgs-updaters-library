@@ -9,6 +9,7 @@ from loguru import logger
 
 from nupd import exc, utils
 from nupd.cache import Cache
+from nupd.executables import Executable
 
 
 class GitPrefetchError(exc.NetworkError): ...
@@ -80,7 +81,7 @@ async def _prefetch_git(
     additional_args: c.Iterable[str],
 ) -> GitPrefetchResult:
     process = await asyncio.create_subprocess_exec(
-        "nix-prefetch-git",
+        Executable.NIX_PREFETCH_GIT,
         url,
         *((revision,) if revision else ()),
         *additional_args,

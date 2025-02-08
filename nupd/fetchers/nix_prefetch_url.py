@@ -6,6 +6,7 @@ from attrs import asdict, define
 
 from nupd import exc
 from nupd.cache import Cache
+from nupd.executables import Executable
 
 
 class URLPrefetchError(exc.NetworkError): ...
@@ -43,7 +44,7 @@ async def _prefetch_url(
     name: str | None = None,
 ) -> URLPrefetchResult:
     process = await asyncio.create_subprocess_exec(
-        "nix-prefetch-url",
+        Executable.NIX_PREFETCH_URL,
         url,
         "--print-path",
         *(("--unpack",) if unpack else ()),

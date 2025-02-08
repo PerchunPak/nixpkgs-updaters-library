@@ -4,6 +4,7 @@ import typing as t
 import pytest
 from pytest_mock import MockerFixture
 
+from nupd.executables import Executable
 from nupd.fetchers.nix_prefetch_url import (
     URLPrefetchError,
     URLPrefetchResult,
@@ -42,7 +43,7 @@ async def test_prefetch_url(
     )
 
     args = [
-        "nix-prefetch-url",
+        Executable.NIX_PREFETCH_URL,
         "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         "--print-path",
     ]
@@ -86,7 +87,7 @@ async def test_prefetch_url_return_code_non_zero(
         )
 
     args = [
-        "nix-prefetch-url",
+        Executable.NIX_PREFETCH_URL,
         "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         "--print-path",
     ]
@@ -130,7 +131,7 @@ async def test_prefetch_url_return_stderr(
         )
 
     args = [
-        "nix-prefetch-url",
+        Executable.NIX_PREFETCH_URL,
         "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         "--print-path",
     ]
