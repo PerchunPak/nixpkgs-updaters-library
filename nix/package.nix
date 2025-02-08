@@ -4,7 +4,7 @@
   pythonOlder,
 
   # build-system
-  setuptools,
+  hatchling,
 
   # dependencies
   aiohttp,
@@ -35,7 +35,7 @@ buildPythonPackage {
 
   src = ./..;
 
-  build-system = [ setuptools ];
+  build-system = [ hatchling ];
 
   dependencies = [
     aiohttp
