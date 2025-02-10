@@ -29,7 +29,7 @@
 }:
 buildPythonPackage {
   pname = "nixpkgs-updaters-library";
-  version = "1.0.2.dev"; # @version
+  version = "1.1.0.dev"; # @version
   pyproject = true;
 
   disabled = pythonOlder "3.12";

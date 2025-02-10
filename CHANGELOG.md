@@ -4,6 +4,10 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 1.1.0
+
+- Fetch whether the repository has submodules ([`67978b9e`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/67978b9ea46025c90f0b39e12e21c89ae4c9f72e))
+
 ## Version 1.0.2
 
 - Added a centralized place to define executables, so it is easier to patch it from Nix ([`db1f608e`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/db1f608e725d45f35e0082b666fbdb4af96ceeb6))
