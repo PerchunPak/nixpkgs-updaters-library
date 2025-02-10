@@ -18,6 +18,7 @@ LSPCONFIG_RESPONSE = GHRepository(
     repo="nvim-lspconfig",
     branch="master",
     commit=None,
+    has_submodules=None,
     meta=MetaInformation(
         description="Quickstart configs for Nvim LSP",
         homepage="",
@@ -59,6 +60,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         repo="mcph",
         branch="master",
         commit=None,
+        has_submodules=None,
         meta=MetaInformation(
             description="Minecraft plugin helper, updates and checks versions of all plugins on a server!",
             homepage=None,

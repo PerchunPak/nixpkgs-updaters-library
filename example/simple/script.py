@@ -58,7 +58,9 @@ class MyEntryInfo(EntryInfo):
             ...
 
         result = await result.prefetch_commit()
-        prefetched = await nurl.nurl(result.url)
+        prefetched = await nurl.nurl(
+            result.url, submodules=result.has_submodules
+        )
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 

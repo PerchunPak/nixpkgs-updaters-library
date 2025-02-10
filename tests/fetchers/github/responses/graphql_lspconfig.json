@@ -20,44 +20,8 @@
           "committedDate": "2023-06-01T18:52:58Z"
         }
       },
-      "repositoryTopics": {
-        "nodes": [
-          {
-            "topic": {
-              "name": "vim"
-            }
-          },
-          {
-            "topic": {
-              "name": "nvim"
-            }
-          },
-          {
-            "topic": {
-              "name": "neovim"
-            }
-          },
-          {
-            "topic": {
-              "name": "lsp"
-            }
-          },
-          {
-            "topic": {
-              "name": "language-server-protocol"
-            }
-          },
-          {
-            "topic": {
-              "name": "language-server"
-            }
-          },
-          {
-            "topic": {
-              "name": "plugin"
-            }
-          }
-        ]
+      "submodules": {
+        "nodes": []
       }
     },
     "rateLimit": {

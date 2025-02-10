@@ -22,6 +22,7 @@ LSPCONFIG_RESPONSE = GHRepository(
         id="6a5ed22255bbe10104ff9b72c55ec2e233a8e571",
         date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
     ),
+    has_submodules=False,
     meta=MetaInformation(
         description="Quickstart configs for Nvim LSP",
         homepage="",
@@ -64,6 +65,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
             id="693eb6aa038f832dc614052e6b98bf107f9fcb26",
             date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
         ),
+        has_submodules=False,
         meta=MetaInformation(
             description="Minecraft plugin helper, updates and checks versions of all plugins on a server!",
             homepage=None,

@@ -34,6 +34,7 @@ class GHRepository:
     repo: str
     branch: str
 
+    has_submodules: bool | None
     commit: Commit | None = field(
         converter=lambda x: Commit(**x)
         if not isinstance(x, Commit | None)
@@ -49,7 +50,10 @@ class GHRepository:
         self, *, github_token: str | None = None
     ) -> t.Self:
         commit = await github_prefetch_commit(self, github_token=github_token)
-        return attrs.evolve(self, commit=commit)
+        has_submodules = await github_does_have_submodules(
+            self, github_token=github_token
+        )
+        return attrs.evolve(self, commit=commit, has_submodules=has_submodules)
 
     @property
     def url(self) -> str:
@@ -111,6 +115,11 @@ async def _github_fetch_graphql(
                 "        }"
                 "      }"
                 "    }"
+                "    submodules(first: 1) {"
+                "      nodes {"
+                "        name"
+                "      }"
+                "    }"
                 "  }"
                 "  rateLimit {"
                 "    cost"
@@ -132,7 +141,7 @@ async def _github_fetch_graphql(
             )
 
     logger.debug(
-        f"Fetching GH:{owner}/{repo} took {data["data"]["rateLimit"]["cost"]} point(s)"
+        f"Fetching GH:{owner}/{repo} took {data['data']['rateLimit']['cost']} point(s)"
     )
     data = data["data"]["repository"]
 
@@ -151,6 +160,7 @@ async def _github_fetch_graphql(
             id=data["defaultBranchRef"]["target"]["oid"],
             date=commit_date,
         ),
+        has_submodules=bool(len(data["submodules"]["nodes"])),
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepageUrl"],
@@ -222,6 +232,7 @@ async def _github_fetch_rest(
         repo=new_repo,
         branch=data["default_branch"],
         commit=None,
+        has_submodules=None,
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepage"],
@@ -282,3 +293,41 @@ async def _github_prefetch_commit(
         id=data["sha"],
         date=datetime.fromisoformat(data["commit"]["author"]["date"]),
     )
+
+
+async def github_does_have_submodules(
+    repo: GHRepository, *, github_token: str | None
+) -> bool:
+    cache = inject.instance(Cache)["github_does_have_submodules"]
+    try:
+        return bool(await cache.get(repo.url + "@" + repo.branch))
+    except KeyError:
+        result = await _github_does_have_submodules(
+            repo, github_token=github_token
+        )
+        await cache.set(repo.url, result)
+        return result
+
+
+async def _github_does_have_submodules(
+    repo: GHRepository, *, github_token: str | None = None
+) -> bool:
+    if repo.has_submodules is not None:
+        return repo.has_submodules
+
+    session = inject.instance(aiohttp.ClientSession)
+    async with session.get(
+        f"https://api.github.com/repos/{repo.owner}/{repo.repo}/contents/.gitmodules?ref={repo.branch}",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {github_token}" if github_token else "",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    ) as response:
+        if not response.ok and response.status != 404:
+            data = await response.json()
+            logger.error(data)
+            response.raise_for_status()
+            raise RuntimeError("dead code")  # pragma: no cover
+
+    return response.status != 404

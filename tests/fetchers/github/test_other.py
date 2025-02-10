@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 import aiohttp
+import attrs
 import pytest
 from aioresponses import aioresponses
 from pytest_mock import MockerFixture
@@ -10,6 +11,7 @@ from pytest_mock import MockerFixture
 from nupd.fetchers import github
 from nupd.fetchers.github import (
     Commit,
+    _github_does_have_submodules,  # pyright: ignore[reportPrivateUsage]
     _github_prefetch_commit,  # pyright: ignore[reportPrivateUsage]
 )
 
@@ -21,6 +23,7 @@ def example_obj() -> github.GHRepository:
         repo="nvim-lspconfig",
         branch="master",
         commit=None,
+        has_submodules=None,
         meta=github.MetaInformation(
             description="Quickstart configs for Nvim LSP",
             homepage="",
@@ -38,6 +41,10 @@ async def test_prefetch_commit_on_repo_class(
     mock = mocker.patch(
         "nupd.fetchers.github.github_prefetch_commit",
         return_value=example_obj.commit,
+    )
+    mock = mocker.patch(
+        "nupd.fetchers.github.github_does_have_submodules",
+        return_value=example_obj.has_submodules,
     )
     o = object()
 
@@ -113,3 +120,42 @@ async def test_get_prefetch_url_no_commit(
         match="To get archive URL, you have to prefetch commit first",
     ):
         _ = example_obj.get_prefetch_url()
+
+
+async def test_github_does_have_submodules(
+    example_obj: github.GHRepository, mock_aiohttp: aioresponses
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/contents/.gitmodules?ref=master",
+        payload={},
+        status=200,
+    )
+
+    assert (
+        await _github_does_have_submodules(example_obj, github_token=None)
+    ) is True
+
+
+async def test_github_does_have_submodules_not_found(
+    example_obj: github.GHRepository, mock_aiohttp: aioresponses
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/contents/.gitmodules?ref=master",
+        payload={},
+        status=404,
+    )
+
+    assert (
+        await _github_does_have_submodules(example_obj, github_token=None)
+    ) is False
+
+
+async def test_github_does_have_submodules_already_fetched(
+    example_obj: github.GHRepository,
+) -> None:
+    o = object()
+    assert (
+        await _github_does_have_submodules(
+            attrs.evolve(example_obj, has_submodules=o), github_token=None
+        )
+    ) is o
