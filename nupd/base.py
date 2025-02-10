@@ -152,7 +152,7 @@ class Nupd:
         if not self.impl.output_file.exists():
             return
 
-        with self.impl.output_file.open("r") as f:
+        with self.impl.output_file.open("r", newline="\n") as f:
             data = json.load(f)
 
         for entry in data.values():
@@ -166,5 +166,7 @@ class Nupd:
                 entry, value_serializer=utils.json_serialize
             )
 
-        with self.impl.output_file.open("w") as f:
+        with self.impl.output_file.open("w", newline="\n") as f:
             json.dump(data, f, indent=2, sort_keys=True)
+            # add a new line on the end of the file, because nixpkgs CI requires it
+            _ = f.write("\n")
