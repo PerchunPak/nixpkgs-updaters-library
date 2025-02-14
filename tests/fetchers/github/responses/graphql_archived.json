@@ -13,6 +13,14 @@
       "licenseInfo": {
         "spdxId": "AGPL-3.0"
       },
+      "latestRelease": {
+        "name": "v1.6.0",
+        "tagName": "v1.6.0",
+        "tagCommit": {
+          "id": "C_kwDODTQC19oAKGJmODFiZWY3ZDc1YTBmNGEwY2Y2MTQ2MmIzMThlYTAwYjNjOTdjYzg",
+          "committedDate": "2025-01-29T16:07:58Z"
+        }
+      },
       "defaultBranchRef": {
         "name": "master",
         "target": {
