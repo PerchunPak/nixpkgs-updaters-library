@@ -13,7 +13,7 @@ from nupd.models import ImplClasses
 from nupd.shutdown import Shutdowner
 from nupd.utils import async_to_sync
 
-app = typer.Typer(context_settings={})
+app = typer.Typer(context_settings={}, no_args_is_help=True)
 _CWD = Path.cwd()
 
 
