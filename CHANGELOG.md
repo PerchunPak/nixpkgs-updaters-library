@@ -4,6 +4,11 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 1.2.0
+
+- Show `--help` if no arguments were provided ([`687c0859`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/687c08596302b525a136d6ff66ccaf9f8147f450))
+- Fetch latest version (release or tag) of the GitHub repository (#2, [`7bb88bab`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/7bb88bab8c9dffdcf5116d6c4f46094d76c511a2))
+
 ## Version 1.1.0
 
 - Fetch whether the repository has submodules ([`67978b9e`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/67978b9ea46025c90f0b39e12e21c89ae4c9f72e))
