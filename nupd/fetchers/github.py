@@ -1,3 +1,4 @@
+import collections.abc as c
 import typing as t
 from datetime import datetime
 
@@ -10,6 +11,19 @@ from loguru import logger
 from nupd.cache import Cache
 from nupd.exc import HTTPError
 from nupd.utils import json_serialize, json_transformer
+
+
+@define(frozen=True, field_transformer=json_transformer)
+class GitHubRelease:
+    name: str | None
+    tag_name: str
+    committed_at: str
+
+
+@define(frozen=True, field_transformer=json_transformer)
+class GitHubTag:
+    name: str
+    commit_sha: str
 
 
 @define(frozen=True, field_transformer=json_transformer)
@@ -33,18 +47,72 @@ class GHRepository:
     owner: str
     repo: str
     branch: str
-
+    meta: MetaInformation = field(
+        converter=lambda x: MetaInformation(**x)
+        if not isinstance(x, MetaInformation)
+        else x
+    )
     has_submodules: bool | None
     commit: Commit | None = field(
         converter=lambda x: Commit(**x)
         if not isinstance(x, Commit | None)
         else x
     )
-    meta: MetaInformation = field(
-        converter=lambda x: MetaInformation(**x)
-        if not isinstance(x, MetaInformation)
+    latest_release: GitHubRelease | None = field(
+        converter=lambda x: GitHubRelease(**x)
+        if not isinstance(x, GitHubRelease | None)
         else x
     )
+
+    async def fetch_latest_release(
+        self, github_token: str | None = None
+    ) -> GitHubRelease | None:
+        """Fetch the latest release information for this repository."""
+        return await get_latest_release(
+            self.owner,
+            self.repo,
+            github_token=github_token,
+        )
+
+    async def fetch_tags(
+        self, github_token: str | None = None
+    ) -> list[GitHubTag] | None:
+        """Fetch list of tags for this repository."""
+        tags = [
+            tag
+            async for tag in get_tags(
+                self.owner,
+                self.repo,
+                github_token=github_token,
+            )
+        ]
+        return tags if tags else None
+
+    async def get_latest_version(
+        self, github_token: str | None = None
+    ) -> tuple[str, str] | None:
+        """Get the latest version from either releases or tags.
+
+        Returns a tuple of (version_type, version) where version_type is either 'release' or 'tag'.
+        Returns None if no releases or tags are found.
+        """
+        # First try to get the latest release
+        latest_release = await self.fetch_latest_release(
+            github_token=github_token
+        )
+        if latest_release is not None:
+            return ("release", latest_release.tag_name)
+
+        # If no releases, try to get the latest tag
+        tags = await self.fetch_tags(github_token=github_token)
+        if tags is not None:
+            try:
+                # GitHub returns tags in descending order
+                latest_tag = next(iter(tags))
+                return ("tag", latest_tag.name)  # noqa: TRY300
+            except StopIteration:
+                pass
+        return None
 
     async def prefetch_commit(
         self, *, github_token: str | None = None
@@ -65,6 +133,57 @@ class GHRepository:
                 "To get archive URL, you have to prefetch commit first"
             )
         return f"{self.url}/archive/{self.commit}.tar.gz"
+
+
+async def get_latest_release(
+    owner: str, repo: str, github_token: str | None = None
+) -> GitHubRelease | None:
+    """Get information about the latest release."""
+    session = inject.instance(aiohttp.ClientSession)
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if github_token:
+        headers["Authorization"] = f"Bearer {github_token}"
+
+    async with session.get(url, headers=headers) as response:
+        if response.status == 404:
+            return None
+        response.raise_for_status()
+        data = await response.json()
+        return GitHubRelease(
+            name=data.get("name"),
+            tag_name=data["tag_name"],
+            committed_at=data["created_at"],
+        )
+
+
+async def get_tags(
+    owner: str, repo: str, github_token: str | None = None
+) -> c.AsyncGenerator[GitHubTag, None]:
+    """Get information about a specific release by tag."""
+    session = inject.instance(aiohttp.ClientSession)
+    url = f"https://api.github.com/repos/{owner}/{repo}/tags"
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if github_token:
+        headers["Authorization"] = f"Bearer {github_token}"
+
+    async with session.get(url, headers=headers) as response:
+        if response.status == 404:
+            return
+        response.raise_for_status()
+        data = await response.json()
+        for tag_data in data:
+            yield GitHubTag(
+                name=tag_data["name"], commit_sha=tag_data["commit"]["sha"]
+            )
 
 
 async def github_fetch_graphql(
@@ -105,6 +224,14 @@ async def _github_fetch_graphql(
                 "    }"
                 "    licenseInfo {"
                 "      spdxId"
+                "    }"
+                "    latestRelease {"
+                "      name"
+                "      tagName"
+                "      tagCommit {"
+                "        id"
+                "        committedDate"
+                "      }"
                 "    }"
                 "    defaultBranchRef {"
                 "      name"
@@ -159,6 +286,11 @@ async def _github_fetch_graphql(
         commit=Commit(
             id=data["defaultBranchRef"]["target"]["oid"],
             date=commit_date,
+        ),
+        latest_release=GitHubRelease(
+            name=data["latestRelease"]["name"],
+            tag_name=data["latestRelease"]["tagName"],
+            committed_at=data["latestRelease"]["tagCommit"]["committedDate"],
         ),
         has_submodules=bool(len(data["submodules"]["nodes"])),
         meta=MetaInformation(
@@ -227,12 +359,19 @@ async def _github_fetch_rest(
             f"GH repository's ({owner}/{repo}) name has changed to {new_owner}!"
         )
 
+    latest_release = await get_latest_release(
+        owner,
+        repo,
+        github_token=github_token,
+    )
+
     return GHRepository(
         owner=new_owner,
         repo=new_repo,
         branch=data["default_branch"],
         commit=None,
         has_submodules=None,
+        latest_release=latest_release,
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepage"],

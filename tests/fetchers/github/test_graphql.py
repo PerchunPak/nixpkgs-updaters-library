@@ -10,6 +10,7 @@ from aioresponses import aioresponses
 from nupd.fetchers.github import (
     Commit,
     GHRepository,
+    GitHubRelease,
     MetaInformation,
     _github_fetch_graphql,  # pyright: ignore[reportPrivateUsage]
 )
@@ -21,6 +22,11 @@ LSPCONFIG_RESPONSE = GHRepository(
     commit=Commit(
         id="6a5ed22255bbe10104ff9b72c55ec2e233a8e571",
         date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
+    ),
+    latest_release=GitHubRelease(
+        name="v1.6.0",
+        tag_name="v1.6.0",
+        committed_at="2025-01-29T16:07:58Z",
     ),
     has_submodules=False,
     meta=MetaInformation(
@@ -64,6 +70,11 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         commit=Commit(
             id="693eb6aa038f832dc614052e6b98bf107f9fcb26",
             date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
+        ),
+        latest_release=GitHubRelease(
+            name="v1.6.0",
+            tag_name="v1.6.0",
+            committed_at="2025-01-29T16:07:58Z",
         ),
         has_submodules=False,
         meta=MetaInformation(

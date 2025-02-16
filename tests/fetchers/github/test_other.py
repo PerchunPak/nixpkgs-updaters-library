@@ -24,6 +24,7 @@ def example_obj() -> github.GHRepository:
         branch="master",
         commit=None,
         has_submodules=None,
+        latest_release=None,
         meta=github.MetaInformation(
             description="Quickstart configs for Nvim LSP",
             homepage="",
