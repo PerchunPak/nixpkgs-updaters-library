@@ -9,7 +9,6 @@ from aioresponses import aioresponses
 
 from nupd.fetchers.github import (
     GHRepository,
-    GitHubRelease,
     MetaInformation,
     _github_fetch_rest,  # pyright: ignore[reportPrivateUsage]
 )
@@ -20,9 +19,7 @@ LSPCONFIG_RESPONSE = GHRepository(
     branch="master",
     commit=None,
     has_submodules=None,
-    latest_release=GitHubRelease(
-        name="v1.6.0", tag_name="v1.6.0", committed_at="2025-01-29T16:07:58Z"
-    ),
+    latest_version=None,
     meta=MetaInformation(
         description="Quickstart configs for Nvim LSP",
         homepage="",
@@ -42,14 +39,6 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
     mock_aiohttp.get(
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
-    with Path(
-        "tests/fetchers/github/responses/rest_latest_release_lspconfig.json"
-    ).open("r") as f:
-        response = json.load(f)
-    mock_aiohttp.get(
-        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
-        payload=response,
-    )
 
     result = await _github_fetch_rest(
         "neovim", "nvim-lspconfig", github_token=None
@@ -66,15 +55,6 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/PerchunPak/mcph", payload=response
     )
 
-    with Path(
-        "tests/fetchers/github/responses/rest_latest_release_lspconfig.json"
-    ).open("r") as f:
-        response = json.load(f)
-    mock_aiohttp.get(
-        "https://api.github.com/repos/PerchunPak/mcph/releases/latest",
-        payload=response,
-    )
-
     result = await _github_fetch_rest("PerchunPak", "mcph", github_token=None)
     assert result == GHRepository(
         owner="PerchunPak",
@@ -82,11 +62,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         branch="master",
         commit=None,
         has_submodules=None,
-        latest_release=GitHubRelease(
-            name="v1.6.0",
-            tag_name="v1.6.0",
-            committed_at="2025-01-29T16:07:58Z",
-        ),
+        latest_version=None,
         meta=MetaInformation(
             description="Minecraft plugin helper, updates and checks versions of all plugins on a server!",
             homepage=None,
@@ -131,15 +107,6 @@ async def test_redirect(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
     )
 
-    with Path(
-        "tests/fetchers/github/responses/rest_latest_release_lspconfig.json"
-    ).open("r") as f:
-        response = json.load(f)
-    mock_aiohttp.get(
-        "https://api.github.com/repos/nvim/lspconfig/releases/latest",
-        payload=response,
-    )
-
     result = await _github_fetch_rest("nvim", "lspconfig", github_token=None)
     assert result == LSPCONFIG_RESPONSE
 
@@ -152,15 +119,6 @@ async def test_no_license(mock_aiohttp: aioresponses) -> None:
         response["license"] = None
     mock_aiohttp.get(
         "https://api.github.com/repos/neovim/nvim-lspconfig", payload=response
-    )
-
-    with Path(
-        "tests/fetchers/github/responses/rest_latest_release_lspconfig.json"
-    ).open("r") as f:
-        response = json.load(f)
-    mock_aiohttp.get(
-        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
-        payload=response,
     )
 
     result = await _github_fetch_rest(

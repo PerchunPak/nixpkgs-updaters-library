@@ -8,9 +8,14 @@ import pytest
 from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
+from nupd.exc import HTTPError
 from nupd.fetchers import github
 from nupd.fetchers.github import (
     Commit,
+    GitHubRelease,
+    GitHubTag,
+    _fetch_latest_release,  # pyright: ignore[reportPrivateUsage]
+    _fetch_tags,  # pyright: ignore[reportPrivateUsage]
     _github_does_have_submodules,  # pyright: ignore[reportPrivateUsage]
     _github_prefetch_commit,  # pyright: ignore[reportPrivateUsage]
 )
@@ -24,7 +29,7 @@ def example_obj() -> github.GHRepository:
         branch="master",
         commit=None,
         has_submodules=None,
-        latest_release=None,
+        latest_version=None,
         meta=github.MetaInformation(
             description="Quickstart configs for Nvim LSP",
             homepage="",
@@ -160,3 +165,217 @@ async def test_github_does_have_submodules_already_fetched(
             attrs.evolve(example_obj, has_submodules=o), github_token=None
         )
     ) is o
+
+
+async def test_github_prefetch_latest_version_release(
+    example_obj: github.GHRepository,
+    mocker: MockerFixture,
+) -> None:
+    release_mock = mocker.patch("nupd.fetchers.github.fetch_latest_release")
+    tag_mock = mocker.patch("nupd.fetchers.github.fetch_tags")
+
+    assert (
+        await example_obj.prefetch_latest_version(github_token=None)
+    ) == attrs.evolve(
+        example_obj, latest_version=release_mock.return_value.tag_name
+    )
+
+    _ = release_mock.assert_awaited_once_with(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+    _ = tag_mock.assert_not_called()
+
+
+async def test_github_prefetch_latest_version_tag(
+    example_obj: github.GHRepository,
+    mocker: MockerFixture,
+) -> None:
+    release_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_latest_release", return_value=None
+    )
+    tag_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_tags",
+        return_value=[
+            GitHubTag(
+                name="v1.6.0",
+                commit_sha="bf81bef7d75a0f4a0cf61462b318ea00b3c97cc8",
+            )
+        ],
+    )
+
+    assert (
+        await example_obj.prefetch_latest_version(github_token=None)
+    ) == attrs.evolve(example_obj, latest_version="v1.6.0")
+
+    _ = release_mock.assert_awaited_once_with(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+    _ = tag_mock.assert_awaited_once_with(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+
+
+async def test_github_prefetch_latest_version_nothing(
+    example_obj: github.GHRepository,
+    mocker: MockerFixture,
+) -> None:
+    release_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_latest_release", return_value=None
+    )
+    tag_mock = mocker.patch("nupd.fetchers.github.fetch_tags", return_value=[])
+
+    assert (
+        await example_obj.prefetch_latest_version(github_token=None)
+    ) == example_obj
+
+    _ = release_mock.assert_awaited_once_with(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+    _ = tag_mock.assert_awaited_once_with(
+        "neovim", "nvim-lspconfig", github_token=None
+    )
+
+
+async def test_github_prefetch_latest_version_already_fetched(
+    example_obj: github.GHRepository,
+) -> None:
+    o = attrs.evolve(example_obj, latest_version=object())
+    assert await o.prefetch_latest_version(github_token=None) is o
+
+
+async def test_github_fetch_latest_release_success(
+    mock_aiohttp: aioresponses,
+) -> None:
+    with Path("tests/fetchers/github/responses/latest_release.json").open(
+        "r"
+    ) as f:
+        payload = json.load(f)
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
+        payload=payload,
+        status=200,
+    )
+
+    assert (
+        await _fetch_latest_release(
+            "neovim", "nvim-lspconfig", github_token=None
+        )
+    ) == GitHubRelease(
+        name="v1.6.0",
+        tag_name="v1.6.0",
+        created_at=datetime.fromisoformat("2025-01-29T16:07:58Z"),
+    )
+
+
+async def test_github_fetch_latest_release_not_found(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
+        payload={},
+        status=404,
+    )
+
+    assert (
+        await _fetch_latest_release(
+            "neovim", "nvim-lspconfig", github_token=None
+        )
+    ) is None
+
+
+async def test_github_fetch_latest_release_error(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
+        payload={},
+        status=400,
+    )
+
+    with pytest.raises(aiohttp.ClientResponseError):
+        assert await _fetch_latest_release(
+            "neovim", "nvim-lspconfig", github_token=None
+        )
+
+
+async def test_github_fetch_latest_release_error_in_payload(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/releases/latest",
+        payload={
+            "errors": [
+                {"message": "lorem ipsum"},
+            ]
+        },
+        status=200,
+    )
+
+    with pytest.raises(HTTPError):
+        assert await _fetch_latest_release(
+            "neovim", "nvim-lspconfig", github_token=None
+        )
+
+
+async def test_github_fetch_tags_success(
+    mock_aiohttp: aioresponses,
+) -> None:
+    with Path("tests/fetchers/github/responses/tags.json").open("r") as f:
+        payload = json.load(f)
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/tags",
+        payload=payload,
+        status=200,
+    )
+
+    assert list(
+        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+    ) == [
+        GitHubTag(
+            name="v1.6.0", commit_sha="bf81bef7d75a0f4a0cf61462b318ea00b3c97cc8"
+        ),
+        GitHubTag(
+            name="v1.5.0", commit_sha="637293ce23c6a965d2f11dfbf92f604bb1978052"
+        ),
+    ]
+
+
+async def test_github_fetch_tags_empty(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/tags",
+        payload=[],
+        status=200,
+    )
+
+    assert (
+        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+    ) == []
+
+
+async def test_github_fetch_tags_not_found(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/tags",
+        payload={},
+        status=404,
+    )
+
+    assert (
+        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+    ) == []
+
+
+async def test_github_fetch_tags_error(
+    mock_aiohttp: aioresponses,
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/tags",
+        payload={},
+        status=400,
+    )
+
+    with pytest.raises(aiohttp.ClientResponseError):
+        assert await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)

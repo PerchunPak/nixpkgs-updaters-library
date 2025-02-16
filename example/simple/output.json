@@ -3,17 +3,18 @@
     "fetched": {
       "branch": "master",
       "commit": {
-        "date": "2025-02-10T02:35:57+00:00",
-        "id": "a840137349fcc35b5ad2c718a9b034b93012fa43"
+        "date": "2025-02-16T06:41:02+00:00",
+        "id": "38e46a6d7ade5c8718f77b2b9fd98a0f7ab32c1e"
       },
       "has_submodules": false,
+      "latest_version": "v0.9.3",
       "meta": {
         "archived": false,
         "archived_at": null,
         "description": "Nvim Treesitter configurations and abstraction layer",
         "homepage": "",
         "license": "Apache-2.0",
-        "stars": 11353
+        "stars": 11390
       },
       "owner": "nvim-treesitter",
       "repo": "nvim-treesitter"
@@ -24,10 +25,10 @@
     },
     "nurl_result": {
       "args": {
-        "hash": "sha256-qkSasxBygBsHZOeppfore86f76MoFn5w1r8S4rMWoVs=",
+        "hash": "sha256-9kyWu7znDHbBFr75XO7O9wNmD77+YsMdfCcEoX90AWg=",
         "owner": "nvim-treesitter",
         "repo": "nvim-treesitter",
-        "rev": "a840137349fcc35b5ad2c718a9b034b93012fa43"
+        "rev": "38e46a6d7ade5c8718f77b2b9fd98a0f7ab32c1e"
       },
       "fetcher": "fetchFromGitHub"
     }
@@ -40,13 +41,14 @@
         "id": "304a8d204ee787d2544d8bc23cd38d2f929e7cc5"
       },
       "has_submodules": false,
+      "latest_version": "v1.4.0",
       "meta": {
         "archived": false,
         "archived_at": null,
         "description": "\u2705  Highlight, list and search todo comments in your projects",
         "homepage": "",
         "license": "Apache-2.0",
-        "stars": 3464
+        "stars": 3482
       },
       "owner": "folke",
       "repo": "todo-comments.nvim"
@@ -73,13 +75,14 @@
         "id": "3d188ed2113431cf8dac77be61b842acb64433d9"
       },
       "has_submodules": false,
+      "latest_version": "v2.2",
       "meta": {
         "archived": false,
         "archived_at": null,
         "description": "surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
         "homepage": "https://www.vim.org/scripts/script.php?script_id=1697",
         "license": null,
-        "stars": 13587
+        "stars": 13595
       },
       "owner": "tpope",
       "repo": "vim-surround"

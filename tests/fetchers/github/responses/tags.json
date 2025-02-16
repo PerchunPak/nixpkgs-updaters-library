@@ -1,0 +1,22 @@
+[
+  {
+    "name": "v1.6.0",
+    "zipball_url": "https://api.github.com/repos/neovim/nvim-lspconfig/zipball/refs/tags/v1.6.0",
+    "tarball_url": "https://api.github.com/repos/neovim/nvim-lspconfig/tarball/refs/tags/v1.6.0",
+    "commit": {
+      "sha": "bf81bef7d75a0f4a0cf61462b318ea00b3c97cc8",
+      "url": "https://api.github.com/repos/neovim/nvim-lspconfig/commits/bf81bef7d75a0f4a0cf61462b318ea00b3c97cc8"
+    },
+    "node_id": "MDM6UmVmMjIxNTEyNDA3OnJlZnMvdGFncy92MS42LjA="
+  },
+  {
+    "name": "v1.5.0",
+    "zipball_url": "https://api.github.com/repos/neovim/nvim-lspconfig/zipball/refs/tags/v1.5.0",
+    "tarball_url": "https://api.github.com/repos/neovim/nvim-lspconfig/tarball/refs/tags/v1.5.0",
+    "commit": {
+      "sha": "637293ce23c6a965d2f11dfbf92f604bb1978052",
+      "url": "https://api.github.com/repos/neovim/nvim-lspconfig/commits/637293ce23c6a965d2f11dfbf92f604bb1978052"
+    },
+    "node_id": "MDM6UmVmMjIxNTEyNDA3OnJlZnMvdGFncy92MS41LjA="
+  }
+]

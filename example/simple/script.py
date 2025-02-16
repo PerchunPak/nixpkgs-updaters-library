@@ -57,7 +57,8 @@ class MyEntryInfo(EntryInfo):
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
-        result = await result.prefetch_commit()
+        result = await result.prefetch_commit(github_token=github_token)
+        result = await result.prefetch_latest_version(github_token=github_token)
         prefetched = await nurl.nurl(
             result.url, submodules=result.has_submodules
         )
