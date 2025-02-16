@@ -43,6 +43,9 @@
             python312Packages.debugpy
             pre-commit
             ruff
+
+            nurl
+            nix-prefetch-scripts
           ];
 
           PYTHONPATH = ".";
