@@ -1,10 +1,13 @@
 final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pfinal: pprev: {
-      nixpkgs-updaters-library = pfinal.callPackage ./package.nix { };
-      nbdb = pfinal.callPackage ./python-nbdb.nix { };
-
-      lint-hook = pfinal.callPackage ./lint-hook/lint-hook.nix { };
+      nixpkgs-updaters-library = pprev.nixpkgs-updaters-library.overridePythonAttrs (old: {
+        version = "1.1.0.dev"; # @version
+        src = ./..;
+        nativeCheckInputs = old.nativeCheckInputs ++ [
+          (pfinal.callPackage ./lint-hook/lint-hook.nix { })
+        ];
+      });
     })
   ];
 }
