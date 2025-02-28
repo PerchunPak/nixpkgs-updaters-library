@@ -29,3 +29,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v30
       - run: nix build -L '.#${{ matrix.attr }}'
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cmd: [ "python example/simple/script.py update", "python example/simple/script.py update 'nvim-treesitter/nvim-treesitter'", "python example/simple/script.py add 'BirdeeHub/nixCats-nvim'" ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v30
+      - run:
+          ${{ matrix.cmd }}
