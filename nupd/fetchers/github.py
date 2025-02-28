@@ -5,28 +5,28 @@ from datetime import datetime
 import aiohttp
 import attrs
 import inject
-from attrs import define, field
+from attrs import define
 from loguru import logger
 
+from nupd import utils
 from nupd.cache import Cache
 from nupd.exc import HTTPError
-from nupd.utils import json_serialize, json_transformer
 
 
-@define(frozen=True, field_transformer=json_transformer)
+@define(frozen=True)
 class GitHubRelease:
     name: str | None
     tag_name: str
     created_at: datetime
 
 
-@define(frozen=True, field_transformer=json_transformer)
+@define(frozen=True)
 class GitHubTag:
     name: str
     commit_sha: str
 
 
-@define(frozen=True, field_transformer=json_transformer)
+@define(frozen=True)
 class MetaInformation:
     description: str | None
     homepage: str | None
@@ -36,7 +36,7 @@ class MetaInformation:
     archived_at: datetime | None
 
 
-@define(frozen=True, field_transformer=json_transformer)
+@define(frozen=True)
 class Commit:
     id: str
     date: datetime
@@ -47,17 +47,9 @@ class GHRepository:
     owner: str
     repo: str
     branch: str
-    meta: MetaInformation = field(
-        converter=lambda x: MetaInformation(**x)
-        if not isinstance(x, MetaInformation)
-        else x
-    )
+    meta: MetaInformation
     has_submodules: bool | None
-    commit: Commit | None = field(
-        converter=lambda x: Commit(**x)
-        if not isinstance(x, Commit | None)
-        else x
-    )
+    commit: Commit | None
     latest_version: str | None
 
     async def prefetch_commit(
@@ -115,10 +107,7 @@ async def github_fetch_graphql(
         return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
     except KeyError:
         result = await _github_fetch_graphql(owner, repo, github_token)
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
+        await cache.set(f"{owner}/{repo}", utils.json_converter.dumps(result))
         return result
 
 
@@ -228,10 +217,7 @@ async def github_fetch_rest(
         result = await _github_fetch_rest(
             owner, repo, github_token=github_token
         )
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
+        await cache.set(f"{owner}/{repo}", utils.json_converter.dumps(result))
         return result
 
 
@@ -306,9 +292,7 @@ async def github_prefetch_commit(
         )
     except KeyError:
         result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(
-            repo.url, attrs.asdict(result, value_serializer=json_serialize)
-        )
+        await cache.set(repo.url, utils.json_converter.dumps(result))
         return result
 
 
@@ -389,7 +373,7 @@ async def fetch_latest_release(
         if result is not None:
             await cache.set(
                 f"{owner}/{repo}",
-                attrs.asdict(result, value_serializer=json_serialize),
+                utils.json_converter.dumps(result),
             )
         return result
     else:
@@ -441,7 +425,7 @@ async def fetch_tags(
         result = await _fetch_tags(owner, repo, github_token=github_token)
         await cache.set(
             f"{owner}/{repo}",
-            [attrs.asdict(v, value_serializer=json_serialize) for v in result],
+            [utils.json_converter.dumps(v) for v in result],
         )
         return result
 

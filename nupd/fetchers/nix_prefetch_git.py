@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 import inject
-from attrs import asdict, define
+from attrs import define
 from loguru import logger
 
 from nupd import exc, utils
@@ -15,7 +15,7 @@ from nupd.executables import Executable
 class GitPrefetchError(exc.NetworkError): ...
 
 
-@define(frozen=True, field_transformer=utils.json_transformer)
+@define(frozen=True)
 class GitPrefetchResult:
     url: str
     rev: str
@@ -55,9 +55,7 @@ async def prefetch_git(
             additional_args=additional_args if additional_args else [],
         )
 
-        await cache.set(
-            key, asdict(result, value_serializer=utils.json_serialize)
-        )
+        await cache.set(key, utils.json_converter.dumps(result))
         return result
     else:
         assert isinstance(result, dict)

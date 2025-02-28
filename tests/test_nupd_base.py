@@ -11,7 +11,6 @@ from loguru import logger
 
 from nupd.base import ABCBase, Nupd
 from nupd.models import Entry, EntryInfo, ImplClasses
-from nupd.utils import json_transformer
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -43,7 +42,7 @@ class TimeoutEntryInfo(DumbEntryInfo):
         await asyncio.sleep(10)
 
 
-@define(frozen=True, field_transformer=json_transformer)
+@define(frozen=True)
 class DumbEntry(Entry[DumbEntryInfo]):
     info: DumbEntryInfo = field(
         converter=lambda x: DumbEntryInfo(**x)

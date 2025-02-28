@@ -5,14 +5,13 @@ import json
 import typing as t
 
 import inject
-from attrs import asdict, define, field
+from attrs import define, field
 from frozendict import frozendict
 from loguru import logger
 
-from nupd import exc
+from nupd import exc, utils
 from nupd.cache import Cache
 from nupd.executables import Executable
-from nupd.utils import json_serialize
 
 type FETCHERS = t.Literal[
     "builtins.fetchGit",
@@ -58,7 +57,7 @@ async def _cache_nurl_call[**P](
         result = await cache.get(key)
     except KeyError:
         result = await __implementation(*args, **kwargs)
-        await cache.set(key, asdict(result, value_serializer=json_serialize))
+        await cache.set(key, utils.json_converter.dumps(result))
         return result
     else:
         assert isinstance(result, dict)

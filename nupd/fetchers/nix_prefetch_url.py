@@ -2,9 +2,9 @@ import asyncio
 import typing as t
 
 import inject
-from attrs import asdict, define
+from attrs import define
 
-from nupd import exc
+from nupd import exc, utils
 from nupd.cache import Cache
 from nupd.executables import Executable
 
@@ -30,7 +30,7 @@ async def prefetch_url(
         result = await cache.get(key)
     except KeyError:
         result = await _prefetch_url(url, unpack=unpack, name=name)
-        await cache.set(key, asdict(result))
+        await cache.set(key, utils.json_converter.dumps(result))
         return result
     else:
         assert isinstance(result, dict)

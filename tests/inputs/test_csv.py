@@ -1,10 +1,10 @@
 import typing as t
 from pathlib import Path
 
-import attrs
 import pytest
 from attrs import define
 
+from nupd import utils
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo
 
@@ -54,7 +54,7 @@ def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
             CsvEntryInfo("example1", "example2"),
             CsvEntryInfo("aaaa", "bbbb"),
         ],
-        serialize=attrs.asdict,
+        serialize=utils.json_converter.dumps,
     )
 
     with csv_input.file.open("r") as f:

@@ -4,10 +4,10 @@ import os
 import typing as t
 from pathlib import Path
 
-import attrs
 from attrs import define, field
 from loguru import logger
 
+from nupd import utils
 from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
@@ -99,7 +99,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
         CsvInput[MyEntryInfo](self.input_file).write(
             entries_info,
-            serialize=attrs.asdict,
+            serialize=utils.json_converter.dumps,
         )
 
     @t.override
