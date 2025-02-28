@@ -67,9 +67,21 @@ class MyEntryInfo(EntryInfo):
 
 @define(frozen=True)
 class MyEntry(Entry[EntryInfo]):
-    fetched: GHRepository
-    info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
-    nurl_result: nurl.NurlResult
+    info: MyEntryInfo = field(
+        converter=lambda x: MyEntryInfo(**x)
+        if not isinstance(x, MyEntryInfo)
+        else x
+    )
+    fetched: GHRepository = field(
+        converter=lambda x: GHRepository(**x)
+        if not isinstance(x, GHRepository)
+        else x
+    )
+    nurl_result: nurl.NurlResult = field(
+        converter=lambda x: nurl.NurlResult(**x)
+        if not isinstance(x, nurl.NurlResult)
+        else x
+    )
 
 
 @define
