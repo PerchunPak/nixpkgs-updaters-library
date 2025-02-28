@@ -5,7 +5,6 @@ import asyncio
 import json
 import typing as t
 
-import attrs
 import inject
 from attrs import define, field
 from loguru import logger
@@ -162,9 +161,7 @@ class Nupd:
         data: dict[str, t.Any] = {}
 
         for entry in entries:
-            data[entry.info.id] = attrs.asdict(
-                entry, value_serializer=utils.json_serialize
-            )
+            data[entry.info.id] = entry.model_dump()
 
         with self.impl.output_file.open("w", newline="\n") as f:
             json.dump(data, f, indent=2, sort_keys=True)

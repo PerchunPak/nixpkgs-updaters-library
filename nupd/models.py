@@ -4,17 +4,16 @@ import abc
 import dataclasses
 import typing as t
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 if t.TYPE_CHECKING:
     from nupd.base import ABCBase
 
 
-class NupdModel(BaseModel):
-    model_config: ConfigDict = ConfigDict(frozen=True, extra="forbid")  # pyright: ignore[reportIncompatibleVariableOverride]
+class NupdModel(BaseModel, frozen=True, extra="forbid"): ...
 
 
-class EntryInfo(NupdModel, abc.ABC):
+class EntryInfo(NupdModel, abc.ABC, frozen=True):
     """A minimal amount of information that is only enough to prefetch the entry."""
 
     @property
@@ -25,7 +24,7 @@ class EntryInfo(NupdModel, abc.ABC):
     async def fetch(self) -> Entry[t.Any]: ...
 
 
-class Entry[I: EntryInfo](NupdModel, abc.ABC):
+class Entry[I: EntryInfo](NupdModel, abc.ABC, frozen=True):
     """All information about the entry, that we need to generate Nix code."""
 
     info: I
