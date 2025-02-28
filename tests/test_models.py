@@ -4,7 +4,7 @@
 import typing as t
 
 import pytest
-from attrs import define, field
+from attrs import define
 
 from nupd.models import Entry, EntryInfo
 
@@ -29,7 +29,7 @@ class InvalidMyEntry(Entry[MyEntryInfo]): ...
 
 @define(frozen=True)
 class ValidMyEntry(Entry[MyEntryInfo]):
-    info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
+    info: MyEntryInfo
 
 
 def test_entry_post_init_invalid() -> None:

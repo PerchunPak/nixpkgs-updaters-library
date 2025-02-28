@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import abc
+import dataclasses
 import typing as t
 
-from attrs import define
+from pydantic import BaseModel
 
 if t.TYPE_CHECKING:
     from nupd.base import ABCBase
 
 
-@define(frozen=True)
-class EntryInfo(abc.ABC):
+class NupdModel(BaseModel, frozen=True, extra="forbid"): ...
+
+
+class EntryInfo(NupdModel, abc.ABC, frozen=True):
     """A minimal amount of information that is only enough to prefetch the entry."""
 
     @property
@@ -21,15 +24,14 @@ class EntryInfo(abc.ABC):
     async def fetch(self) -> Entry[t.Any]: ...
 
 
-@define(frozen=True)
-class Entry[I: EntryInfo](abc.ABC):
+class Entry[I: EntryInfo](NupdModel, abc.ABC, frozen=True):
     """All information about the entry, that we need to generate Nix code."""
 
     info: I
 
 
 @t.final
-@define(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class ImplClasses:
     """Settings, passed to `app.info.context_settings["obj"] = HERE`."""
 

@@ -5,14 +5,13 @@ import json
 import typing as t
 
 import inject
-from attrs import asdict, define, field
-from frozendict import frozendict
 from loguru import logger
 
 from nupd import exc
 from nupd.cache import Cache
 from nupd.executables import Executable
-from nupd.utils import json_serialize
+from nupd.models import NupdModel
+from nupd.utils import FrozenDict
 
 type FETCHERS = t.Literal[
     "builtins.fetchGit",
@@ -35,9 +34,8 @@ type FETCHERS = t.Literal[
 class NurlError(exc.NetworkError): ...
 
 
-@define(frozen=True)
-class NurlResult:
-    args: frozendict[str, str | int] = field(converter=frozendict)
+class NurlResult(NupdModel, frozen=True):
+    args: FrozenDict[str, str | int]
     fetcher: FETCHERS
 
 
@@ -58,7 +56,7 @@ async def _cache_nurl_call[**P](
         result = await cache.get(key)
     except KeyError:
         result = await __implementation(*args, **kwargs)
-        await cache.set(key, asdict(result, value_serializer=json_serialize))
+        await cache.set(key, result.model_dump())
         return result
     else:
         assert isinstance(result, dict)

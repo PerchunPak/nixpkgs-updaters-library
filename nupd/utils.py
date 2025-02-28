@@ -3,14 +3,13 @@ from __future__ import annotations
 import asyncio
 import collections.abc as c
 import functools
-import types
 import typing as t
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from functools import wraps
 
-if t.TYPE_CHECKING:
-    import attrs
+import pydantic
+import pydantic_core
+from frozendict import frozendict
 
 
 def async_to_sync[**P, R](  # pragma: no cover
@@ -44,41 +43,34 @@ def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
         yield lst[i : i + n]
 
 
-def json_transformer(
-    _cls: type[attrs.AttrsInstance], fields: list[attrs.Attribute[t.Any]]
-) -> list[t.Any]:
-    """https://www.attrs.org/en/stable/extending.html#automatic-field-transformation-and-modification."""
-    results: list[t.Any] = []
+class _PydanticFrozenDictAnnotation[_K, _V]:
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: t.Any, handler: pydantic.GetCoreSchemaHandler
+    ) -> pydantic_core.core_schema.CoreSchema:
+        def validate_from_dict(
+            d: dict[_K, _V] | frozendict[_K, _V],
+        ) -> frozendict[_K, _V]:
+            return frozendict(d)
 
-    for field in fields:
-        if field.converter is not None:
-            results.append(field)
-            continue
-
-        if field.type in {datetime, "datetime"} or (
-            type(field.type) in {t.Union, types.UnionType}  # pyright: ignore[reportDeprecated]
-            and datetime in t.get_args(field.type)
-        ):
-            converter: t.Callable[[str | t.Any], datetime | t.Any] | None = (
-                lambda d: datetime.fromisoformat(d) if isinstance(d, str) else d
-            )
-        else:
-            converter = None
-
-        results.append(field.evolve(converter=converter))
-
-    return results
+        frozendict_schema = pydantic_core.core_schema.chain_schema(
+            [
+                handler.generate_schema(dict[*t.get_args(source_type)]),  # pyright: ignore[reportInvalidTypeArguments]
+                pydantic_core.core_schema.no_info_plain_validator_function(
+                    validate_from_dict
+                ),
+                pydantic_core.core_schema.is_instance_schema(frozendict),
+            ]
+        )
+        return pydantic_core.core_schema.json_or_python_schema(
+            json_schema=frozendict_schema,
+            python_schema=frozendict_schema,
+            serialization=pydantic_core.core_schema.plain_serializer_function_ser_schema(
+                dict
+            ),
+        )
 
 
-def json_serialize(
-    _cls: type[attrs.AttrsInstance],
-    _field: attrs.Attribute[t.Any],
-    value: t.Any,
-) -> t.Any:
-    if isinstance(value, datetime):
-        return value.isoformat()
-    if isinstance(value, c.Iterable) and (
-        not isinstance(value, str) and not isinstance(value, c.Mapping)
-    ):
-        return list(value)
-    return value  # pyright: ignore[reportUnknownVariableType]
+type FrozenDict[_K, _V] = t.Annotated[
+    frozendict[_K, _V], _PydanticFrozenDictAnnotation
+]
