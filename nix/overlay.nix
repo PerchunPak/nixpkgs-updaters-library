@@ -7,6 +7,10 @@ final: prev: {
         nativeCheckInputs = old.nativeCheckInputs ++ [
           (pfinal.callPackage ./lint-hook/lint-hook.nix { })
         ];
+
+        dependencies = old.dependencies ++ [
+          pfinal.pydantic
+        ];
       });
     })
   ];
