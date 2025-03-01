@@ -2,15 +2,13 @@ import typing as t
 from pathlib import Path
 
 import inject
-from attrs import define
 
 from nupd.cache import Cache
-from nupd.models import ImplClasses
+from nupd.models import ImplClasses, NupdModel
 from nupd.shutdown import Shutdowner
 
 
-@define
-class Config:
+class Config(NupdModel, frozen=True):
     nixpkgs_path: Path
     input_file: Path | None
     output_file: Path | None

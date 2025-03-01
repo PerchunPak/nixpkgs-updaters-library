@@ -1,3 +1,5 @@
+import dataclasses
+
 import pydantic
 import pytest
 from frozendict import deepfreeze, frozendict
@@ -32,3 +34,48 @@ def test_frozendict_type_alias() -> None:
     loaded = Example.model_validate_json(json)
     assert isinstance(loaded.mapping, frozendict)
     assert loaded.mapping == x
+
+
+@dataclasses.dataclass
+class Dataclass:
+    a: int
+    b: int
+
+
+@dataclasses.dataclass(frozen=True)
+class DataclassFrozen:
+    a: int
+    b: int
+
+
+class Pydantic(pydantic.BaseModel):
+    a: int
+    b: int
+
+
+class PydanticFrozen(pydantic.BaseModel, frozen=True):
+    a: int
+    b: int
+
+
+@pytest.mark.parametrize("cls", [Dataclass, DataclassFrozen])
+def test_replace_dataclass(cls: type[Dataclass]) -> None:
+    obj = cls(123, 321)
+    new = utils.replace(obj, b=111)
+    assert obj == cls(123, 321)
+    assert new == cls(123, 111)
+    assert obj is not new
+
+
+@pytest.mark.parametrize("cls", [PydanticFrozen, Pydantic])
+def test_replace_pydantic(cls: type[Dataclass]) -> None:
+    obj = cls(a=123, b=321)
+    new = utils.replace(obj, b=111)
+    assert obj == cls(a=123, b=321)
+    assert new == cls(a=123, b=111)
+    assert obj is not new
+
+
+def test_replace_something_else() -> None:
+    with pytest.raises(TypeError, match="dataclass or pydantic instances"):
+        _ = utils.replace(object(), a=123)

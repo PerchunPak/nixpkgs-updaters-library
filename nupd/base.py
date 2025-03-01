@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import abc
 import asyncio
+import dataclasses
 import json
 import typing as t
 
 import inject
-from attrs import define, field
 from loguru import logger
 
 from nupd import utils
@@ -18,23 +18,24 @@ if t.TYPE_CHECKING:
     from pathlib import Path
 
 
-@define
+def undefined_default() -> t.Never:
+    raise NotImplementedError(
+        "Please provide a default value for the output file. See example implementation"
+    )
+
+
+@dataclasses.dataclass
 class ABCBase[E: Entry[t.Any], I: EntryInfo](abc.ABC):
-    config: Config = field(factory=lambda: inject.instance(Config))
-    _default_input_file: Path = field(init=False)
-    _default_output_file: Path = field(init=False)
+    config: Config = dataclasses.field(
+        default_factory=lambda: inject.instance(Config)
+    )
 
-    @_default_input_file.default  # pyright: ignore[reportUntypedFunctionDecorator,reportAttributeAccessIssue]
-    def __default_input_file2(self) -> Path:  # pyright: ignore[reportUnusedFunction]
-        raise NotImplementedError(
-            "Please provide a default value for the input file. See example implementation"
-        )
-
-    @_default_output_file.default  # pyright: ignore[reportUntypedFunctionDecorator,reportAttributeAccessIssue]
-    def __default_output_file2(self) -> Path:  # pyright: ignore[reportUnusedFunction]
-        raise NotImplementedError(
-            "Please provide a default value for the output file. See example implementation"
-        )
+    _default_input_file: Path = dataclasses.field(
+        init=False, default_factory=undefined_default
+    )
+    _default_output_file: Path = dataclasses.field(
+        init=False, default_factory=undefined_default
+    )
 
     @property
     def input_file(self) -> Path:
@@ -64,14 +65,15 @@ class ABCBase[E: Entry[t.Any], I: EntryInfo](abc.ABC):
 
 
 @t.final
-@define
+@dataclasses.dataclass
 class Nupd:
-    impls: ImplClasses = field(factory=lambda: inject.instance(ImplClasses))
-    impl: ABCBase[Entry[t.Any], EntryInfo] = field(init=False)
+    impls: ImplClasses = dataclasses.field(
+        default_factory=lambda: inject.instance(ImplClasses)
+    )
+    impl: ABCBase[Entry[t.Any], EntryInfo] = dataclasses.field(init=False)
 
-    @impl.default  # pyright: ignore[reportUntypedFunctionDecorator,reportAttributeAccessIssue]
-    def _impl_default(self) -> ABCBase[Entry[t.Any], EntryInfo]:  # pyright: ignore[reportUnusedFunction]
-        return t.cast(
+    def __post_init__(self) -> None:
+        self.impl = t.cast(
             "type[ABCBase[Entry[t.Any], EntryInfo]]", self.impls.base
         )()
 
@@ -161,7 +163,7 @@ class Nupd:
         data: dict[str, t.Any] = {}
 
         for entry in entries:
-            data[entry.info.id] = entry.model_dump()
+            data[entry.info.id] = entry.model_dump(mode="json")
 
         with self.impl.output_file.open("w", newline="\n") as f:
             json.dump(data, f, indent=2, sort_keys=True)

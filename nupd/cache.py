@@ -1,7 +1,7 @@
+import dataclasses
 from pathlib import Path
 
 import platformdirs
-from attrs import define, field
 from nbdb.storage import SERIALIZABLE_TYPE, Storage
 
 
@@ -29,9 +29,11 @@ class CacheInstance:
         return await self._storage.get(key)
 
 
-@define
+@dataclasses.dataclass
 class Cache:
-    _instances: dict[str, CacheInstance] = field(factory=dict)
+    _instances: dict[str, CacheInstance] = dataclasses.field(
+        default_factory=dict
+    )
 
     def __getitem__(self, name: str) -> CacheInstance:
         if inst := self._instances.get(name):

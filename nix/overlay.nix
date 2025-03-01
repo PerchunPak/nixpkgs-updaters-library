@@ -8,9 +8,21 @@ final: prev: {
           (pfinal.callPackage ./lint-hook/lint-hook.nix { })
         ];
 
-        dependencies = old.dependencies ++ [
-          pfinal.pydantic
-        ];
+        dependencies =
+          (with pfinal; [
+            aiohttp
+            frozendict
+            inject
+            loguru
+            nonbloat-db
+            platformdirs
+            pydantic
+            typer
+          ])
+          ++ (with final; [
+            nurl
+            nix-prefetch-git
+          ]);
       });
     })
   ];

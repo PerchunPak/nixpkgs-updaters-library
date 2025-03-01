@@ -3,11 +3,11 @@ from datetime import datetime
 from pathlib import Path
 
 import aiohttp
-import attrs
 import pytest
 from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
+from nupd import utils
 from nupd.exc import HTTPError
 from nupd.fetchers import github
 from nupd.fetchers.github import (
@@ -159,26 +159,31 @@ async def test_github_does_have_submodules_not_found(
 async def test_github_does_have_submodules_already_fetched(
     example_obj: github.GHRepository,
 ) -> None:
-    o = object()
     assert (
         await _github_does_have_submodules(
-            attrs.evolve(example_obj, has_submodules=o), github_token=None
+            utils.replace(example_obj, has_submodules=False),
+            github_token=None,
         )
-    ) is o
+    ) is False
 
 
 async def test_github_prefetch_latest_version_release(
     example_obj: github.GHRepository,
     mocker: MockerFixture,
 ) -> None:
-    release_mock = mocker.patch("nupd.fetchers.github.fetch_latest_release")
+    release_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_latest_release",
+        return_value=GitHubRelease(
+            name="1.2.3",
+            tag_name="1.2.3",
+            created_at=datetime(1970, 1, 1),  # noqa: DTZ001
+        ),
+    )
     tag_mock = mocker.patch("nupd.fetchers.github.fetch_tags")
 
     assert (
         await example_obj.prefetch_latest_version(github_token=None)
-    ) == attrs.evolve(
-        example_obj, latest_version=release_mock.return_value.tag_name
-    )
+    ) == utils.replace(example_obj, latest_version="1.2.3")
 
     _ = release_mock.assert_awaited_once_with(
         "neovim", "nvim-lspconfig", github_token=None
@@ -205,7 +210,7 @@ async def test_github_prefetch_latest_version_tag(
 
     assert (
         await example_obj.prefetch_latest_version(github_token=None)
-    ) == attrs.evolve(example_obj, latest_version="v1.6.0")
+    ) == utils.replace(example_obj, latest_version="v1.6.0")
 
     _ = release_mock.assert_awaited_once_with(
         "neovim", "nvim-lspconfig", github_token=None
@@ -239,7 +244,7 @@ async def test_github_prefetch_latest_version_nothing(
 async def test_github_prefetch_latest_version_already_fetched(
     example_obj: github.GHRepository,
 ) -> None:
-    o = attrs.evolve(example_obj, latest_version=object())
+    o = utils.replace(example_obj, latest_version="abcde")
     assert await o.prefetch_latest_version(github_token=None) is o
 
 

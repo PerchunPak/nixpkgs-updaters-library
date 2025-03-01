@@ -3,10 +3,10 @@ import typing as t
 from datetime import datetime
 
 import aiohttp
-import attrs
 import inject
 from loguru import logger
 
+from nupd import utils
 from nupd.cache import Cache
 from nupd.exc import HTTPError
 from nupd.models import NupdModel
@@ -53,7 +53,7 @@ class GHRepository(NupdModel, frozen=True):
         has_submodules = await github_does_have_submodules(
             self, github_token=github_token
         )
-        return attrs.evolve(self, commit=commit, has_submodules=has_submodules)
+        return utils.replace(self, commit=commit, has_submodules=has_submodules)
 
     async def prefetch_latest_version(
         self, github_token: str | None = None
@@ -67,7 +67,7 @@ class GHRepository(NupdModel, frozen=True):
             self.owner, self.repo, github_token=github_token
         )
         if latest_release is not None:
-            return attrs.evolve(self, latest_version=latest_release.tag_name)
+            return utils.replace(self, latest_version=latest_release.tag_name)
 
         # If no releases, try to get the latest tag
         tags = await fetch_tags(
@@ -76,7 +76,7 @@ class GHRepository(NupdModel, frozen=True):
         try:
             # GitHub returns tags in descending order
             latest_tag = next(iter(tags))
-            return attrs.evolve(self, latest_version=latest_tag.name)
+            return utils.replace(self, latest_version=latest_tag.name)
         except StopIteration:
             pass
         return self

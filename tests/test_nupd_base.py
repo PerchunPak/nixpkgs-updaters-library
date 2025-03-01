@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import typing as t
 from datetime import datetime
 from pathlib import Path
@@ -49,6 +50,7 @@ class DumbEntry(Entry[DumbEntryInfo], frozen=True):
     )
 
 
+@dataclasses.dataclass
 class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     _default_input_file: Path = Path("/homeless-shelter")
     _default_output_file: Path = Path("/homeless-shelter")
@@ -104,7 +106,8 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     _ = mocker.patch(
         "nupd.base.Nupd.get_all_entries_from_the_output_file",
         return_value=[
-            DumbEntry(info, "sha256-some/cool/hash") for info in entries_info
+            DumbEntry(info=info, hash="sha256-some/cool/hash")
+            for info in entries_info
         ],
     )
     spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
@@ -114,8 +117,8 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     await Nupd().add_cmd(["four", "five"])
 
     new_entries_info = {
-        DumbEntryInfo("four"),
-        DumbEntryInfo("five"),
+        DumbEntryInfo(name="four"),
+        DumbEntryInfo(name="five"),
     }
     entries_info = entries_info.union(new_entries_info)
 
@@ -126,7 +129,7 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     assert len(mocked_write_entries.call_args.args) == 1
     assert list(mocked_write_entries.call_args.args[0]) == [
         DumbEntry(info=DumbEntryInfo(name=name), hash="sha256-some/cool/hash")
-        for name in ["two", "one", "three", "four", "five"]
+        for name in ["three", "one", "two", "five", "four"]
     ]
 
 
@@ -207,11 +210,11 @@ def test_get_all_entries_from_the_output_file(
 
     nupd = Nupd()
     entries = [
-        DumbEntry(info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"),
         DumbEntry(info=DumbEntryInfo(name="one"), hash="sha256-some/cool/hash"),
         DumbEntry(
             info=DumbEntryInfo(name="three"), hash="sha256-some/cool/hash"
         ),
+        DumbEntry(info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"),
     ]
 
     if file_exists:
