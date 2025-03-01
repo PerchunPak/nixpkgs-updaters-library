@@ -4,6 +4,14 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 2.0.0 (unreleased)
+
+- Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/)
+
+  Pydantic does runtime type validation and is better for our usecase. While
+  attrs doesn't have any sensible way to recursively serialize/deserialize into
+  JSON. This is so stupid.
+
 ## Version 1.2.0
 
 - Show `--help` if no arguments were provided ([`687c0859`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/687c08596302b525a136d6ff66ccaf9f8147f450))
