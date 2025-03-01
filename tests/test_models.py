@@ -14,12 +14,16 @@ class MyEntryInfo(EntryInfo, frozen=True):
         return self.name
 
     @t.override
-    async def fetch(self) -> Entry[t.Any]:
+    async def fetch(self) -> Entry[t.Any, t.Any]:
         raise NotImplementedError
 
 
-class MyEntry(Entry[MyEntryInfo], frozen=True):
+class MyEntry(Entry[MyEntryInfo, t.Any], frozen=True):
     info: MyEntryInfo
+
+    @t.override
+    def minify(self) -> t.Never:
+        raise NotImplementedError
 
 
 @pytest.mark.parametrize("value", [MyEntryInfo(name="some"), {"name": "some"}])

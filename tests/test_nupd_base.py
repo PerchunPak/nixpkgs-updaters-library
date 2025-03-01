@@ -11,7 +11,7 @@ from loguru import logger
 from pydantic import Field
 
 from nupd.base import ABCBase, Nupd
-from nupd.models import Entry, EntryInfo, ImplClasses
+from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -42,7 +42,23 @@ class TimeoutEntryInfo(DumbEntryInfo, frozen=True):
         raise NotImplementedError
 
 
-class DumbEntry(Entry[DumbEntryInfo], frozen=True):
+class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
+    info: DumbEntryInfo
+    hash: str
+    some_date: datetime = Field(
+        default_factory=lambda: datetime.fromtimestamp(0)  # noqa: DTZ006
+    )
+
+    @t.override
+    def minify(self) -> DumbMiniEntry:
+        return DumbMiniEntry(
+            info=self.info,
+            hash=self.hash,
+            some_date=self.some_date,
+        )
+
+
+class DumbMiniEntry(MiniEntry[DumbEntryInfo], frozen=True):
     info: DumbEntryInfo
     hash: str
     some_date: datetime = Field(
@@ -79,6 +95,7 @@ def mock_inject_impl_classes(mock_inject: MOCK_INJECT) -> None:
     mock_inject(
         ImplClasses,
         ImplClasses(
+            mini_entry=DumbMiniEntry,
             base=DumbBase,
             entry=DumbEntry,
             entry_info=DumbEntryInfo,
@@ -210,11 +227,15 @@ def test_get_all_entries_from_the_output_file(
 
     nupd = Nupd()
     entries = [
-        DumbEntry(info=DumbEntryInfo(name="one"), hash="sha256-some/cool/hash"),
-        DumbEntry(
+        DumbMiniEntry(
+            info=DumbEntryInfo(name="one"), hash="sha256-some/cool/hash"
+        ),
+        DumbMiniEntry(
             info=DumbEntryInfo(name="three"), hash="sha256-some/cool/hash"
         ),
-        DumbEntry(info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"),
+        DumbMiniEntry(
+            info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"
+        ),
     ]
 
     if file_exists:

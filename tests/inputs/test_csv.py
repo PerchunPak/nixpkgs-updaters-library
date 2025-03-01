@@ -17,7 +17,7 @@ class CsvEntryInfo(EntryInfo, frozen=True):
         return self.name
 
     @t.override
-    async def fetch(self) -> Entry[t.Any]:
+    async def fetch(self) -> Entry[t.Any, t.Any]:
         raise NotImplementedError
 
 

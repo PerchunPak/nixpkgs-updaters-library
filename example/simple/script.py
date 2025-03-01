@@ -17,7 +17,7 @@ from nupd.fetchers.github import (
     github_fetch_rest,
 )
 from nupd.inputs.csv import CsvInput
-from nupd.models import Entry, EntryInfo, ImplClasses
+from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -63,10 +63,21 @@ class MyEntryInfo(EntryInfo, frozen=True):
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
-class MyEntry(Entry[EntryInfo], frozen=True):
+class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
+    nurl: nurl.NurlResult
+
+
+class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
     info: MyEntryInfo
     fetched: GHRepository
     nurl_result: nurl.NurlResult
+
+    @t.override
+    def minify(self) -> MyMiniEntry:
+        return MyMiniEntry(
+            info=self.info,
+            nurl=self.nurl_result,
+        )
 
 
 @dataclasses.dataclass
@@ -108,6 +119,7 @@ if __name__ == "__main__":
     assert isinstance(app.info.context_settings, dict)
     app.info.context_settings["obj"] = ImplClasses(
         base=MyImpl,
+        mini_entry=MyMiniEntry,
         entry=MyEntry,
         entry_info=MyEntryInfo,
     )

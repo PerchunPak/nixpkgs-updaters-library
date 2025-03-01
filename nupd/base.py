@@ -11,7 +11,7 @@ from loguru import logger
 
 from nupd import utils
 from nupd.injections import Config
-from nupd.models import Entry, EntryInfo, ImplClasses
+from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -25,7 +25,7 @@ def undefined_default() -> t.Never:
 
 
 @dataclasses.dataclass
-class ABCBase[E: Entry[t.Any], I: EntryInfo](abc.ABC):
+class ABCBase[E: Entry[t.Any, t.Any], I: EntryInfo](abc.ABC):
     config: Config = dataclasses.field(
         default_factory=lambda: inject.instance(Config)
     )
@@ -70,11 +70,13 @@ class Nupd:
     impls: ImplClasses = dataclasses.field(
         default_factory=lambda: inject.instance(ImplClasses)
     )
-    impl: ABCBase[Entry[t.Any], EntryInfo] = dataclasses.field(init=False)
+    impl: ABCBase[Entry[t.Any, t.Any], EntryInfo] = dataclasses.field(
+        init=False
+    )
 
     def __post_init__(self) -> None:
         self.impl = t.cast(
-            "type[ABCBase[Entry[t.Any], EntryInfo]]", self.impls.base
+            "type[ABCBase[Entry[t.Any, t.Any], EntryInfo]]", self.impls.base
         )()
 
     async def add_cmd(self, entry_ids: c.Sequence[str]) -> None:
@@ -83,7 +85,7 @@ class Nupd:
         }
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries: dict[str, Entry[t.Any]] = {
+        all_entries: dict[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {
             entry.info: entry
             for entry in self.get_all_entries_from_the_output_file()
         }
@@ -106,7 +108,7 @@ class Nupd:
         )
         all_entries_info = set(await self.impl.get_all_entries())
 
-        all_entries: dict[str, Entry[t.Any]] = {}
+        all_entries: c.Mapping[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {}
         if len(entries_info) == 0:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info)
         else:  # update only selected entries
@@ -125,14 +127,14 @@ class Nupd:
     async def fetch_entries(
         self,
         entries: c.Collection[EntryInfo],
-    ) -> dict[str, Entry[t.Any]]:
+    ) -> dict[str, Entry[t.Any, t.Any]]:
         config = inject.instance(Config)
         logger.info(
             f"Going to fetch {len(entries)} entries with limit of {config.jobs}"
             " simultaneously"
         )
 
-        all_results: dict[str, Entry[t.Any]] = {}
+        all_results: dict[str, Entry[t.Any, t.Any]] = {}
         for chunk in utils.chunks(list(entries), config.jobs):
             logger.debug(f"Next chunk ({len(chunk)})")
 
@@ -149,7 +151,9 @@ class Nupd:
 
         return all_results
 
-    def get_all_entries_from_the_output_file(self) -> c.Iterable[Entry[t.Any]]:
+    def get_all_entries_from_the_output_file(
+        self,
+    ) -> c.Iterable[MiniEntry[t.Any]]:
         if not self.impl.output_file.exists():
             return
 
@@ -157,12 +161,16 @@ class Nupd:
             data = json.load(f)
 
         for entry in data.values():
-            yield self.impls.entry(**entry)
+            yield self.impls.mini_entry(**entry)
 
-    def write_entries(self, entries: c.Iterable[Entry[t.Any]]) -> None:
+    def write_entries(
+        self, entries: c.Iterable[Entry[t.Any, t.Any] | MiniEntry[t.Any]]
+    ) -> None:
         data: dict[str, t.Any] = {}
 
         for entry in entries:
+            if isinstance(entry, Entry):
+                entry = entry.minify()  # noqa: PLW2901
             data[entry.info.id] = entry.model_dump(mode="json")
 
         with self.impl.output_file.open("w", newline="\n") as f:
