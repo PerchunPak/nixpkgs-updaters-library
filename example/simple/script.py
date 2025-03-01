@@ -1,11 +1,10 @@
 from __future__ import annotations  # noqa: INP001
 
+import dataclasses
 import os
 import typing as t
 from pathlib import Path
 
-import attrs
-from attrs import define, field
 from loguru import logger
 
 from nupd.base import ABCBase
@@ -29,8 +28,7 @@ if "/nix/store" in str(ROOT):
     ROOT = Path.cwd()  # pyright: ignore[reportConstantRedefinition]
 
 
-@define(frozen=True)
-class MyEntryInfo(EntryInfo):
+class MyEntryInfo(EntryInfo, frozen=True):
     owner: str
     repo: str
 
@@ -65,29 +63,20 @@ class MyEntryInfo(EntryInfo):
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
-@define(frozen=True)
-class MyEntry(Entry[EntryInfo]):
-    info: MyEntryInfo = field(
-        converter=lambda x: MyEntryInfo(**x)
-        if not isinstance(x, MyEntryInfo)
-        else x
-    )
-    fetched: GHRepository = field(
-        converter=lambda x: GHRepository(**x)
-        if not isinstance(x, GHRepository)
-        else x
-    )
-    nurl_result: nurl.NurlResult = field(
-        converter=lambda x: nurl.NurlResult(**x)
-        if not isinstance(x, nurl.NurlResult)
-        else x
-    )
+class MyEntry(Entry[EntryInfo], frozen=True):
+    info: MyEntryInfo
+    fetched: GHRepository
+    nurl_result: nurl.NurlResult
 
 
-@define
+@dataclasses.dataclass
 class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
-    _default_input_file: Path = field(init=False, default=ROOT / "input.csv")
-    _default_output_file: Path = field(init=False, default=ROOT / "output.json")
+    _default_input_file: Path = dataclasses.field(
+        init=False, default=ROOT / "input.csv"
+    )
+    _default_output_file: Path = dataclasses.field(
+        init=False, default=ROOT / "output.json"
+    )
 
     @t.override
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
@@ -99,7 +88,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
         CsvInput[MyEntryInfo](self.input_file).write(
             entries_info,
-            serialize=attrs.asdict,
+            serialize=lambda x: x.model_dump(mode="json"),
         )
 
     @t.override

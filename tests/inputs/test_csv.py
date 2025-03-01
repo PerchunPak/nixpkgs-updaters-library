@@ -1,16 +1,13 @@
 import typing as t
 from pathlib import Path
 
-import attrs
 import pytest
-from attrs import define
 
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo
 
 
-@define(frozen=True)
-class CsvEntryInfo(EntryInfo):
+class CsvEntryInfo(EntryInfo, frozen=True):
     name: str
     value: str
 
@@ -41,20 +38,20 @@ def test_csv_read(csv_input: CsvInput[CsvEntryInfo]) -> None:
         )
 
     assert list(csv_input.read(lambda x: CsvEntryInfo(**x))) == [
-        CsvEntryInfo("some", "thing"),
-        CsvEntryInfo("example1", "example2"),
-        CsvEntryInfo("aaaa", "bbbb"),
+        CsvEntryInfo(name="some", value="thing"),
+        CsvEntryInfo(name="example1", value="example2"),
+        CsvEntryInfo(name="aaaa", value="bbbb"),
     ]
 
 
 def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
     csv_input.write(
         [
-            CsvEntryInfo("some", "thing"),
-            CsvEntryInfo("example1", "example2"),
-            CsvEntryInfo("aaaa", "bbbb"),
+            CsvEntryInfo(name="some", value="thing"),
+            CsvEntryInfo(name="example1", value="example2"),
+            CsvEntryInfo(name="aaaa", value="bbbb"),
         ],
-        serialize=attrs.asdict,
+        serialize=lambda x: x.model_dump(mode="json"),
     )
 
     with csv_input.file.open("r") as f:

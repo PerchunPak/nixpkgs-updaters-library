@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 import asyncio
-import collections.abc as c
+import copy
+import dataclasses
 import functools
-import types
 import typing as t
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from functools import wraps
 
+import pydantic_core
+from frozendict import frozendict
+from pydantic import BaseModel
+
 if t.TYPE_CHECKING:
-    import attrs
+    import collections.abc as c
+
+    import pydantic
 
 
 def async_to_sync[**P, R](  # pragma: no cover
@@ -44,41 +49,58 @@ def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
         yield lst[i : i + n]
 
 
-def json_transformer(
-    _cls: type[attrs.AttrsInstance], fields: list[attrs.Attribute[t.Any]]
-) -> list[t.Any]:
-    """https://www.attrs.org/en/stable/extending.html#automatic-field-transformation-and-modification."""
-    results: list[t.Any] = []
+class _PydanticFrozenDictAnnotation[_K, _V]:
+    """https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166."""
 
-    for field in fields:
-        if field.converter is not None:
-            results.append(field)
-            continue
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: t.Any, handler: pydantic.GetCoreSchemaHandler
+    ) -> pydantic_core.core_schema.CoreSchema:
+        def validate_from_dict(
+            d: dict[_K, _V] | frozendict[_K, _V],
+        ) -> frozendict[_K, _V]:
+            return frozendict(d)
 
-        if field.type in {datetime, "datetime"} or (
-            type(field.type) in {t.Union, types.UnionType}  # pyright: ignore[reportDeprecated]
-            and datetime in t.get_args(field.type)
-        ):
-            converter: t.Callable[[str | t.Any], datetime | t.Any] | None = (
-                lambda d: datetime.fromisoformat(d) if isinstance(d, str) else d
-            )
-        else:
-            converter = None
+        frozendict_schema = pydantic_core.core_schema.chain_schema(
+            [
+                handler.generate_schema(dict[*t.get_args(source_type)]),  # pyright: ignore[reportInvalidTypeArguments]
+                pydantic_core.core_schema.no_info_plain_validator_function(
+                    validate_from_dict
+                ),
+                pydantic_core.core_schema.is_instance_schema(frozendict),
+            ]
+        )
+        return pydantic_core.core_schema.json_or_python_schema(
+            json_schema=frozendict_schema,
+            python_schema=frozendict_schema,
+            serialization=pydantic_core.core_schema.plain_serializer_function_ser_schema(
+                dict
+            ),
+        )
 
-        results.append(field.evolve(converter=converter))
 
-    return results
+type FrozenDict[_K, _V] = t.Annotated[
+    frozendict[_K, _V], _PydanticFrozenDictAnnotation
+]
 
 
-def json_serialize(
-    _cls: type[attrs.AttrsInstance],
-    _field: attrs.Attribute[t.Any],
-    value: t.Any,
-) -> t.Any:
-    if isinstance(value, datetime):
-        return value.isoformat()
-    if isinstance(value, c.Iterable) and (
-        not isinstance(value, str) and not isinstance(value, c.Mapping)
-    ):
-        return list(value)
-    return value  # pyright: ignore[reportUnknownVariableType]
+def replace[T](obj: T, **changes: t.Any) -> T:
+    """Analogue for `copy.replace` that works with 3.12 and dataclasses and pydantic."""
+    result = copy.copy(obj)
+
+    if dataclasses.is_dataclass(obj):
+        for field_name, value in changes.items():
+            if field_name not in {f.name for f in dataclasses.fields(obj)}:
+                raise TypeError(
+                    f"'{type(obj).__name__}' has no field named '{field_name}'"
+                )
+            object.__setattr__(result, field_name, value)
+
+        return result
+    if isinstance(obj, BaseModel):
+        updated = obj.model_dump(mode="json")
+        updated.update(changes)
+        return type(obj)(**updated)
+    raise TypeError(
+        "replace() can be called on dataclass or pydantic instances"
+    )

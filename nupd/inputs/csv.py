@@ -1,19 +1,18 @@
 # noqa: A005 # Module `csv` shadows a Python standard-library module
 import collections.abc as c
 import csv
+import dataclasses
 import typing as t
 from pathlib import Path
-
-from attrs import define, field
 
 from nupd.inputs.base import ABCInput
 from nupd.models import EntryInfo
 
 
-@define()
+@dataclasses.dataclass
 class CsvInput[I: EntryInfo](ABCInput[I]):
     file: Path
-    kwargs: dict[str, t.Any] = field(factory=dict)
+    kwargs: dict[str, t.Any] = dataclasses.field(default_factory=dict)
     """Kwargs, passed to `csv` functions."""
 
     @t.override

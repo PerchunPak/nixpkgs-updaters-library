@@ -3,31 +3,27 @@ import typing as t
 from datetime import datetime
 
 import aiohttp
-import attrs
 import inject
-from attrs import define, field
 from loguru import logger
 
+from nupd import utils
 from nupd.cache import Cache
 from nupd.exc import HTTPError
-from nupd.utils import json_serialize, json_transformer
+from nupd.models import NupdModel
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class GitHubRelease:
+class GitHubRelease(NupdModel, frozen=True):
     name: str | None
     tag_name: str
     created_at: datetime
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class GitHubTag:
+class GitHubTag(NupdModel, frozen=True):
     name: str
     commit_sha: str
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class MetaInformation:
+class MetaInformation(NupdModel, frozen=True):
     description: str | None
     homepage: str | None
     license: str | None
@@ -36,28 +32,18 @@ class MetaInformation:
     archived_at: datetime | None
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class Commit:
+class Commit(NupdModel, frozen=True):
     id: str
     date: datetime
 
 
-@define(frozen=True)
-class GHRepository:
+class GHRepository(NupdModel, frozen=True):
     owner: str
     repo: str
     branch: str
-    meta: MetaInformation = field(
-        converter=lambda x: MetaInformation(**x)
-        if not isinstance(x, MetaInformation)
-        else x
-    )
+    meta: MetaInformation
     has_submodules: bool | None
-    commit: Commit | None = field(
-        converter=lambda x: Commit(**x)
-        if not isinstance(x, Commit | None)
-        else x
-    )
+    commit: Commit | None
     latest_version: str | None
 
     async def prefetch_commit(
@@ -67,7 +53,7 @@ class GHRepository:
         has_submodules = await github_does_have_submodules(
             self, github_token=github_token
         )
-        return attrs.evolve(self, commit=commit, has_submodules=has_submodules)
+        return utils.replace(self, commit=commit, has_submodules=has_submodules)
 
     async def prefetch_latest_version(
         self, github_token: str | None = None
@@ -81,7 +67,7 @@ class GHRepository:
             self.owner, self.repo, github_token=github_token
         )
         if latest_release is not None:
-            return attrs.evolve(self, latest_version=latest_release.tag_name)
+            return utils.replace(self, latest_version=latest_release.tag_name)
 
         # If no releases, try to get the latest tag
         tags = await fetch_tags(
@@ -90,7 +76,7 @@ class GHRepository:
         try:
             # GitHub returns tags in descending order
             latest_tag = next(iter(tags))
-            return attrs.evolve(self, latest_version=latest_tag.name)
+            return utils.replace(self, latest_version=latest_tag.name)
         except StopIteration:
             pass
         return self
@@ -115,10 +101,7 @@ async def github_fetch_graphql(
         return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
     except KeyError:
         result = await _github_fetch_graphql(owner, repo, github_token)
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
+        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
 
 
@@ -228,10 +211,7 @@ async def github_fetch_rest(
         result = await _github_fetch_rest(
             owner, repo, github_token=github_token
         )
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
+        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
 
 
@@ -306,9 +286,7 @@ async def github_prefetch_commit(
         )
     except KeyError:
         result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(
-            repo.url, attrs.asdict(result, value_serializer=json_serialize)
-        )
+        await cache.set(repo.url, result.model_dump(mode="json"))
         return result
 
 
@@ -387,10 +365,7 @@ async def fetch_latest_release(
     except KeyError:
         result = await _fetch_latest_release(owner, repo, github_token)
         if result is not None:
-            await cache.set(
-                f"{owner}/{repo}",
-                attrs.asdict(result, value_serializer=json_serialize),
-            )
+            await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
     else:
         return None if result is None else GitHubRelease(**result)  # pyright: ignore[reportCallIssue]
@@ -441,7 +416,7 @@ async def fetch_tags(
         result = await _fetch_tags(owner, repo, github_token=github_token)
         await cache.set(
             f"{owner}/{repo}",
-            [attrs.asdict(v, value_serializer=json_serialize) for v in result],
+            [v.model_dump(mode="json") for v in result],
         )
         return result
 
