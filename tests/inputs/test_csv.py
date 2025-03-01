@@ -51,7 +51,7 @@ def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
             CsvEntryInfo(name="example1", value="example2"),
             CsvEntryInfo(name="aaaa", value="bbbb"),
         ],
-        serialize=lambda x: x.model_dump(),
+        serialize=lambda x: x.model_dump(mode="json"),
     )
 
     with csv_input.file.open("r") as f:

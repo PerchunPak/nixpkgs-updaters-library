@@ -88,7 +88,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
         CsvInput[MyEntryInfo](self.input_file).write(
             entries_info,
-            serialize=lambda x: x.model_dump(),
+            serialize=lambda x: x.model_dump(mode="json"),
         )
 
     @t.override

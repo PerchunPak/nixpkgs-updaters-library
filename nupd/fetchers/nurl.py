@@ -56,7 +56,7 @@ async def _cache_nurl_call[**P](
         result = await cache.get(key)
     except KeyError:
         result = await __implementation(*args, **kwargs)
-        await cache.set(key, result.model_dump())
+        await cache.set(key, result.model_dump(mode="json"))
         return result
     else:
         assert isinstance(result, dict)

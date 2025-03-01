@@ -29,7 +29,7 @@ async def prefetch_url(
         result = await cache.get(key)
     except KeyError:
         result = await _prefetch_url(url, unpack=unpack, name=name)
-        await cache.set(key, result.model_dump())
+        await cache.set(key, result.model_dump(mode="json"))
         return result
     else:
         assert isinstance(result, dict)

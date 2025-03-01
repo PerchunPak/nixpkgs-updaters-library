@@ -101,7 +101,7 @@ async def github_fetch_graphql(
         return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
     except KeyError:
         result = await _github_fetch_graphql(owner, repo, github_token)
-        await cache.set(f"{owner}/{repo}", result.model_dump())
+        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
 
 
@@ -211,7 +211,7 @@ async def github_fetch_rest(
         result = await _github_fetch_rest(
             owner, repo, github_token=github_token
         )
-        await cache.set(f"{owner}/{repo}", result.model_dump())
+        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
 
 
@@ -286,7 +286,7 @@ async def github_prefetch_commit(
         )
     except KeyError:
         result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(repo.url, result.model_dump())
+        await cache.set(repo.url, result.model_dump(mode="json"))
         return result
 
 
@@ -365,7 +365,7 @@ async def fetch_latest_release(
     except KeyError:
         result = await _fetch_latest_release(owner, repo, github_token)
         if result is not None:
-            await cache.set(f"{owner}/{repo}", result.model_dump())
+            await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
         return result
     else:
         return None if result is None else GitHubRelease(**result)  # pyright: ignore[reportCallIssue]
@@ -416,7 +416,7 @@ async def fetch_tags(
         result = await _fetch_tags(owner, repo, github_token=github_token)
         await cache.set(
             f"{owner}/{repo}",
-            [v.model_dump() for v in result],
+            [v.model_dump(mode="json") for v in result],
         )
         return result
 

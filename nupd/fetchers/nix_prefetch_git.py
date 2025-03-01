@@ -54,7 +54,7 @@ async def prefetch_git(
             additional_args=additional_args if additional_args else [],
         )
 
-        await cache.set(key, result.model_dump())
+        await cache.set(key, result.model_dump(mode="json"))
         return result
     else:
         assert isinstance(result, dict)
