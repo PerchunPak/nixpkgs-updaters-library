@@ -4,6 +4,10 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 2.1.1
+
+- Fix a bug where `has_submodules` in nurl result is an int [`eac5c4f7`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/eac5c4f7b5ad8c471ed866e3f1fc967f65a0676d))
+
 ## Version 2.1.0
 
 - Sanitize strings during GitHub fetching ([`23f072a7`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/23f072a7313c90ac25b5eb50a56de58d76689de1))
