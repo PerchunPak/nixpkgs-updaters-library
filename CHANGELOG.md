@@ -6,7 +6,7 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 ## Version 2.0.0
 
-- Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/) (#3)
+- Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/) ([#3](https://github.com/PerchunPak/nixpkgs-updaters-library/pull/3))
 
   Pydantic does runtime type validation and is better for our usecase. While
   attrs doesn't have any sensible way to recursively serialize/deserialize into
@@ -20,7 +20,7 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 - Show `--help` if no arguments were provided ([`687c0859`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/687c08596302b525a136d6ff66ccaf9f8147f450))
 
-- Fetch latest version (release or tag) of the GitHub repository (#2, [`7bb88bab`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/7bb88bab8c9dffdcf5116d6c4f46094d76c511a2))
+- Fetch latest version (release or tag) of the GitHub repository ([#2](https://github.com/PerchunPak/nixpkgs-updaters-library/pull/2), [`7bb88bab`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/7bb88bab8c9dffdcf5116d6c4f46094d76c511a2))
 
 ## Version 1.1.0
 
