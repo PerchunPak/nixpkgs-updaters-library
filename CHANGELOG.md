@@ -4,17 +4,22 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
-## Version 2.0.0 (unreleased)
+## Version 2.0.0
 
-- Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/)
+- Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/) (#3)
 
   Pydantic does runtime type validation and is better for our usecase. While
   attrs doesn't have any sensible way to recursively serialize/deserialize into
   JSON. This is so stupid.
 
+- Minify output file before writing it ([`2241739b`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/2241739bc8ff7d25f4404a8a6305fed9659888fd))
+
+  This is one of the required features to migrate Vim plugins updater.
+
 ## Version 1.2.0
 
 - Show `--help` if no arguments were provided ([`687c0859`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/687c08596302b525a136d6ff66ccaf9f8147f450))
+
 - Fetch latest version (release or tag) of the GitHub repository (#2, [`7bb88bab`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/7bb88bab8c9dffdcf5116d6c4f46094d76c511a2))
 
 ## Version 1.1.0
