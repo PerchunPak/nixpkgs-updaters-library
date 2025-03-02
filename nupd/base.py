@@ -130,7 +130,7 @@ class Nupd:
     ) -> dict[str, Entry[t.Any, t.Any]]:
         config = inject.instance(Config)
         logger.info(
-            f"Going to fetch {len(entries)} entries with limit of {config.jobs}"
+            f"Going to fetch {len(entries)} entries with the limit of {config.jobs}"
             " simultaneously"
         )
 
