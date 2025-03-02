@@ -10,7 +10,7 @@ from functools import wraps
 
 import pydantic_core
 from frozendict import frozendict
-from pydantic import BaseModel
+from pydantic import BaseModel, BeforeValidator
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -104,3 +104,35 @@ def replace[T](obj: T, **changes: t.Any) -> T:
     raise TypeError(
         "replace() can be called on dataclass or pydantic instances"
     )
+
+
+def nullify(arg: str | t.Any) -> str | None:
+    """`arg if arg else None`.
+
+    This helps to transform something like an empty string to a None.
+    """
+    return arg if arg else None
+
+
+def cleanup_raw_string(arg: str | t.Any) -> str:
+    """Clean up some common unnecessary symbols like leading/trailing spaces.
+
+    Basically this tries to make a string, that is compatible with `meta.description`
+    in https://github.com/NixOS/nixpkgs/tree/master/pkgs#meta-attributes.
+    """
+    # for scripting easibility, if it is not a string, just return it.
+    # this allows us to use this function as a pydantic "before" validator
+    # on e.g. optional values
+    if not isinstance(arg, str):
+        return arg
+    result = arg.strip().strip(".")
+    # capitalize first letter
+    result = result[:1].upper() + result[1:]
+    result = result.removeprefix("The ").removeprefix("A ")
+
+    if result == arg:
+        return result
+    return cleanup_raw_string(result)
+
+
+type CleanedUpString = t.Annotated[str, BeforeValidator(cleanup_raw_string)]

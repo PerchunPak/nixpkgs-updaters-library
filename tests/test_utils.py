@@ -1,4 +1,5 @@
 import dataclasses
+import typing as t
 
 import pydantic
 import pytest
@@ -79,3 +80,28 @@ def test_replace_pydantic(cls: type[Dataclass]) -> None:
 def test_replace_something_else() -> None:
     with pytest.raises(TypeError, match="dataclass or pydantic instances"):
         _ = utils.replace(object(), a=123)
+
+
+@pytest.mark.parametrize("arg", ["abc", object()])
+def test_nullify_positive(arg: t.Any) -> None:
+    assert utils.nullify(arg) is arg
+
+
+@pytest.mark.parametrize("arg", ["", False, None])
+def test_nullify_negative(arg: t.Any) -> None:
+    assert utils.nullify(arg) is None
+
+
+@pytest.mark.parametrize(
+    ("inp", "out"),
+    [
+        ("", ""),
+        ("   ", ""),
+        ("...", ""),
+        ("a lower sentence", "Lower sentence"),
+        ("The plugin is...", "Plugin is"),
+        ("A the pLUGIn", "PLUGIn"),
+    ],
+)
+def test_cleanup_raw_string(inp: str, out: str) -> None:
+    assert utils.cleanup_raw_string(inp) == out

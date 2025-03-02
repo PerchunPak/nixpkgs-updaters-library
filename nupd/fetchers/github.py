@@ -5,15 +5,21 @@ from datetime import datetime
 import aiohttp
 import inject
 from loguru import logger
+from pydantic import BeforeValidator
 
 from nupd import utils
 from nupd.cache import Cache
 from nupd.exc import HTTPError
 from nupd.models import NupdModel
 
+type OptionalCleanedUpString = t.Annotated[
+    str | None,
+    BeforeValidator(lambda x: utils.nullify(utils.cleanup_raw_string(x))),
+]
+
 
 class GitHubRelease(NupdModel, frozen=True):
-    name: str | None
+    name: OptionalCleanedUpString
     tag_name: str
     created_at: datetime
 
@@ -24,9 +30,9 @@ class GitHubTag(NupdModel, frozen=True):
 
 
 class MetaInformation(NupdModel, frozen=True):
-    description: str | None
-    homepage: str | None
-    license: str | None
+    description: OptionalCleanedUpString
+    homepage: OptionalCleanedUpString
+    license: OptionalCleanedUpString
     stars: int
     archived: bool
     archived_at: datetime | None
