@@ -177,6 +177,7 @@ async def _github_fetch_graphql(
         raise RuntimeError(
             "You've encountered a weird edge-case. Please open a bug report"
         )
+    latest_release = data["latestRelease"]
 
     return GHRepository(
         owner=data["owner"]["login"],
@@ -186,7 +187,9 @@ async def _github_fetch_graphql(
             id=data["defaultBranchRef"]["target"]["oid"],
             date=commit_date,
         ),
-        latest_version=data["latestRelease"]["tagName"],
+        latest_version=None
+        if not latest_release
+        else latest_release["tagName"],
         has_submodules=bool(len(data["submodules"]["nodes"])),
         meta=MetaInformation(
             description=data["description"],

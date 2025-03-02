@@ -108,3 +108,19 @@ async def test_no_license(mock_aiohttp: aioresponses) -> None:
     expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
     object.__setattr__(expected_response.meta, "license", None)
     assert result == expected_response
+
+
+async def test_no_release(mock_aiohttp: aioresponses) -> None:
+    with Path("tests/fetchers/github/responses/graphql_lspconfig.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+        response["data"]["repository"]["latestRelease"] = None
+    mock_aiohttp.post("https://api.github.com/graphql", payload=response)
+
+    result = await _github_fetch_graphql(
+        "neovim", "nvim-lspconfig", github_token="TOKEN"
+    )
+    expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
+    object.__setattr__(expected_response, "latest_version", None)
+    assert result == expected_response
