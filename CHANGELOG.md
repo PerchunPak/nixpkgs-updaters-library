@@ -4,6 +4,10 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 2.1.0
+
+- Sanitize strings during GitHub fetching ([`23f072a7`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/23f072a7313c90ac25b5eb50a56de58d76689de1))
+
 ## Version 2.0.0
 
 - Rewrite everything to use [`pydantic`](https://pypi.org/project/pydantic/) instead of [`attrs`](https://pypi.org/project/attrs/) ([#3](https://github.com/PerchunPak/nixpkgs-updaters-library/pull/3))
