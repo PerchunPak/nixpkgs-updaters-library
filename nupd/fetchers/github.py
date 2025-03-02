@@ -31,7 +31,7 @@ class GitHubTag(NupdModel, frozen=True):
 
 class MetaInformation(NupdModel, frozen=True):
     description: OptionalCleanedUpString
-    homepage: OptionalCleanedUpString
+    homepage: t.Annotated[str | None, BeforeValidator(utils.nullify)]
     license: OptionalCleanedUpString
     stars: int
     archived: bool
