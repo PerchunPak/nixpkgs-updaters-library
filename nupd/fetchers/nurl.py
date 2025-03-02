@@ -35,7 +35,7 @@ class NurlError(exc.NetworkError): ...
 
 
 class NurlResult(NupdModel, frozen=True):
-    args: FrozenDict[str, str | int]
+    args: FrozenDict[str, t.Any]
     fetcher: FETCHERS
 
 
