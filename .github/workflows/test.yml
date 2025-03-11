@@ -11,7 +11,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
+      - uses: cachix/install-nix-action@v31
       - id: set-matrix
         name: Generate Nix Matrix
         run: |
@@ -27,7 +27,7 @@ jobs:
       matrix: ${{fromJSON(needs.nix-matrix.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
+      - uses: cachix/install-nix-action@v31
       - run: nix build -L '.#${{ matrix.attr }}'
 
   e2e-tests:
@@ -37,6 +37,6 @@ jobs:
         cmd: [ "python example/simple/script.py update", "python example/simple/script.py update 'nvim-treesitter/nvim-treesitter'", "python example/simple/script.py add 'BirdeeHub/nixCats-nvim'" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v30
+      - uses: cachix/install-nix-action@v31
       - run:
           nix develop -c ${{ matrix.cmd }}
