@@ -49,14 +49,3 @@ The design is intentionally done this way, so you have either nothing but a URL
 for a prefetch or completely fetched everything. Look at `examples/simple` and
 [`examples/vim-plugins`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/vim-plugins-updater/example/vim-plugins)
 for a complete implementation of everything.
-
-## TODO
-
-- [x] Sourcehut does not support fetching the latest revision???
-- [ ] Check that IDs are equal
-- [x] Test fetching specific branch
-- [ ] Cache invalidation
-- [ ] progress bar
-- [ ] Duplicate plugins?
-- [ ] Documentation
-- [ ] Some abstraction for implementing redirects & deprecations

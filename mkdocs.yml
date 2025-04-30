@@ -4,4 +4,6 @@ theme:
   palette:
     primary: teal
     scheme: slate
-
+markdown_extensions:
+  - pymdownx.tasklist:
+      custom_checkbox: true
