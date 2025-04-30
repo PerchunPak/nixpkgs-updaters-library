@@ -41,6 +41,7 @@
           packages = with pkgs; [
             basedpyright
             python312Packages.debugpy
+            python312Packages.mkdocs-material
             pre-commit
             ruff
 

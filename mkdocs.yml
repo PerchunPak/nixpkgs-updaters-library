@@ -1,0 +1,7 @@
+site_name: Nixpkgs Updaters Library
+theme:
+  name: material
+  palette:
+    primary: teal
+    scheme: slate
+
