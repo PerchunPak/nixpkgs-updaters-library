@@ -1,6 +1,19 @@
 site_name: Nixpkgs Updaters Library
+
+nav:
+  - Home: index.md
+  - terminologie.md
+  - Usage:
+    - Quick Start: usage/quick-start.md
+    - Design:
+      - usage/design/models.md
+      - usage/design/logic.md
+  - todo.md
+
 theme:
   name: material
+  features:
+    - content.code.annotate
   palette:
     primary: teal
     scheme: slate
@@ -8,3 +21,10 @@ theme:
 markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
