@@ -41,12 +41,16 @@
           packages = with pkgs; [
             basedpyright
             python312Packages.debugpy
-            python312Packages.mkdocs-material
             pre-commit
             ruff
 
             nurl
             nix-prefetch-scripts
+
+            # docs
+            python312Packages.mkdocs-material
+            python312Packages.mkdocstrings
+            python312Packages.mkdocstrings-python
           ];
 
           PYTHONPATH = ".";
