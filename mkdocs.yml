@@ -1,5 +1,8 @@
 site_name: Nixpkgs Updaters Library
 
+watch:
+  - nupd
+
 nav:
   - Home: index.md
   - terminologie.md
