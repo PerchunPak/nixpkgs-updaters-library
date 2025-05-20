@@ -1,4 +1,3 @@
-# noqa: A005 # Module `csv` shadows a Python standard-library module
 import collections.abc as c
 import csv
 import dataclasses

@@ -5,7 +5,7 @@ from nupd.cache import Cache, CacheInstance
 
 async def factorial(cache: CacheInstance, n: int) -> int:
     try:
-        return t.cast(int, await cache.get(str(n)))
+        return t.cast("int", await cache.get(str(n)))
     except KeyError:
         result = n * await factorial(cache, n - 1) if n else 1
         await cache.set(str(n), result)

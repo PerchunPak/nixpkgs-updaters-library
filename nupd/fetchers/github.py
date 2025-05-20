@@ -290,7 +290,8 @@ async def github_prefetch_commit(
     try:
         return Commit(
             **t.cast(
-                dict[str, t.Any], await cache.get(repo.url + "@" + repo.branch)
+                "dict[str, t.Any]",
+                await cache.get(repo.url + "@" + repo.branch),
             )
         )
     except KeyError:
