@@ -23,6 +23,17 @@ async def prefetch_url(
     unpack: bool = True,
     name: str | None = None,
 ) -> URLPrefetchResult:
+    """Just a fancy wrapper around `nix-prefetch-url` to handle edge-cases like caching.
+
+    Parameters:
+        unpack:
+            Whether to atomatically unpack the archive (raises an error if the
+            provided URL is not an archive).
+        name: A custom name to give in the Nix store.
+
+    Raises:
+        URLPrefetchError: If `nix-prefetch-url` return non-zero exit code or wrote something to stderr.
+    """
     cache = inject.instance(Cache)["nix-prefetch"]
     key = f"{url}?name={name}&unpack={unpack}"
     try:
@@ -73,4 +84,25 @@ class Prefetchable(t.Protocol):
 
 
 async def prefetch_obj(obj: Prefetchable) -> URLPrefetchResult:
+    """Convenience function for objects that implement `get_prefetch_url()`.
+
+    This function is practically useless because of superior NURL wrapper.
+
+    Example:
+        ```py
+        gh_repo = await github_fetch_rest(owner="foo", repo="bar")
+        await prefetch_obj(gh_repo)
+        ```
+
+        Is equal to (`1e1356f` is an arbitrary commit)
+
+        ```py
+        await prefetch_url("https://github.com/foo/bar/archive/1e1356f.tar.gz")
+        ```
+        Or
+
+        ```py
+        await prefetch_url(gh_repo.get_prefetch_url())
+        ```
+    """
     return await prefetch_url(obj.get_prefetch_url())
