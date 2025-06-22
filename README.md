@@ -17,6 +17,12 @@ told me to just write the library):
 Feel free to reach out to me if you have any questions/concerns/requests for
 features.
 
+> [!IMPORTANT]
+> All code in this library was written by a human.
+>
+> (you can still submit AI code in a PR, but it will be heavily reviewed and
+> would get a lot of scepticism)
+
 ## Quick tour
 
 The main design idea is that you implement your ecosystem-specifics, and this
