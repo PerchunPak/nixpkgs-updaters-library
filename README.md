@@ -9,6 +9,12 @@ The goal of this library is for you to write a simple script, that implements
 a few abstract methods and classes, and get a powerful bulk updater in the
 result.
 
+> [!IMPORTANT]
+> All code in this library was written by a human.
+>
+> (you can still submit AI code in a PR, but it will be heavily reviewed and
+> would get a lot of scepticism)
+
 ## Why?
 
 Sometimes, there are types of packages, that are very simplistic to package. As
