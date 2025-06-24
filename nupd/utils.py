@@ -8,6 +8,8 @@ import typing as t
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 
+import joblib  # pyright: ignore[reportMissingTypeStubs] # stubs are not packaged in nixpkgs
+import platformdirs
 import pydantic_core
 from frozendict import frozendict
 from pydantic import BaseModel, BeforeValidator
@@ -16,6 +18,10 @@ if t.TYPE_CHECKING:
     import collections.abc as c
 
     import pydantic
+
+memory = joblib.Memory(
+    platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
+)
 
 
 def async_to_sync[**P, R](  # pragma: no cover
@@ -49,7 +55,7 @@ def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
         yield lst[i : i + n]
 
 
-class _PydanticFrozenDictAnnotation[_K, _V]:
+class _PydanticFrozenDictAnnotation[K, V]:
     """https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166."""
 
     @classmethod
@@ -57,8 +63,8 @@ class _PydanticFrozenDictAnnotation[_K, _V]:
         cls, source_type: t.Any, handler: pydantic.GetCoreSchemaHandler
     ) -> pydantic_core.core_schema.CoreSchema:
         def validate_from_dict(
-            d: dict[_K, _V] | frozendict[_K, _V],
-        ) -> frozendict[_K, _V]:
+            d: dict[K, V] | frozendict[K, V],
+        ) -> frozendict[K, V]:
             return frozendict(d)
 
         frozendict_schema = pydantic_core.core_schema.chain_schema(
@@ -79,8 +85,8 @@ class _PydanticFrozenDictAnnotation[_K, _V]:
         )
 
 
-type FrozenDict[_K, _V] = t.Annotated[
-    frozendict[_K, _V], _PydanticFrozenDictAnnotation
+type FrozenDict[K, V] = t.Annotated[
+    frozendict[K, V], _PydanticFrozenDictAnnotation
 ]
 
 

@@ -9,7 +9,7 @@ from nupd.executables import Executable
 from nupd.fetchers.nix_prefetch_git import (
     GitPrefetchError,
     GitPrefetchResult,
-    _prefetch_git,  # pyright: ignore[reportPrivateUsage]
+    prefetch_git,
 )
 
 EXAMPLE_RESPONSE = json.dumps(
@@ -65,7 +65,7 @@ async def test_prefetch_git(
     mock.return_value.returncode = 0
 
     assert (
-        await _prefetch_git(
+        await prefetch_git.func(
             "https://git.sr.ht/~sircmpwn/hare.vim",
             revision=rev,
             additional_args=additional_args,
@@ -107,7 +107,7 @@ async def test_prefetch_git_return_code_non_zero(
             "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await _prefetch_git(
+        _ = await prefetch_git.func(
             "https://git.sr.ht/~sircmpwn/hare.vim",
             revision=rev,
             additional_args=additional_args,

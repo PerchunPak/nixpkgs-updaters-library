@@ -3,7 +3,6 @@ from pathlib import Path
 
 import inject
 
-from nupd.cache import Cache
 from nupd.models import ImplClasses, NupdModel
 from nupd.shutdown import Shutdowner
 
@@ -18,13 +17,11 @@ class Config(NupdModel, frozen=True):
 def inject_configure(
     config: Config,
     classes: ImplClasses,
-    cache: Cache,
     shutdowner: Shutdowner | None = None,
 ) -> t.Callable[[inject.Binder], None]:
     def wrapped(binder: inject.Binder) -> None:
         _ = binder.bind(Config, config)
         _ = binder.bind(ImplClasses, classes)
-        _ = binder.bind(Cache, cache)
         _ = binder.bind(Shutdowner, shutdowner if shutdowner else Shutdowner())
 
     return wrapped

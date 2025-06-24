@@ -7,7 +7,6 @@ from loguru import logger
 
 import nupd.logs
 from nupd.base import Nupd
-from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
 from nupd.shutdown import Shutdowner
@@ -81,7 +80,6 @@ def callback(
                 jobs=jobs,
             ),
             classes=ctx.obj,
-            cache=Cache(),
         ),
         allow_override=True,
     )

@@ -8,7 +8,6 @@ from loguru import logger
 from pydantic import BeforeValidator
 
 from nupd import utils
-from nupd.cache import Cache
 from nupd.exc import HTTPError
 from nupd.models import NupdModel
 
@@ -123,19 +122,8 @@ class GHRepository(NupdModel, frozen=True):
         return f"{self.url}/archive/{self.commit}.tar.gz"
 
 
+@utils.memory.cache
 async def github_fetch_graphql(
-    owner: str, repo: str, github_token: str
-) -> GHRepository:
-    cache = inject.instance(Cache)["github_fetch"]
-    try:
-        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
-    except KeyError:
-        result = await _github_fetch_graphql(owner, repo, github_token)
-        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
-        return result
-
-
-async def _github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
     session = inject.instance(aiohttp.ClientSession)
@@ -234,21 +222,8 @@ async def _github_fetch_graphql(
     )
 
 
+@utils.memory.cache
 async def github_fetch_rest(
-    owner: str, repo: str, *, github_token: str | None
-) -> GHRepository:
-    cache = inject.instance(Cache)["github_fetch"]
-    try:
-        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
-    except KeyError:
-        result = await _github_fetch_rest(
-            owner, repo, github_token=github_token
-        )
-        await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
-        return result
-
-
-async def _github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
     """Fetch a GitHub repository using REST API.
@@ -307,24 +282,8 @@ async def _github_fetch_rest(
     )
 
 
+@utils.memory.cache
 async def github_prefetch_commit(
-    repo: GHRepository, *, github_token: str | None
-) -> Commit:
-    cache = inject.instance(Cache)["github_commit_prefetch"]
-    try:
-        return Commit(
-            **t.cast(
-                "dict[str, t.Any]",
-                await cache.get(repo.url + "@" + repo.branch),
-            )
-        )
-    except KeyError:
-        result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(repo.url, result.model_dump(mode="json"))
-        return result
-
-
-async def _github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None = None
 ) -> Commit:
     if repo.commit is not None:
@@ -352,21 +311,8 @@ async def _github_prefetch_commit(
     )
 
 
+@utils.memory.cache
 async def github_does_have_submodules(
-    repo: GHRepository, *, github_token: str | None
-) -> bool:
-    cache = inject.instance(Cache)["github_does_have_submodules"]
-    try:
-        return bool(await cache.get(repo.url + "@" + repo.branch))
-    except KeyError:
-        result = await _github_does_have_submodules(
-            repo, github_token=github_token
-        )
-        await cache.set(repo.url, result)
-        return result
-
-
-async def _github_does_have_submodules(
     repo: GHRepository, *, github_token: str | None = None
 ) -> bool:
     if repo.has_submodules is not None:
@@ -390,22 +336,8 @@ async def _github_does_have_submodules(
     return response.status != 404
 
 
+@utils.memory.cache
 async def fetch_latest_release(
-    owner: str, repo: str, github_token: str | None
-) -> GitHubRelease | None:
-    cache = inject.instance(Cache)["github_fetch_latest_release"]
-    try:
-        result = await cache.get(f"{owner}/{repo}")
-    except KeyError:
-        result = await _fetch_latest_release(owner, repo, github_token)
-        if result is not None:
-            await cache.set(f"{owner}/{repo}", result.model_dump(mode="json"))
-        return result
-    else:
-        return None if result is None else GitHubRelease(**result)  # pyright: ignore[reportCallIssue]
-
-
-async def _fetch_latest_release(
     owner: str, repo: str, github_token: str | None = None
 ) -> GitHubRelease | None:
     """Fetch the latest release information for this repository."""
@@ -440,22 +372,8 @@ async def _fetch_latest_release(
     )
 
 
+@utils.memory.cache
 async def fetch_tags(
-    owner: str, repo: str, github_token: str | None
-) -> c.Iterable[GitHubTag]:
-    cache = inject.instance(Cache)["github_fetch_tags"]
-    try:
-        return [GitHubTag(**tag) for tag in await cache.get(f"{owner}/{repo}")]  # pyright: ignore[reportUnknownVariableType,reportOptionalIterable,reportGeneralTypeIssues]
-    except KeyError:
-        result = await _fetch_tags(owner, repo, github_token=github_token)
-        await cache.set(
-            f"{owner}/{repo}",
-            [v.model_dump(mode="json") for v in result],
-        )
-        return result
-
-
-async def _fetch_tags(
     owner: str, repo: str, github_token: str | None = None
 ) -> c.Iterable[GitHubTag]:
     """Get information about a specific release by tag."""

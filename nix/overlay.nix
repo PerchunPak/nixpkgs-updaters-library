@@ -12,13 +12,14 @@ final: prev: {
           aiohttp
           frozendict
           inject
+          joblib
           loguru
-          nonbloat-db
           platformdirs
           pydantic
           typer
         ];
       });
+      joblib-stubs = pfinal.callPackage ./joblib-stubs.nix { };
     })
   ];
 }

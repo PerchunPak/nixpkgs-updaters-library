@@ -58,7 +58,7 @@ class MyEntryInfo(EntryInfo, frozen=True):
         result = await result.prefetch_commit(github_token=github_token)
         result = await result.prefetch_latest_version(github_token=github_token)
         prefetched = await nurl.nurl(
-            result.url, submodules=result.has_submodules
+            result.url, submodules=bool(result.has_submodules)
         )
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
