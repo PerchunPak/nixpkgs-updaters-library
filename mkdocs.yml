@@ -12,6 +12,7 @@ nav:
       - usage/design/models.md
       - usage/design/logic.md
     - Helpers:
+      - usage/helpers/csv-reader.md
       - usage/helpers/github.md
       - usage/helpers/nix-prefetch-git.md
       - usage/helpers/nix-prefetch-url.md
