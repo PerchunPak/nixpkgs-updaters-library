@@ -8,7 +8,7 @@ import typing as t
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 
-import joblib  # pyright: ignore[reportMissingTypeStubs] # stubs are not packaged in nixpkgs
+import joblib
 import platformdirs
 import pydantic_core
 from frozendict import frozendict
