@@ -14,10 +14,10 @@ from nupd.fetchers.github import (
     Commit,
     GitHubRelease,
     GitHubTag,
-    _fetch_latest_release,  # pyright: ignore[reportPrivateUsage]
-    _fetch_tags,  # pyright: ignore[reportPrivateUsage]
-    _github_does_have_submodules,  # pyright: ignore[reportPrivateUsage]
-    _github_prefetch_commit,  # pyright: ignore[reportPrivateUsage]
+    fetch_latest_release,
+    fetch_tags,
+    github_does_have_submodules,
+    github_prefetch_commit,
 )
 
 
@@ -46,10 +46,12 @@ async def test_prefetch_commit_on_repo_class(
 ) -> None:
     mock = mocker.patch(
         "nupd.fetchers.github.github_prefetch_commit",
+        spec=github_prefetch_commit.func,
         return_value=example_obj.commit,
     )
     mock = mocker.patch(
         "nupd.fetchers.github.github_does_have_submodules",
+        spec=github_does_have_submodules.func,
         return_value=example_obj.has_submodules,
     )
     o = object()
@@ -74,7 +76,7 @@ async def test_github_prefetch_commit(
     )
 
     assert (
-        await _github_prefetch_commit(example_obj, github_token=None)
+        await github_prefetch_commit.func(example_obj, github_token=None)
     ) == Commit(
         id="b4d65bce97795438ab6e1974b3672c17a4865e3c",
         date=datetime.fromisoformat("2025-01-23T11:38:51Z"),
@@ -87,7 +89,8 @@ async def test_prefetch_commit_already_fetched(
     object.__setattr__(example_obj, "commit", "abc")
 
     assert (
-        await _github_prefetch_commit(example_obj, github_token=None) == "abc"
+        await github_prefetch_commit.func(example_obj, github_token=None)
+        == "abc"
     )
 
 
@@ -105,7 +108,7 @@ async def test_prefetch_commit_fail(
     )
 
     with pytest.raises(aiohttp.ClientResponseError) as error:
-        _ = await _github_prefetch_commit(example_obj, github_token=None)
+        _ = await github_prefetch_commit.func(example_obj, github_token=None)
     assert error.match("^404, message='Not Found'.*")
 
 
@@ -138,7 +141,7 @@ async def test_github_does_have_submodules(
     )
 
     assert (
-        await _github_does_have_submodules(example_obj, github_token=None)
+        await github_does_have_submodules.func(example_obj, github_token=None)
     ) is True
 
 
@@ -152,7 +155,7 @@ async def test_github_does_have_submodules_not_found(
     )
 
     assert (
-        await _github_does_have_submodules(example_obj, github_token=None)
+        await github_does_have_submodules.func(example_obj, github_token=None)
     ) is False
 
 
@@ -160,7 +163,7 @@ async def test_github_does_have_submodules_already_fetched(
     example_obj: github.GHRepository,
 ) -> None:
     assert (
-        await _github_does_have_submodules(
+        await github_does_have_submodules.func(
             utils.replace(example_obj, has_submodules=False),
             github_token=None,
         )
@@ -173,13 +176,16 @@ async def test_github_prefetch_latest_version_release(
 ) -> None:
     release_mock = mocker.patch(
         "nupd.fetchers.github.fetch_latest_release",
+        spec=fetch_latest_release.func,
         return_value=GitHubRelease(
             name="1.2.3",
             tag_name="1.2.3",
             created_at=datetime(1970, 1, 1),  # noqa: DTZ001
         ),
     )
-    tag_mock = mocker.patch("nupd.fetchers.github.fetch_tags")
+    tag_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_tags", spec=fetch_tags.func
+    )
 
     assert (
         await example_obj.prefetch_latest_version(github_token=None)
@@ -196,10 +202,13 @@ async def test_github_prefetch_latest_version_tag(
     mocker: MockerFixture,
 ) -> None:
     release_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_latest_release", return_value=None
+        "nupd.fetchers.github.fetch_latest_release",
+        spec=fetch_latest_release.func,
+        return_value=None,
     )
     tag_mock = mocker.patch(
         "nupd.fetchers.github.fetch_tags",
+        spec=fetch_tags.func,
         return_value=[
             GitHubTag(
                 name="v1.6.0",
@@ -225,9 +234,13 @@ async def test_github_prefetch_latest_version_nothing(
     mocker: MockerFixture,
 ) -> None:
     release_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_latest_release", return_value=None
+        "nupd.fetchers.github.fetch_latest_release",
+        spec=fetch_latest_release.func,
+        return_value=None,
     )
-    tag_mock = mocker.patch("nupd.fetchers.github.fetch_tags", return_value=[])
+    tag_mock = mocker.patch(
+        "nupd.fetchers.github.fetch_tags", spec=fetch_tags.func, return_value=[]
+    )
 
     assert (
         await example_obj.prefetch_latest_version(github_token=None)
@@ -262,7 +275,7 @@ async def test_github_fetch_latest_release_success(
     )
 
     assert (
-        await _fetch_latest_release(
+        await fetch_latest_release.func(
             "neovim", "nvim-lspconfig", github_token=None
         )
     ) == GitHubRelease(
@@ -282,7 +295,7 @@ async def test_github_fetch_latest_release_not_found(
     )
 
     assert (
-        await _fetch_latest_release(
+        await fetch_latest_release.func(
             "neovim", "nvim-lspconfig", github_token=None
         )
     ) is None
@@ -298,7 +311,7 @@ async def test_github_fetch_latest_release_error(
     )
 
     with pytest.raises(aiohttp.ClientResponseError):
-        assert await _fetch_latest_release(
+        assert await fetch_latest_release.func(
             "neovim", "nvim-lspconfig", github_token=None
         )
 
@@ -317,7 +330,7 @@ async def test_github_fetch_latest_release_error_in_payload(
     )
 
     with pytest.raises(HTTPError):
-        assert await _fetch_latest_release(
+        assert await fetch_latest_release.func(
             "neovim", "nvim-lspconfig", github_token=None
         )
 
@@ -334,7 +347,7 @@ async def test_github_fetch_tags_success(
     )
 
     assert list(
-        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+        await fetch_tags.func("neovim", "nvim-lspconfig", github_token=None)
     ) == [
         GitHubTag(
             name="v1.6.0", commit_sha="bf81bef7d75a0f4a0cf61462b318ea00b3c97cc8"
@@ -355,7 +368,7 @@ async def test_github_fetch_tags_empty(
     )
 
     assert (
-        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+        await fetch_tags.func("neovim", "nvim-lspconfig", github_token=None)
     ) == []
 
 
@@ -369,7 +382,7 @@ async def test_github_fetch_tags_not_found(
     )
 
     assert (
-        await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+        await fetch_tags.func("neovim", "nvim-lspconfig", github_token=None)
     ) == []
 
 
@@ -383,4 +396,6 @@ async def test_github_fetch_tags_error(
     )
 
     with pytest.raises(aiohttp.ClientResponseError):
-        assert await _fetch_tags("neovim", "nvim-lspconfig", github_token=None)
+        assert await fetch_tags.func(
+            "neovim", "nvim-lspconfig", github_token=None
+        )

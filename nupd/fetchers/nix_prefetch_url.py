@@ -1,12 +1,10 @@
 import asyncio
 import typing as t
 
-import inject
-
 from nupd import exc
-from nupd.cache import Cache
 from nupd.executables import Executable
 from nupd.models import NupdModel
+from nupd.utils import memory
 
 
 class URLPrefetchError(exc.NetworkError): ...
@@ -17,26 +15,8 @@ class URLPrefetchResult(NupdModel, frozen=True):
     path: str
 
 
+@memory.cache
 async def prefetch_url(
-    url: str,
-    *,
-    unpack: bool = True,
-    name: str | None = None,
-) -> URLPrefetchResult:
-    cache = inject.instance(Cache)["nix-prefetch"]
-    key = f"{url}?name={name}&unpack={unpack}"
-    try:
-        result = await cache.get(key)
-    except KeyError:
-        result = await _prefetch_url(url, unpack=unpack, name=name)
-        await cache.set(key, result.model_dump(mode="json"))
-        return result
-    else:
-        assert isinstance(result, dict)
-        return URLPrefetchResult(**result)  # pyright: ignore[reportArgumentType]
-
-
-async def _prefetch_url(
     url: str,
     *,
     unpack: bool = True,

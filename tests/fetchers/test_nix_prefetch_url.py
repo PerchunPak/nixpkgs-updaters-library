@@ -8,8 +8,8 @@ from nupd.executables import Executable
 from nupd.fetchers.nix_prefetch_url import (
     URLPrefetchError,
     URLPrefetchResult,
-    _prefetch_url,  # pyright: ignore[reportPrivateUsage]
     prefetch_obj,
+    prefetch_url,
 )
 
 if t.TYPE_CHECKING:
@@ -33,7 +33,7 @@ async def test_prefetch_url(
     )
     mock.return_value.returncode = 0
 
-    assert await _prefetch_url(
+    assert await prefetch_url.func(
         "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         unpack=unpack,
         name=name,
@@ -80,7 +80,7 @@ async def test_prefetch_url_return_code_non_zero(
             "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await _prefetch_url(
+        _ = await prefetch_url.func(
             "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
             unpack=unpack,
             name=name,
@@ -124,7 +124,7 @@ async def test_prefetch_url_return_stderr(
             "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await _prefetch_url(
+        _ = await prefetch_url.func(
             "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
             unpack=unpack,
             name=name,
@@ -150,7 +150,9 @@ async def test_prefetch_url_return_stderr(
 
 async def test_prefetch_obj(mocker: MockerFixture) -> None:
     mock: unittest.mock.MagicMock = mocker.MagicMock()  # pyright: ignore[reportUnknownVariableType]
-    mock_prefetch = mocker.patch("nupd.fetchers.nix_prefetch_url.prefetch_url")
+    mock_prefetch = mocker.patch(
+        "nupd.fetchers.nix_prefetch_url.prefetch_url", spec=prefetch_url.func
+    )
     assert await prefetch_obj(mock) == mock_prefetch.return_value
     mock.get_prefetch_url.assert_called_once_with()
     _ = mock_prefetch.assert_awaited_once_with(

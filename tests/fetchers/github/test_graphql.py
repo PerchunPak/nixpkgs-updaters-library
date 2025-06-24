@@ -11,7 +11,7 @@ from nupd.fetchers.github import (
     Commit,
     GHRepository,
     MetaInformation,
-    _github_fetch_graphql,  # pyright: ignore[reportPrivateUsage]
+    github_fetch_graphql,
 )
 
 LSPCONFIG_RESPONSE = GHRepository(
@@ -42,7 +42,7 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     assert result == LSPCONFIG_RESPONSE
@@ -55,7 +55,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "PerchunPak", "mcph", github_token="TOKEN"
     )
     assert result == GHRepository(
@@ -89,7 +89,9 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
     )
 
     with pytest.raises(aiohttp.ClientResponseError) as error:
-        _ = await _github_fetch_graphql("aaaa", "bbbb", github_token="TOKEN")
+        _ = await github_fetch_graphql.func(
+            "aaaa", "bbbb", github_token="TOKEN"
+        )
 
     assert error.match("^404, message='Not Found'.*")
 
@@ -102,7 +104,7 @@ async def test_no_license(mock_aiohttp: aioresponses) -> None:
         response["data"]["repository"]["licenseInfo"] = None
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
@@ -118,7 +120,7 @@ async def test_no_release(mock_aiohttp: aioresponses) -> None:
         response["data"]["repository"]["latestRelease"] = None
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)

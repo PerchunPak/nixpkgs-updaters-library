@@ -121,6 +121,10 @@ line-ending = "lf"
 pythonPlatform = "Linux"
 pythonVersion = "3.12"
 typeCheckingMode = "all"
+exclude = [
+  ".direnv",
+  "result",
+]
 
 # Diagnostic behavior settings
 strictListInference = false

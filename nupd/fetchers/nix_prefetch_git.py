@@ -3,11 +3,9 @@ import collections.abc as c
 import json
 from datetime import datetime
 
-import inject
 from loguru import logger
 
-from nupd import exc
-from nupd.cache import Cache
+from nupd import exc, utils
 from nupd.executables import Executable
 from nupd.models import NupdModel
 
@@ -27,51 +25,8 @@ class GitPrefetchResult(NupdModel, frozen=True):
     leave_dot_git: bool
 
 
+@utils.memory.cache
 async def prefetch_git(
-    url: str,
-    *,
-    revision: str | None = None,
-    additional_args: c.Iterable[str] | None = None,
-) -> GitPrefetchResult:
-    cache = inject.instance(Cache)["nix-prefetch-git"]
-    key = (
-        "\0" + revision
-        if revision
-        else ""
-        + (
-            "\0".join(str(v) for v in additional_args)
-            if additional_args
-            else ""
-        )
-    )
-
-    try:
-        result = await cache.get(key)
-    except KeyError:
-        result = await _prefetch_git(
-            url,
-            revision=revision,
-            additional_args=additional_args if additional_args else [],
-        )
-
-        await cache.set(key, result.model_dump(mode="json"))
-        return result
-    else:
-        assert isinstance(result, dict)
-        return GitPrefetchResult(
-            url=result["url"],  # pyright: ignore[reportArgumentType]
-            rev=result["rev"],  # pyright: ignore[reportArgumentType]
-            date=result["date"],  # pyright: ignore[reportArgumentType]
-            path=result["path"],  # pyright: ignore[reportArgumentType]
-            hash=result["hash"],  # pyright: ignore[reportArgumentType]
-            fetch_lfs=result["fetchLFS"],  # pyright: ignore[reportArgumentType]
-            fetch_submodules=result["fetchSubmodules"],  # pyright: ignore[reportArgumentType]
-            deep_clone=result["deepClone"],  # pyright: ignore[reportArgumentType]
-            leave_dot_git=result["leaveDotGit"],  # pyright: ignore[reportArgumentType]
-        )
-
-
-async def _prefetch_git(
     url: str,
     *,
     revision: str | None,

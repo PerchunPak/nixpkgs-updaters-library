@@ -8,6 +8,8 @@ import typing as t
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 
+import joblib  # pyright: ignore[reportMissingTypeStubs] # stubs are not packaged in nixpkgs
+import platformdirs
 import pydantic_core
 from frozendict import frozendict
 from pydantic import BaseModel, BeforeValidator
@@ -16,6 +18,10 @@ if t.TYPE_CHECKING:
     import collections.abc as c
 
     import pydantic
+
+memory = joblib.Memory(
+    platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
+)
 
 
 def async_to_sync[**P, R](  # pragma: no cover
