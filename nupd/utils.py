@@ -49,7 +49,7 @@ def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
         yield lst[i : i + n]
 
 
-class _PydanticFrozenDictAnnotation[_K, _V]:
+class _PydanticFrozenDictAnnotation[K, V]:
     """https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166."""
 
     @classmethod
@@ -57,8 +57,8 @@ class _PydanticFrozenDictAnnotation[_K, _V]:
         cls, source_type: t.Any, handler: pydantic.GetCoreSchemaHandler
     ) -> pydantic_core.core_schema.CoreSchema:
         def validate_from_dict(
-            d: dict[_K, _V] | frozendict[_K, _V],
-        ) -> frozendict[_K, _V]:
+            d: dict[K, V] | frozendict[K, V],
+        ) -> frozendict[K, V]:
             return frozendict(d)
 
         frozendict_schema = pydantic_core.core_schema.chain_schema(
@@ -79,8 +79,8 @@ class _PydanticFrozenDictAnnotation[_K, _V]:
         )
 
 
-type FrozenDict[_K, _V] = t.Annotated[
-    frozendict[_K, _V], _PydanticFrozenDictAnnotation
+type FrozenDict[K, V] = t.Annotated[
+    frozendict[K, V], _PydanticFrozenDictAnnotation
 ]
 
 
