@@ -49,9 +49,9 @@
             nix-prefetch-scripts
 
             # docs
-            python312Packages.mkdocs-material
-            python312Packages.mkdocstrings
-            python312Packages.mkdocstrings-python
+            python3Packages.mkdocs-material
+            python3Packages.mkdocstrings
+            python3Packages.mkdocstrings-python
           ];
 
           PYTHONPATH = ".";
