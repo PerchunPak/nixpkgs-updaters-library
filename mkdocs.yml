@@ -5,7 +5,7 @@ watch:
 
 nav:
   - Home: index.md
-  - terminologie.md
+  - terminology.md
   - Usage:
     - Quick Start: usage/quick-start.md
     - Design:

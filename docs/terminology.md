@@ -1,4 +1,4 @@
-# Terminologie
+# Terminology
 
 - The library — this package.
 - An updater script — this is what you would run to add/update plugins in
