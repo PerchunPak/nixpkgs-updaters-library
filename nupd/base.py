@@ -63,7 +63,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
 
     @abc.abstractmethod
     def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
-        """Parse argument, that user provided as ID for an entry, to EntryInfo."""
+        """Parse argument, that user provided as an ID for the entry, to [EntryInfo](design/models.md#entryinfo)."""
 
 
 @t.final

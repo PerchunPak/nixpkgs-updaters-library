@@ -9,3 +9,4 @@
   an extension.
 - An entry — a single unit of what updater updates. For Vim plugins this would
   be a plugin, for Gnome extensions this would be an extension.
+- `G` prefix means it is a [Generic](https://typing.python.org/en/latest/reference/generics.html).
