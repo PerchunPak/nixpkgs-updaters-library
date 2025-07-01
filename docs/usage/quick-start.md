@@ -8,7 +8,7 @@ You can view the full code in the
 [`example/simple`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/main/example/simple)
 directory.
 
-First, we need to implement [our models](./design/models.md).
+First, we need to implement [our models](./models.md).
 
 ```py title="script.py"
 from __future__ import annotations
@@ -43,9 +43,9 @@ repositories](./helpers/github.md) and [a wrapper](./helpers/nurl.md) around
 [nurl](https://github.com/nix-community/nurl) - THE prefetcher for Nix
 ecosystem.
 
-We should also implement [`MiniEntry`](../usage/design/models.md#minientry),
+We should also implement [`MiniEntry`](./models.md#minientry),
 which is just a minified version of our
-[`Entry`](../usage/design/models.md#entry) to not bloat the result file with
+[`Entry`](./models.md#entry) to not bloat the result file with
 unnecessary information:
 
 ```py title="script.py"

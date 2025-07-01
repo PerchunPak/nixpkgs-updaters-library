@@ -7,10 +7,8 @@ nav:
   - Home: index.md
   - terminology.md
   - Usage:
-    - Quick Start: usage/quick-start.md
-    - Design:
-      - usage/design/models.md
-      - usage/design/logic.md
+    - usage/quick-start.md
+    - usage/models.md
     - Helpers:
       - usage/helpers/csv-reader.md
       - usage/helpers/github.md

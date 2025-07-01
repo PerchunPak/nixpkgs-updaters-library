@@ -23,7 +23,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
         Arguments:
             parse:
                 Function, that parses a row to an
-                [`EntryInfo`](../design/models.md#entryinfo).
+                [`EntryInfo`](../models.md#entryinfo).
 
                 !!! warning
 
@@ -51,7 +51,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
         Arguments:
             serialize:
                 Function, that is called to serialize an
-                [`EntryInfo`](../design/models.md#entryinfo)
+                [`EntryInfo`](../models.md#entryinfo)
                 to a dict, that we can then put into CSV.
         """
         writer = None
