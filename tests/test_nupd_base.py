@@ -15,6 +15,7 @@ from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
+    import os
 
     from pytest_mock import MockerFixture
 
@@ -68,8 +69,8 @@ class DumbMiniEntry(MiniEntry[DumbEntryInfo], frozen=True):
 
 @dataclasses.dataclass
 class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
-    _default_input_file: Path = Path("/homeless-shelter")
-    _default_output_file: Path = Path("/homeless-shelter")
+    _default_input_file: os.PathLike[str] = Path("/homeless-shelter")
+    _default_output_file: os.PathLike[str] = Path("/homeless-shelter")
 
     @t.override
     async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:

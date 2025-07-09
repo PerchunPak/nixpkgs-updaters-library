@@ -82,10 +82,10 @@ class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
 
 @dataclasses.dataclass
 class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
-    _default_input_file: Path = dataclasses.field(
+    _default_input_file: os.PathLike[str] = dataclasses.field(
         init=False, default=ROOT / "input.csv"
     )
-    _default_output_file: Path = dataclasses.field(
+    _default_output_file: os.PathLike[str] = dataclasses.field(
         init=False, default=ROOT / "output.json"
     )
 
