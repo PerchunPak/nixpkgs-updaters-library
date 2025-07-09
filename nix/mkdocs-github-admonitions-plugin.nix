@@ -1,9 +1,11 @@
+# https://github.com/NixOS/nixpkgs/pull/423828
 {
   lib,
   fetchFromGitHub,
   buildPythonPackage,
   hatchling,
   mkdocs,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -22,9 +24,9 @@ buildPythonPackage rec {
 
   dependencies = [ mkdocs ];
 
-  pythonImportsCheck = [
-    "admonitions"
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
+
+  pythonImportsCheck = [ "admonitions" ];
 
   meta = {
     description = "Plugin to convert GitHub-style admonitions to `mkdocs-material`-style admonitions";
