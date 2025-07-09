@@ -5,6 +5,7 @@ import asyncio
 import dataclasses
 import json
 import typing as t
+from pathlib import Path
 
 import inject
 from loguru import logger
@@ -15,7 +16,7 @@ from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
-    from pathlib import Path
+    import os
 
 
 def undefined_default() -> t.Never:
@@ -30,10 +31,10 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
         default_factory=lambda: inject.instance(Config)
     )
 
-    _default_input_file: Path = dataclasses.field(
+    _default_input_file: os.PathLike[str] = dataclasses.field(
         init=False, default_factory=undefined_default
     )
-    _default_output_file: Path = dataclasses.field(
+    _default_output_file: os.PathLike[str] = dataclasses.field(
         init=False, default_factory=undefined_default
     )
 
@@ -43,7 +44,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
         if input_file is None:
             input_file = self._default_input_file
 
-        return input_file
+        return Path(input_file)
 
     @property
     def output_file(self) -> Path:
@@ -51,7 +52,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
         if output_file is None:
             output_file = self._default_output_file
 
-        return output_file
+        return Path(output_file)
 
     @abc.abstractmethod
     async def get_all_entries(self, /) -> c.Iterable[GEntryInfo]: ...

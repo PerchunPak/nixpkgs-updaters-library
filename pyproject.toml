@@ -8,7 +8,7 @@ authors = [
 
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 line-length = 80
 
 [tool.ruff.lint]
@@ -119,7 +119,7 @@ line-ending = "lf"
 
 [tool.basedpyright]
 pythonPlatform = "Linux"
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "all"
 exclude = [
   ".direnv",

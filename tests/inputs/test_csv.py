@@ -27,7 +27,7 @@ def csv_input(tmp_path: Path) -> CsvInput[CsvEntryInfo]:
 
 
 def test_csv_read(csv_input: CsvInput[CsvEntryInfo]) -> None:
-    with csv_input.file.open("w") as f:
+    with Path(csv_input.file).open("w") as f:
         f.writelines(
             [
                 "name,value\n",
@@ -54,7 +54,7 @@ def test_csv_write(csv_input: CsvInput[CsvEntryInfo]) -> None:
         serialize=lambda x: x.model_dump(mode="json"),
     )
 
-    with csv_input.file.open("r") as f:
+    with Path(csv_input.file).open("r") as f:
         assert f.readlines() == [
             "name,value\n",
             "aaaa,bbbb\n",

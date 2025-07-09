@@ -1,6 +1,7 @@
 import collections.abc as c
 import csv
 import dataclasses
+import os
 import typing as t
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from nupd.models import EntryInfo
 
 @dataclasses.dataclass
 class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
-    file: Path
+    file: os.PathLike[str]
     kwargs: dict[str, t.Any] = dataclasses.field(default_factory=dict)
     """Kwargs, passed to `csv` functions."""
 
@@ -32,7 +33,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
                     and it is pretty annoying to handle that. You have to
                     handle it by yourself.
         """
-        with self.file.open("r", newline="") as f:
+        with Path(self.file).open("r", newline="") as f:
             parsed = csv.DictReader(f, **self.kwargs)
 
             for line in parsed:
@@ -55,7 +56,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
                 to a dict, that we can then put into CSV.
         """
         writer = None
-        with self.file.open("w", newline="") as f:
+        with Path(self.file).open("w", newline="") as f:
             for i, entry in enumerate(sorted(entries, key=lambda x: x.id)):
                 serialized = serialize(entry)
                 if i == 0:
