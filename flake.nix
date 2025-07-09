@@ -50,6 +50,7 @@
 
             # docs
             python3Packages.mkdocs-material
+            python3Packages.mkdocs-github-admonitions-plugin
             python3Packages.mkdocstrings
             python3Packages.mkdocstrings-python
           ];

@@ -69,3 +69,4 @@ plugins:
             - url: https://docs.python.org/3.13/objects.inv
               domains: [std, py]
             - https://typing-extensions.readthedocs.io/en/latest/objects.inv
+  - gh-admonitions
