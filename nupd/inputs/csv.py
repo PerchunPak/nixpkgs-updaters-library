@@ -1,6 +1,7 @@
 import collections.abc as c
 import csv
 import dataclasses
+import os
 import typing as t
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from nupd.models import EntryInfo
 
 @dataclasses.dataclass
 class CsvInput[I: EntryInfo](ABCInput[I]):
-    file: Path
+    file: os.PathLike[str]
     kwargs: dict[str, t.Any] = dataclasses.field(default_factory=dict)
     """Kwargs, passed to `csv` functions."""
 
@@ -18,7 +19,7 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
     def read(
         self, parse: c.Callable[[c.Mapping[str, str]], I]
     ) -> c.Iterable[I]:
-        with self.file.open("r", newline="") as f:
+        with Path(self.file).open("r", newline="") as f:
             parsed = csv.DictReader(f, **self.kwargs)
 
             for line in parsed:
@@ -35,7 +36,7 @@ class CsvInput[I: EntryInfo](ABCInput[I]):
         serialize: c.Callable[[I], c.Mapping[str, str]],
     ) -> None:
         writer = None
-        with self.file.open("w", newline="") as f:
+        with Path(self.file).open("w", newline="") as f:
             for i, entry in enumerate(sorted(entries, key=lambda x: x.id)):
                 serialized = serialize(entry)
                 if i == 0:
