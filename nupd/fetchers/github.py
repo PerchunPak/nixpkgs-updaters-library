@@ -11,14 +11,14 @@ from nupd import utils
 from nupd.exc import HTTPError
 from nupd.models import NupdModel
 
-type OptionalCleanedUpString = t.Annotated[
-    str | None,
+# mkdocstrings is not smart enough to resolve `t.Annotated` from a variable
+OptionalCleanedUpString = (
     BeforeValidator(lambda x: utils.nullify(utils.cleanup_raw_string(x))),
-]
+)
 
 
 class GitHubRelease(NupdModel, frozen=True):
-    name: OptionalCleanedUpString
+    name: t.Annotated[str | None, OptionalCleanedUpString]
     tag_name: str
     created_at: datetime
 
@@ -29,9 +29,9 @@ class GitHubTag(NupdModel, frozen=True):
 
 
 class MetaInformation(NupdModel, frozen=True):
-    description: OptionalCleanedUpString
+    description: t.Annotated[str | None, OptionalCleanedUpString]
     homepage: t.Annotated[str | None, BeforeValidator(utils.nullify)]
-    license: OptionalCleanedUpString
+    license: t.Annotated[str | None, OptionalCleanedUpString]
     stars: int
     archived: bool
     archived_at: datetime | None
@@ -39,6 +39,7 @@ class MetaInformation(NupdModel, frozen=True):
 
 class Commit(NupdModel, frozen=True):
     id: str
+    """SHA1 hash of the commit."""
     date: datetime
 
 
@@ -54,6 +55,16 @@ class GHRepository(NupdModel, frozen=True):
     async def prefetch_commit(
         self, *, github_token: str | None = None
     ) -> t.Self:
+        """Prefetch latest commit, if it is not yet prefetched.
+
+        Example:
+            Note that the result object is immutable, which means this function
+            has to do a copy and return it. You have to call this function like this:
+
+            ```py
+            result = await result.prefetch_latest_version()
+            ```
+        """
         commit = await github_prefetch_commit(self, github_token=github_token)
         has_submodules = await github_does_have_submodules(
             self, github_token=github_token
@@ -63,6 +74,20 @@ class GHRepository(NupdModel, frozen=True):
     async def prefetch_latest_version(
         self, github_token: str | None = None
     ) -> t.Self:
+        """Prefetch latest version, if it is not yet prefetched.
+
+        First it tries to fetch the latest GitHub release, if it fails - it
+        fallbacks to Git tags. If there are no tags, the returned object's
+        [`latest_version`][nupd.fetchers.github.GHRepository.latest_version] stays `None`.
+
+        Example:
+            Note that the result object is immutable, which means this function
+            has to do a copy and return it. You have to call this function like this:
+
+            ```py
+            result = await result.prefetch_latest_version()
+            ```
+        """
         """Get the latest version from either releases or tags."""
         if self.latest_version:
             return self
@@ -102,6 +127,12 @@ class GHRepository(NupdModel, frozen=True):
 async def github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
+    """Fetch a GitHub repository using GraphQL API.
+
+    GraphQL API allows us to include multiple different requests in one,
+    which makes it superior for ratelimit-sensitive operations, but it
+    requires a token.
+    """
     session = inject.instance(aiohttp.ClientSession)
     async with session.post(
         "https://api.github.com/graphql",
@@ -207,7 +238,7 @@ async def github_fetch_rest(
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
 
-    Do not forget to handle redirects (see `example/simple` directory)!
+    Do not forget to handle redirects!
     """
     session = inject.instance(aiohttp.ClientSession)
     async with session.get(

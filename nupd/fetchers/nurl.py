@@ -46,6 +46,15 @@ async def nurl(
     fetcher: FETCHERS | None = None,
     fallback: FETCHERS | None = None,
 ) -> NurlResult:
+    """Just a fancy wrapper around `nurl` to handle edge-cases like caching.
+
+    Parameters:
+        fetcher: A fetcher to use. List of all possible fethers can be obtained using `nurl -l`.
+        fallback: The fetcher to fall back to when nurl fails to infer it from the URL.
+
+    Raises:
+        NurlError: If `nupd` return non-zero exit code or wrote something to stderr.
+    """
     logger.debug(f"Running nurl on {url}")
 
     if additional_arguments is None:
@@ -87,6 +96,16 @@ async def nurl_parse(
     fetcher: FETCHERS | None = None,
     fallback: FETCHERS | None = None,
 ) -> NurlResult:
+    """Wrapper around [`nurl`][nupd.fetchers.nurl.nurl] function, to also pass `--parse` argument.
+
+    From `nurl --help`: Parse the url without fetching the hash, output in json format.
+
+    Example:
+        ```py
+        >>> nurl_parse("https://github.com/NixOS/nixpkgs")
+        NurlResult(args=frozendict.frozendict({'owner': 'NixOS', 'repo': 'nixpkgs'}), fetcher='fetchFromGitHub')
+        ```
+    """
     if additional_arguments is None:
         additional_arguments = []
 

@@ -32,6 +32,34 @@ async def prefetch_git(
     revision: str | None,
     additional_args: c.Iterable[str],
 ) -> GitPrefetchResult:
+    """Just a fancy wrapper around `nix-prefetch-git` to handle edge-cases like caching.
+
+    Parameters:
+        revision: If `None` (the default), tries to fetch the last commit.
+        additional_args:
+            Your custom additional arguments, e.g. `--branch-name` or `--fetch-submodules`.
+
+    Example:
+        ```py
+        await prefetch_git(
+            "https://github.com/PerchunPak/nixpkgs-updaters-library",
+            additional_args=[
+                "--branch-name", "foo",# (1)!
+                "--leave-dotGit",
+                "--fetch-submodules",
+            ],
+        )
+        ```
+
+        1. If you provide `--branch-name foo` as a single string, it would equal
+           to `nix-prefetch-git ... '--branch-name foo'`. Do you see the problem?
+           Because `additional_args` is not parsed by a shell (`/bin/sh`), you
+           have to manually separate each word, otherwise the script won't
+           recognize it as separate words, which leads to an obscure error.
+
+    Raises:
+        GitPrefetchError: If `nix-prefetch-git` returns non-zero exit code or wrote something to stderr.
+    """
     process = await asyncio.create_subprocess_exec(
         Executable.NIX_PREFETCH_GIT,
         url,
