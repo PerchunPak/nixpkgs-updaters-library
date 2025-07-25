@@ -1,9 +1,9 @@
 # Models
 
-You need to implement a few interfaces for the library to work. Note that we
-mostly don't enforce you to store information, you choose yourself what to
-store. This way, the library can be used for anything from simple git
-repositories to GNOME extensions.
+You need to implement some interfaces for the library to work. Note that the
+library is generally designed to be minimalistic: you choose what to store.
+This way, the library can be used for anything from simple git repositories to
+GNOME extensions.
 
 Look at [the `models.py` file](https://github.com/PerchunPak/nixpkgs-updaters-library/blob/main/nupd/models.py)
 for exact details.
@@ -20,8 +20,7 @@ is enough to implement only these two simple attributes:
 
 ## `Entry`
 
-All information about the entry, that we need to generate the Nix code. It must
-implement only one method:
+All information about the entry, that we need to generate Nix code.
 
 - `minify()`: minifies all the information about the entry to an `MiniEntry`
   instance.
@@ -31,7 +30,7 @@ Also note that an `Entry` instance always has `info` field, which links to
 
 ## `MiniEntry`
 
-Minified prefetched entry with the minimal set of the require keys. This exists
-with a goal to not bloat your output file with unused information. However, it
-still must have enough information to reconstruct an `EntryInfo` instance
-(there is an `info` field for this).
+Minified prefetched entry with the minimal set of the required keys. This
+exists with a goal to not bloat your output file with unused information.
+However, it still must have enough information to reconstruct an `EntryInfo`
+instance (there is an `info` field for this).

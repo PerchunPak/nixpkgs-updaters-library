@@ -14,7 +14,7 @@ don't - [`github_fetch_rest`][nupd.fetchers.github.github_fetch_rest].
 
 The difference, is that GraphQL requires API key, but has much higher rate
 limits, while REST API is the opposite. Which makes REST API great for one-time
-usecase and GraphQL for massive updates.
+uses and GraphQL for massive updates.
 
 After you fetched general information about the repository, you would probably
 want to fetch such things as latest commit/release/Git tag. For this you should
@@ -23,7 +23,7 @@ and/or [`result.prefetch_latest_version()`][nupd.fetchers.github.GHRepository.pr
 As every function is limited to only one request (this is to make predicting
 rate limiting intuitive), [`github_fetch_rest`][nupd.fetchers.github.github_fetch_rest]
 will not fetch that data but [`github_fetch_graphql`][nupd.fetchers.github.github_fetch_graphql]
-will.
+will (GraphQL allows us to include multiple requests into one).
 
 !!! note
 

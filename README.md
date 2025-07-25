@@ -29,18 +29,17 @@ buildVimPlugin {
     owner = "folke";
     repo = "lazy.nvim";
     rev = "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a";
-    sha256 = "0nz6w4h863g3vq90q3bgcmrk1yz88gjqmmbacwx3hxyks13hy3wx";
+    hash = "sha256-nQ8PR9DTdzg6Z2rViuVD6Pswc2VvDQwS3uMNgyDh5ls=";
   };
-  meta.homepage = "https://github.com/folke/lazy.nvim/";
 };
 ```
 
-Now imagine we have a thousand of such plugins, writing out a boilerplate for
-each of them and then also keeping this up to date would be awful.
+Now imagine we have a thousand of such plugins, writing out a package for each
+of them separately and then also keeping this up to date would be awful.
 
-This library allows you to easily manage unlimited amount of packages easily.
-Before this became a thing, many would just write a Python script with all the
-logic from the ground up. Later, when we would want to add a feature to such
+This library allows you to easily manage unlimited amount of packages. Before
+this became a thing, many would just write a Python script with all the logic
+from the ground up. Later, when we would want to add a feature to such
 a script, it would grow in complexity and result into a nightmare code.
 
 By using the library, we can avoid a lot of boilerplate and get many powerful

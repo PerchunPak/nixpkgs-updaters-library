@@ -39,6 +39,7 @@ class MetaInformation(NupdModel, frozen=True):
 
 class Commit(NupdModel, frozen=True):
     id: str
+    """SHA1 hash of the commit."""
     date: datetime
 
 
@@ -126,6 +127,12 @@ class GHRepository(NupdModel, frozen=True):
 async def github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
+    """Fetch a GitHub repository using GraphQL API.
+
+    GraphQL API allows us to include multiple different requests in one,
+    which makes it superior for ratelimit-sensitive operations, but it
+    requires a token.
+    """
     session = inject.instance(aiohttp.ClientSession)
     async with session.post(
         "https://api.github.com/graphql",
@@ -231,7 +238,7 @@ async def github_fetch_rest(
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
 
-    Do not forget to handle redirects (see `example/simple` directory)!
+    Do not forget to handle redirects!
     """
     session = inject.instance(aiohttp.ClientSession)
     async with session.get(

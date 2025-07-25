@@ -23,6 +23,7 @@ Options:
       --leave-dotGit  Keep the .git directories.
       --fetch-lfs     Fetch git Large File Storage (LFS) files.
       --fetch-submodules Fetch submodules.
+      --fetch-tags    Fetch all tags (useful for git describe).
       --builder       Clone as fetchgit does, but url, rev, and out option are mandatory.
       --quiet         Only print the final json summary.
 ```

@@ -1,8 +1,7 @@
 # Quick Start
 
 Let's together create a simple example script, which loads GitHub URLs from an
-`input.csv` file, outputs prefetched last commit and hashes to an
-`output.json` files.
+`input.csv` file, and outputs last commit plus hashes to an `output.json` file.
 
 You can view the full code in the
 [`example/simple`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/main/example/simple)
@@ -73,7 +72,7 @@ class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
     a [GitHub discussion](https://github.com/PerchunPak/nixpkgs-updaters-library/discussions))
 
     Though those shenanigans are very useful: with them, every single step in
-    the library is strongly typed. But do note, that **everything you put into
+    the library is strongly typed. Also, do note: **everything you put into
     models gets automatically validated**.
 
     If you want to type-check your script, I recommend using
@@ -174,7 +173,8 @@ if __name__ == "__main__":# (1)!
     app()
 ```
 
-1. [https://stackoverflow.com/a/419185](https://stackoverflow.com/a/419185)
+1. If you don't know what is it:
+   [https://stackoverflow.com/a/419185](https://stackoverflow.com/a/419185)
 
 The `app.info.context_settings["obj"]` block is how we point out what
 implementation classes we use.

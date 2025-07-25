@@ -58,7 +58,7 @@ async def prefetch_git(
            recognize it as separate words, which leads to an obscure error.
 
     Raises:
-        GitPrefetchError: If `nix-prefetch-git` return non-zero exit code or wrote something to stderr.
+        GitPrefetchError: If `nix-prefetch-git` returns non-zero exit code or wrote something to stderr.
     """
     process = await asyncio.create_subprocess_exec(
         Executable.NIX_PREFETCH_GIT,

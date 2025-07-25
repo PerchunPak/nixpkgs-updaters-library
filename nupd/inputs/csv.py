@@ -47,7 +47,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
     ) -> None:
         """Write all entries to the provided file.
 
-        All entries are sorted by their ID for reprocubility.
+        All entries are sorted by their ID for reproducibility.
 
         Arguments:
             serialize:
