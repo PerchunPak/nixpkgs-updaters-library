@@ -1,0 +1,72 @@
+site_name: Nixpkgs Updaters Library
+
+watch:
+  - nupd
+
+nav:
+  - Home: index.md
+  - terminology.md
+  - Usage:
+    - usage/quick-start.md
+    - usage/models.md
+    - Helpers:
+      - usage/helpers/csv-reader.md
+      - usage/helpers/github.md
+      - usage/helpers/nix-prefetch-git.md
+      - usage/helpers/nix-prefetch-url.md
+      - usage/helpers/nurl.md
+  - todo.md
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+  palette:
+    primary: teal
+    scheme: slate
+
+markdown_extensions:
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          options:
+            show_source: false
+
+            heading_level: 3
+            parameter_headings: true
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+            docstring_style: google
+            docstring_section_style: list
+            merge_init_into_class: true
+            show_if_no_docstring: true
+
+            show_signature_annotations: true
+            separate_signature: true
+            signature_crossrefs: true
+            unwrap_annotated: true
+          inventories:
+            - url: https://docs.python.org/3.13/objects.inv
+              domains: [std, py]
+            - https://typing-extensions.readthedocs.io/en/latest/objects.inv
+  - gh-admonitions

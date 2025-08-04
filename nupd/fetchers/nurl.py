@@ -1,17 +1,14 @@
 import asyncio
 import collections.abc as c
-import functools
 import json
 import typing as t
 
-import inject
-from attrs import asdict, define, field
-from frozendict import frozendict
 from loguru import logger
 
-from nupd import exc
-from nupd.cache import Cache
-from nupd.utils import json_serialize
+from nupd import exc, utils
+from nupd.executables import Executable
+from nupd.models import NupdModel
+from nupd.utils import FrozenDict
 
 type FETCHERS = t.Literal[
     "builtins.fetchGit",
@@ -34,37 +31,13 @@ type FETCHERS = t.Literal[
 class NurlError(exc.NetworkError): ...
 
 
-@define(frozen=True)
-class NurlResult:
-    args: frozendict[str, str | int] = field(converter=frozendict)
+class NurlResult(NupdModel, frozen=True):
+    args: FrozenDict[str, t.Any]
     fetcher: FETCHERS
 
 
-async def _cache_nurl_call[**P](
-    __key_suffix: str,  # noqa: PYI063
-    __implementation: c.Callable[P, c.Awaitable[NurlResult]],
-    *args: P.args,
-    **kwargs: P.kwargs,
-) -> NurlResult:
-    cache = inject.instance(Cache)["nurl" + __key_suffix]
-    key = (
-        "\0".join(str(v) for v in args)
-        + "\0"
-        + "\0".join(f"{k}={v}" for k, v in kwargs.items())
-    )
-
-    try:
-        result = await cache.get(key)
-    except KeyError:
-        result = await __implementation(*args, **kwargs)
-        await cache.set(key, asdict(result, value_serializer=json_serialize))
-        return result
-    else:
-        assert isinstance(result, dict)
-        return NurlResult(**result)  # pyright: ignore[reportArgumentType]
-
-
-async def _nurl_implementation(
+@utils.memory.cache
+async def nurl(
     url: str,
     revision: str | None = None,
     *,
@@ -73,12 +46,25 @@ async def _nurl_implementation(
     fetcher: FETCHERS | None = None,
     fallback: FETCHERS | None = None,
 ) -> NurlResult:
+    """Just a fancy wrapper around `nurl` to handle edge-cases like caching.
+
+    Parameters:
+        fetcher: A fetcher to use. List of all possible fethers can be obtained using `nurl -l`.
+        fallback: The fetcher to fall back to when nurl fails to infer it from the URL.
+
+    Raises:
+        NurlError: If `nupd` return non-zero exit code or wrote something to stderr.
+    """
     logger.debug(f"Running nurl on {url}")
+
     if additional_arguments is None:
         additional_arguments = []
+    additional_arguments = list(additional_arguments)
+    if "--parse" not in additional_arguments:
+        additional_arguments.append("--json")
 
     process = await asyncio.create_subprocess_exec(
-        "nurl",
+        Executable.NURL,
         url,
         *((revision,) if revision else ()),
         *(("--submodules=true",) if submodules else ()),
@@ -101,55 +87,33 @@ async def _nurl_implementation(
     return NurlResult(**json.loads(stdout.decode()))
 
 
-@functools.wraps(_nurl_implementation)
-async def nurl(*args: t.Any, **kwargs: t.Any) -> NurlResult:
-    @functools.wraps(_nurl_implementation)
-    def implementation(
-        *args: t.Any,
-        additional_arguments: c.Iterable[str] | None = None,
-        **kwargs: t.Any,
-    ) -> c.Coroutine[t.Any, t.Any, NurlResult]:
-        additional_arguments = (
-            list(additional_arguments)
-            if additional_arguments is not None
-            else []
-        )
-        additional_arguments.append("-j")
+async def nurl_parse(
+    url: str,
+    revision: str | None = None,
+    *,
+    additional_arguments: c.Iterable[str] | None = None,
+    submodules: bool = False,
+    fetcher: FETCHERS | None = None,
+    fallback: FETCHERS | None = None,
+) -> NurlResult:
+    """Wrapper around [`nurl`][nupd.fetchers.nurl.nurl] function, to also pass `--parse` argument.
 
-        return _nurl_implementation(
-            *args, additional_arguments=additional_arguments, **kwargs
-        )
+    From `nurl --help`: Parse the url without fetching the hash, output in json format.
 
-    return await _cache_nurl_call(
-        "",  # key suffix
-        implementation,
-        *args,
-        **kwargs,
-    )
+    Example:
+        ```py
+        >>> nurl_parse("https://github.com/NixOS/nixpkgs")
+        NurlResult(args=frozendict.frozendict({'owner': 'NixOS', 'repo': 'nixpkgs'}), fetcher='fetchFromGitHub')
+        ```
+    """
+    if additional_arguments is None:
+        additional_arguments = []
 
-
-@functools.wraps(_nurl_implementation)
-async def nurl_parse(*args: t.Any, **kwargs: t.Any) -> NurlResult:
-    @functools.wraps(_nurl_implementation)
-    def implementation(
-        *args: t.Any,
-        additional_arguments: c.Iterable[str] | None = None,
-        **kwargs: t.Any,
-    ) -> c.Coroutine[t.Any, t.Any, NurlResult]:
-        additional_arguments = (
-            list(additional_arguments)
-            if additional_arguments is not None
-            else []
-        )
-        additional_arguments.append("-p")
-
-        return _nurl_implementation(
-            *args, additional_arguments=additional_arguments, **kwargs
-        )
-
-    return await _cache_nurl_call(
-        "-parse",  # key suffix
-        implementation,
-        *args,
-        **kwargs,
+    return await nurl(
+        url=url,
+        revision=revision,
+        additional_arguments=["--parse", *additional_arguments],
+        submodules=submodules,
+        fetcher=fetcher,
+        fallback=fallback,
     )

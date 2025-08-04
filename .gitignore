@@ -4,8 +4,8 @@ result-*
 result
 repl-result-*
 
-# Created by https://www.toptal.com/developers/gitignore/api/linux,python,windows,visualstudiocode,pycharm+all
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,python,windows,visualstudiocode,pycharm+all
+# Created by https://www.toptal.com/developers/gitignore/api/linux,python,windows,pycharm+all,visualstudiocode,vercel
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,python,windows,pycharm+all,visualstudiocode,vercel
 
 ### Linux ###
 *~
@@ -76,7 +76,7 @@ fabric.properties
 .idea/httpRequests
 
 # Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.set
+.idea/caches/build_file_checksums.ser
 
 ### PyCharm+all Patch ###
 # Ignore everything but code style settings and run configurations
@@ -245,6 +245,19 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+### Python Patch ###
+# Poetry local configuration file - https://python-poetry.org/docs/configuration/#local-configuration
+poetry.toml
+
+# ruff
+.ruff_cache/
+
+# LSP config files
+pyrightconfig.json
+
+### Vercel ###
+.vercel
+
 ### VisualStudioCode ###
 .vscode/*
 
@@ -258,12 +271,6 @@ cython_debug/
 # Ignore all local history of files
 .history
 .ionide
-
-# Support for Project snippet scope
-.vscode/*.code-snippets
-
-# Ignore code-workspaces
-*.code-workspace
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -291,4 +298,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,python,windows,visualstudiocode,pycharm+all
+# End of https://www.toptal.com/developers/gitignore/api/linux,python,windows,pycharm+all,visualstudiocode,vercel

@@ -7,13 +7,12 @@ from loguru import logger
 
 import nupd.logs
 from nupd.base import Nupd
-from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
 from nupd.shutdown import Shutdowner
 from nupd.utils import async_to_sync
 
-app = typer.Typer(context_settings={})
+app = typer.Typer(context_settings={}, no_args_is_help=True)
 _CWD = Path.cwd()
 
 
@@ -81,7 +80,6 @@ def callback(
                 jobs=jobs,
             ),
             classes=ctx.obj,
-            cache=Cache(),
         ),
         allow_override=True,
     )

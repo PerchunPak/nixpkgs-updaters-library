@@ -6,14 +6,8 @@ import pytest
 from frozendict import frozendict
 from pytest_mock import MockerFixture
 
-from nupd.fetchers.nurl import (
-    FETCHERS,
-    NurlError,
-    NurlResult,
-    _nurl_implementation,  # pyright: ignore[reportPrivateUsage]
-    nurl,
-    nurl_parse,
-)
+from nupd.executables import Executable
+from nupd.fetchers.nurl import FETCHERS, NurlError, NurlResult, nurl, nurl_parse
 
 EXAMPLE_RESPONSE: dict[str, t.Any] = {
     "args": {
@@ -36,11 +30,11 @@ EXAMPLE_RESPONSE_OBJ = NurlResult(
 
 
 @pytest.mark.parametrize("revision", ["aaaaaa", None])
-@pytest.mark.parametrize("additional_arguments", [["-j"], []])
+@pytest.mark.parametrize("additional_arguments", [["--json"], []])
 @pytest.mark.parametrize("submodules", [False, True])
 @pytest.mark.parametrize("fetcher", ["fetchFromGitLab", None])
 @pytest.mark.parametrize("fallback", ["fetchFromGitLab", None])
-async def test_nurl_implementation_basic(
+async def test_nurl_basic(
     mocker: MockerFixture,
     revision: str | None,
     additional_arguments: list[str],
@@ -58,7 +52,7 @@ async def test_nurl_implementation_basic(
     mock.return_value.returncode = 0
 
     assert (
-        await _nurl_implementation(
+        await nurl.func(
             "https://github.com/nix-community/patsh",
             revision=revision,
             additional_arguments=additional_arguments
@@ -72,7 +66,7 @@ async def test_nurl_implementation_basic(
     )
 
     args = [
-        "nurl",
+        Executable.NURL,
         "https://github.com/nix-community/patsh",
     ]
     if revision:
@@ -90,12 +84,13 @@ async def test_nurl_implementation_basic(
 
     mock.assert_called_once_with(
         *args,
+        "--json",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
 
 
-async def test_nurl_implementation_return_code_non_zero(
+async def test_nurl_return_code_non_zero(
     mocker: MockerFixture,
 ) -> None:
     mock = mocker.patch(
@@ -110,67 +105,14 @@ async def test_nurl_implementation_return_code_non_zero(
             "^nurl returned exit code 1\nstdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
-        _ = await _nurl_implementation("https://github.com/NixOS/patsh")
+        _ = await nurl.func("https://github.com/NixOS/patsh")
 
     mock.assert_called_once_with(
-        "nurl",
+        Executable.NURL,
         "https://github.com/NixOS/patsh",
+        "--json",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-    )
-
-
-@pytest.mark.parametrize("additional_args", [["--help"], []])
-async def test_nurl(mocker: MockerFixture, additional_args: list[str]) -> None:
-    mock = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
-        return_value=EXAMPLE_RESPONSE_OBJ,
-    )
-
-    assert (
-        await nurl(
-            "https://github.com/NixOS/patsh",
-            additional_arguments=additional_args if additional_args else None,
-            submodules=True,
-        )
-        is EXAMPLE_RESPONSE_OBJ
-    )
-
-    mock.assert_called_once_with(
-        "https://github.com/NixOS/patsh",
-        additional_arguments=[*additional_args, "-j"],
-        submodules=True,
-    )
-
-
-async def test_nurl_caches(mocker: MockerFixture) -> None:
-    _ = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
-        return_value=EXAMPLE_RESPONSE_OBJ,
-    )
-
-    assert (
-        await nurl(
-            "https://github.com/NixOS/abcabc",
-            additional_arguments=["--help"],
-            submodules=True,
-        )
-        is EXAMPLE_RESPONSE_OBJ
-    )
-
-    mocker.stopall()
-    _ = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
-        side_effect=NurlError,
-    )
-
-    assert (
-        await nurl(
-            "https://github.com/NixOS/abcabc",
-            additional_arguments=["--help"],
-            submodules=True,
-        )
-        == EXAMPLE_RESPONSE_OBJ
     )
 
 
@@ -179,7 +121,8 @@ async def test_nurl_parse(
     mocker: MockerFixture, additional_args: list[str]
 ) -> None:
     mock = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
+        "nupd.fetchers.nurl.nurl",
+        spec=nurl.func,
         return_value=EXAMPLE_RESPONSE_OBJ,
     )
 
@@ -193,38 +136,10 @@ async def test_nurl_parse(
     )
 
     mock.assert_called_once_with(
-        "https://github.com/NixOS/patsh",
-        additional_arguments=[*additional_args, "-p"],
+        url="https://github.com/NixOS/patsh",
+        revision=None,
+        additional_arguments=["--parse", *additional_args],
         submodules=True,
-    )
-
-
-async def test_nurl_parse_caches(mocker: MockerFixture) -> None:
-    _ = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
-        return_value=EXAMPLE_RESPONSE_OBJ,
-    )
-
-    assert (
-        await nurl_parse(
-            "https://github.com/NixOS/abcabc",
-            additional_arguments=["--help"],
-            submodules=True,
-        )
-        is EXAMPLE_RESPONSE_OBJ
-    )
-
-    mocker.stopall()
-    _ = mocker.patch(
-        "nupd.fetchers.nurl._nurl_implementation",
-        side_effect=NurlError,
-    )
-
-    assert (
-        await nurl_parse(
-            "https://github.com/NixOS/abcabc",
-            additional_arguments=["--help"],
-            submodules=True,
-        )
-        == EXAMPLE_RESPONSE_OBJ
+        fetcher=None,
+        fallback=None,
     )

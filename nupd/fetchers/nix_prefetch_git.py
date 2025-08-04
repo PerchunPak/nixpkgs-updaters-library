@@ -3,19 +3,17 @@ import collections.abc as c
 import json
 from datetime import datetime
 
-import inject
-from attrs import asdict, define
 from loguru import logger
 
 from nupd import exc, utils
-from nupd.cache import Cache
+from nupd.executables import Executable
+from nupd.models import NupdModel
 
 
 class GitPrefetchError(exc.NetworkError): ...
 
 
-@define(frozen=True, field_transformer=utils.json_transformer)
-class GitPrefetchResult:
+class GitPrefetchResult(NupdModel, frozen=True):
     url: str
     rev: str
     date: datetime
@@ -27,60 +25,43 @@ class GitPrefetchResult:
     leave_dot_git: bool
 
 
+@utils.memory.cache
 async def prefetch_git(
-    url: str,
-    *,
-    revision: str | None = None,
-    additional_args: c.Iterable[str] | None = None,
-) -> GitPrefetchResult:
-    cache = inject.instance(Cache)["nix-prefetch-git"]
-    key = (
-        "\0" + revision
-        if revision
-        else ""
-        + (
-            "\0".join(str(v) for v in additional_args)
-            if additional_args
-            else ""
-        )
-    )
-
-    try:
-        result = await cache.get(key)
-    except KeyError:
-        result = await _prefetch_git(
-            url,
-            revision=revision,
-            additional_args=additional_args if additional_args else [],
-        )
-
-        await cache.set(
-            key, asdict(result, value_serializer=utils.json_serialize)
-        )
-        return result
-    else:
-        assert isinstance(result, dict)
-        return GitPrefetchResult(
-            url=result["url"],  # pyright: ignore[reportArgumentType]
-            rev=result["rev"],  # pyright: ignore[reportArgumentType]
-            date=result["date"],  # pyright: ignore[reportArgumentType]
-            path=result["path"],  # pyright: ignore[reportArgumentType]
-            hash=result["hash"],  # pyright: ignore[reportArgumentType]
-            fetch_lfs=result["fetchLFS"],  # pyright: ignore[reportArgumentType]
-            fetch_submodules=result["fetchSubmodules"],  # pyright: ignore[reportArgumentType]
-            deep_clone=result["deepClone"],  # pyright: ignore[reportArgumentType]
-            leave_dot_git=result["leaveDotGit"],  # pyright: ignore[reportArgumentType]
-        )
-
-
-async def _prefetch_git(
     url: str,
     *,
     revision: str | None,
     additional_args: c.Iterable[str],
 ) -> GitPrefetchResult:
+    """Just a fancy wrapper around `nix-prefetch-git` to handle edge-cases like caching.
+
+    Parameters:
+        revision: If `None` (the default), tries to fetch the last commit.
+        additional_args:
+            Your custom additional arguments, e.g. `--branch-name` or `--fetch-submodules`.
+
+    Example:
+        ```py
+        await prefetch_git(
+            "https://github.com/PerchunPak/nixpkgs-updaters-library",
+            additional_args=[
+                "--branch-name", "foo",# (1)!
+                "--leave-dotGit",
+                "--fetch-submodules",
+            ],
+        )
+        ```
+
+        1. If you provide `--branch-name foo` as a single string, it would equal
+           to `nix-prefetch-git ... '--branch-name foo'`. Do you see the problem?
+           Because `additional_args` is not parsed by a shell (`/bin/sh`), you
+           have to manually separate each word, otherwise the script won't
+           recognize it as separate words, which leads to an obscure error.
+
+    Raises:
+        GitPrefetchError: If `nix-prefetch-git` returns non-zero exit code or wrote something to stderr.
+    """
     process = await asyncio.create_subprocess_exec(
-        "nix-prefetch-git",
+        Executable.NIX_PREFETCH_GIT,
         url,
         *((revision,) if revision else ()),
         *additional_args,

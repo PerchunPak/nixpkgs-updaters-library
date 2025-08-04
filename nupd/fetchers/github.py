@@ -1,55 +1,115 @@
+import collections.abc as c
 import typing as t
 from datetime import datetime
 
 import aiohttp
-import attrs
 import inject
-from attrs import define, field
 from loguru import logger
+from pydantic import BeforeValidator
 
-from nupd.cache import Cache
+from nupd import utils
 from nupd.exc import HTTPError
-from nupd.utils import json_serialize, json_transformer
+from nupd.models import NupdModel
+
+# mkdocstrings is not smart enough to resolve `t.Annotated` from a variable
+OptionalCleanedUpString = (
+    BeforeValidator(lambda x: utils.nullify(utils.cleanup_raw_string(x))),
+)
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class MetaInformation:
-    description: str | None
-    homepage: str | None
-    license: str | None
+class GitHubRelease(NupdModel, frozen=True):
+    name: t.Annotated[str | None, OptionalCleanedUpString]
+    tag_name: str
+    created_at: datetime
+
+
+class GitHubTag(NupdModel, frozen=True):
+    name: str
+    commit_sha: str
+
+
+class MetaInformation(NupdModel, frozen=True):
+    description: t.Annotated[str | None, OptionalCleanedUpString]
+    homepage: t.Annotated[str | None, BeforeValidator(utils.nullify)]
+    license: t.Annotated[str | None, OptionalCleanedUpString]
     stars: int
     archived: bool
     archived_at: datetime | None
 
 
-@define(frozen=True, field_transformer=json_transformer)
-class Commit:
+class Commit(NupdModel, frozen=True):
     id: str
+    """SHA1 hash of the commit."""
     date: datetime
 
 
-@define(frozen=True)
-class GHRepository:
+class GHRepository(NupdModel, frozen=True):
     owner: str
     repo: str
     branch: str
-
-    commit: Commit | None = field(
-        converter=lambda x: Commit(**x)
-        if not isinstance(x, Commit | None)
-        else x
-    )
-    meta: MetaInformation = field(
-        converter=lambda x: MetaInformation(**x)
-        if not isinstance(x, MetaInformation)
-        else x
-    )
+    meta: MetaInformation
+    has_submodules: bool | None
+    commit: Commit | None
+    latest_version: str | None
 
     async def prefetch_commit(
         self, *, github_token: str | None = None
     ) -> t.Self:
+        """Prefetch latest commit, if it is not yet prefetched.
+
+        Example:
+            Note that the result object is immutable, which means this function
+            has to do a copy and return it. You have to call this function like this:
+
+            ```py
+            result = await result.prefetch_latest_version()
+            ```
+        """
         commit = await github_prefetch_commit(self, github_token=github_token)
-        return attrs.evolve(self, commit=commit)
+        has_submodules = await github_does_have_submodules(
+            self, github_token=github_token
+        )
+        return utils.replace(self, commit=commit, has_submodules=has_submodules)
+
+    async def prefetch_latest_version(
+        self, github_token: str | None = None
+    ) -> t.Self:
+        """Prefetch latest version, if it is not yet prefetched.
+
+        First it tries to fetch the latest GitHub release, if it fails - it
+        fallbacks to Git tags. If there are no tags, the returned object's
+        [`latest_version`][nupd.fetchers.github.GHRepository.latest_version] stays `None`.
+
+        Example:
+            Note that the result object is immutable, which means this function
+            has to do a copy and return it. You have to call this function like this:
+
+            ```py
+            result = await result.prefetch_latest_version()
+            ```
+        """
+        """Get the latest version from either releases or tags."""
+        if self.latest_version:
+            return self
+
+        # First try to get the latest release
+        latest_release = await fetch_latest_release(
+            self.owner, self.repo, github_token=github_token
+        )
+        if latest_release is not None:
+            return utils.replace(self, latest_version=latest_release.tag_name)
+
+        # If no releases, try to get the latest tag
+        tags = await fetch_tags(
+            self.owner, self.repo, github_token=github_token
+        )
+        try:
+            # GitHub returns tags in descending order
+            latest_tag = next(iter(tags))
+            return utils.replace(self, latest_version=latest_tag.name)
+        except StopIteration:
+            pass
+        return self
 
     @property
     def url(self) -> str:
@@ -63,24 +123,16 @@ class GHRepository:
         return f"{self.url}/archive/{self.commit}.tar.gz"
 
 
+@utils.memory.cache
 async def github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
-    cache = inject.instance(Cache)["github_fetch"]
-    try:
-        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
-    except KeyError:
-        result = await _github_fetch_graphql(owner, repo, github_token)
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
-        return result
+    """Fetch a GitHub repository using GraphQL API.
 
-
-async def _github_fetch_graphql(
-    owner: str, repo: str, github_token: str
-) -> GHRepository:
+    GraphQL API allows us to include multiple different requests in one,
+    which makes it superior for ratelimit-sensitive operations, but it
+    requires a token.
+    """
     session = inject.instance(aiohttp.ClientSession)
     async with session.post(
         "https://api.github.com/graphql",
@@ -102,6 +154,9 @@ async def _github_fetch_graphql(
                 "    licenseInfo {"
                 "      spdxId"
                 "    }"
+                "    latestRelease {"
+                "      tagName"
+                "    }"
                 "    defaultBranchRef {"
                 "      name"
                 "      target {"
@@ -109,6 +164,11 @@ async def _github_fetch_graphql(
                 "        ... on Commit {"
                 "          committedDate"
                 "        }"
+                "      }"
+                "    }"
+                "    submodules(first: 1) {"
+                "      nodes {"
+                "        name"
                 "      }"
                 "    }"
                 "  }"
@@ -132,7 +192,7 @@ async def _github_fetch_graphql(
             )
 
     logger.debug(
-        f"Fetching GH:{owner}/{repo} took {data["data"]["rateLimit"]["cost"]} point(s)"
+        f"Fetching GH:{owner}/{repo} took {data['data']['rateLimit']['cost']} point(s)"
     )
     data = data["data"]["repository"]
 
@@ -142,6 +202,7 @@ async def _github_fetch_graphql(
         raise RuntimeError(
             "You've encountered a weird edge-case. Please open a bug report"
         )
+    latest_release = data["latestRelease"]
 
     return GHRepository(
         owner=data["owner"]["login"],
@@ -151,6 +212,10 @@ async def _github_fetch_graphql(
             id=data["defaultBranchRef"]["target"]["oid"],
             date=commit_date,
         ),
+        latest_version=None
+        if not latest_release
+        else latest_release["tagName"],
+        has_submodules=bool(len(data["submodules"]["nodes"])),
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepageUrl"],
@@ -164,24 +229,8 @@ async def _github_fetch_graphql(
     )
 
 
+@utils.memory.cache
 async def github_fetch_rest(
-    owner: str, repo: str, *, github_token: str | None
-) -> GHRepository:
-    cache = inject.instance(Cache)["github_fetch"]
-    try:
-        return GHRepository(**await cache.get(f"{owner}/{repo}"))  # pyright: ignore[reportCallIssue]
-    except KeyError:
-        result = await _github_fetch_rest(
-            owner, repo, github_token=github_token
-        )
-        await cache.set(
-            f"{owner}/{repo}",
-            attrs.asdict(result, value_serializer=json_serialize),
-        )
-        return result
-
-
-async def _github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
     """Fetch a GitHub repository using REST API.
@@ -189,7 +238,7 @@ async def _github_fetch_rest(
     REST API makes GitHub token optional, but it is a lot easier to get rate
     limited. If GitHub token is provided, use GraphQL API instead.
 
-    Do not forget to handle redirects (see `example/simple` directory)!
+    Do not forget to handle redirects!
     """
     session = inject.instance(aiohttp.ClientSession)
     async with session.get(
@@ -222,6 +271,8 @@ async def _github_fetch_rest(
         repo=new_repo,
         branch=data["default_branch"],
         commit=None,
+        has_submodules=None,
+        latest_version=None,
         meta=MetaInformation(
             description=data["description"],
             homepage=data["homepage"],
@@ -238,25 +289,8 @@ async def _github_fetch_rest(
     )
 
 
+@utils.memory.cache
 async def github_prefetch_commit(
-    repo: GHRepository, *, github_token: str | None
-) -> Commit:
-    cache = inject.instance(Cache)["github_commit_prefetch"]
-    try:
-        return Commit(
-            **t.cast(
-                dict[str, t.Any], await cache.get(repo.url + "@" + repo.branch)
-            )
-        )
-    except KeyError:
-        result = await _github_prefetch_commit(repo, github_token=github_token)
-        await cache.set(
-            repo.url, attrs.asdict(result, value_serializer=json_serialize)
-        )
-        return result
-
-
-async def _github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None = None
 ) -> Commit:
     if repo.commit is not None:
@@ -282,3 +316,94 @@ async def _github_prefetch_commit(
         id=data["sha"],
         date=datetime.fromisoformat(data["commit"]["author"]["date"]),
     )
+
+
+@utils.memory.cache
+async def github_does_have_submodules(
+    repo: GHRepository, *, github_token: str | None = None
+) -> bool:
+    if repo.has_submodules is not None:
+        return repo.has_submodules
+
+    session = inject.instance(aiohttp.ClientSession)
+    async with session.get(
+        f"https://api.github.com/repos/{repo.owner}/{repo.repo}/contents/.gitmodules?ref={repo.branch}",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {github_token}" if github_token else "",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    ) as response:
+        if not response.ok and response.status != 404:
+            data = await response.json()
+            logger.error(data)
+            response.raise_for_status()
+            raise RuntimeError("dead code")  # pragma: no cover
+
+    return response.status != 404
+
+
+@utils.memory.cache
+async def fetch_latest_release(
+    owner: str, repo: str, github_token: str | None = None
+) -> GitHubRelease | None:
+    """Fetch the latest release information for this repository."""
+    session = inject.instance(aiohttp.ClientSession)
+
+    async with session.get(
+        f"https://api.github.com/repos/{owner}/{repo}/releases/latest",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {github_token}" if github_token else "",
+        },
+    ) as response:
+        if response.status == 404:
+            return None
+        data = await response.json()
+
+        if not response.ok:
+            logger.error(data)
+            response.raise_for_status()
+            raise RuntimeError("dead code")  # pragma: no cover
+        if data.get("errors"):
+            logger.error(data)
+            raise HTTPError(
+                "\n".join(error["message"] for error in data["errors"])
+            )
+
+    return GitHubRelease(
+        name=data.get("name"),
+        tag_name=data["tag_name"],
+        created_at=datetime.fromisoformat(data["created_at"]),
+    )
+
+
+@utils.memory.cache
+async def fetch_tags(
+    owner: str, repo: str, github_token: str | None = None
+) -> c.Iterable[GitHubTag]:
+    """Get information about a specific release by tag."""
+    session = inject.instance(aiohttp.ClientSession)
+
+    async with session.get(
+        f"https://api.github.com/repos/{owner}/{repo}/tags",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {github_token}" if github_token else "",
+        },
+    ) as response:
+        if response.status == 404:
+            return []
+        data = await response.json()
+
+        if not response.ok:
+            logger.error(data)
+            response.raise_for_status()
+            raise RuntimeError("dead code")  # pragma: no cover
+
+    return [
+        GitHubTag(name=tag_data["name"], commit_sha=tag_data["commit"]["sha"])
+        for tag_data in data
+    ]

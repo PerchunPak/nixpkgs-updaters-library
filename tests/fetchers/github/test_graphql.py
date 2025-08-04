@@ -11,7 +11,7 @@ from nupd.fetchers.github import (
     Commit,
     GHRepository,
     MetaInformation,
-    _github_fetch_graphql,  # pyright: ignore[reportPrivateUsage]
+    github_fetch_graphql,
 )
 
 LSPCONFIG_RESPONSE = GHRepository(
@@ -22,6 +22,8 @@ LSPCONFIG_RESPONSE = GHRepository(
         id="6a5ed22255bbe10104ff9b72c55ec2e233a8e571",
         date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
     ),
+    latest_version="v1.6.0",
+    has_submodules=False,
     meta=MetaInformation(
         description="Quickstart configs for Nvim LSP",
         homepage="",
@@ -40,7 +42,7 @@ async def test_lspconfig(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     assert result == LSPCONFIG_RESPONSE
@@ -53,7 +55,7 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         response = json.load(f)
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "PerchunPak", "mcph", github_token="TOKEN"
     )
     assert result == GHRepository(
@@ -64,6 +66,8 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
             id="693eb6aa038f832dc614052e6b98bf107f9fcb26",
             date=datetime.fromisoformat("2023-06-01T18:52:58Z"),
         ),
+        latest_version="v1.6.0",
+        has_submodules=False,
         meta=MetaInformation(
             description="Minecraft plugin helper, updates and checks versions of all plugins on a server!",
             homepage=None,
@@ -85,7 +89,9 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
     )
 
     with pytest.raises(aiohttp.ClientResponseError) as error:
-        _ = await _github_fetch_graphql("aaaa", "bbbb", github_token="TOKEN")
+        _ = await github_fetch_graphql.func(
+            "aaaa", "bbbb", github_token="TOKEN"
+        )
 
     assert error.match("^404, message='Not Found'.*")
 
@@ -98,9 +104,25 @@ async def test_no_license(mock_aiohttp: aioresponses) -> None:
         response["data"]["repository"]["licenseInfo"] = None
     mock_aiohttp.post("https://api.github.com/graphql", payload=response)
 
-    result = await _github_fetch_graphql(
+    result = await github_fetch_graphql.func(
         "neovim", "nvim-lspconfig", github_token="TOKEN"
     )
     expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
     object.__setattr__(expected_response.meta, "license", None)
+    assert result == expected_response
+
+
+async def test_no_release(mock_aiohttp: aioresponses) -> None:
+    with Path("tests/fetchers/github/responses/graphql_lspconfig.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+        response["data"]["repository"]["latestRelease"] = None
+    mock_aiohttp.post("https://api.github.com/graphql", payload=response)
+
+    result = await github_fetch_graphql.func(
+        "neovim", "nvim-lspconfig", github_token="TOKEN"
+    )
+    expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
+    object.__setattr__(expected_response, "latest_version", None)
     assert result == expected_response

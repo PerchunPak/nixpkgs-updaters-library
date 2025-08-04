@@ -1,16 +1,11 @@
-# in the perfect world we wouldn't have any logic in our models,
-# but I want to avoid dependency on cattrs by all cost for some reason...
-
 import typing as t
 
 import pytest
-from attrs import define, field
 
 from nupd.models import Entry, EntryInfo
 
 
-@define(frozen=True)
-class MyEntryInfo(EntryInfo):
+class MyEntryInfo(EntryInfo, frozen=True):
     name: str
 
     @property
@@ -19,32 +14,20 @@ class MyEntryInfo(EntryInfo):
         return self.name
 
     @t.override
-    async def fetch(self) -> Entry[t.Any]:
+    async def fetch(self) -> Entry[t.Any, t.Any]:
         raise NotImplementedError
 
 
-@define(frozen=True)
-class InvalidMyEntry(Entry[MyEntryInfo]): ...
+class MyEntry(Entry[MyEntryInfo, t.Any], frozen=True):
+    info: MyEntryInfo
+
+    @t.override
+    def minify(self) -> t.Never:
+        raise NotImplementedError
 
 
-@define(frozen=True)
-class ValidMyEntry(Entry[MyEntryInfo]):
-    info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
-
-
-def test_entry_post_init_invalid() -> None:
-    with pytest.raises(TypeError, match="have to set converter to"):
-        _ = InvalidMyEntry(MyEntryInfo(""))
-
-
-@pytest.mark.parametrize("value", [MyEntryInfo("some"), {"name": "some"}])
-def test_entry_post_init_valid(value: t.Any) -> None:
-    assert ValidMyEntry(value) == ValidMyEntry(MyEntryInfo("some"))
-
-
-def test_entry_post_init_valid_incorrect_type() -> None:
-    with pytest.raises(
-        TypeError,
-        match=r"^Invalid type provided for info field! object != MyEntryInfo$",
-    ):
-        _ = ValidMyEntry(object())
+@pytest.mark.parametrize("value", [MyEntryInfo(name="some"), {"name": "some"}])
+def test_pydantic_is_installed_properly(value: t.Any) -> None:
+    # this test did fail a few times, it is useful, trust me bro
+    # please don't delete this test it IS useful
+    assert MyEntry(info=value) == MyEntry(info=MyEntryInfo(name="some"))

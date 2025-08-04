@@ -1,59 +1,25 @@
 {
   "nvim-treesitter": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2025-01-24T06:43:52+00:00",
-        "id": "51562d44fc6280f92bb9a3d87e7b3cb327377ca5"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "Nvim Treesitter configurations and abstraction layer",
-        "homepage": "",
-        "license": "Apache-2.0",
-        "stars": 11258
-      },
-      "owner": "nvim-treesitter",
-      "repo": "nvim-treesitter"
-    },
     "info": {
       "owner": "nvim-treesitter",
       "repo": "nvim-treesitter"
     },
-    "nurl_result": {
+    "nurl": {
       "args": {
-        "hash": "sha256-VFmxckPjf4WgDQT51ulvTt945yL1Avoq8zZ8DL1ME60=",
+        "hash": "sha256-ZQ3HJ3dhtMS75GpW9xxt/ERjqD6v/Fzw+NLyml2EuYM=",
         "owner": "nvim-treesitter",
         "repo": "nvim-treesitter",
-        "rev": "51562d44fc6280f92bb9a3d87e7b3cb327377ca5"
+        "rev": "c1efc9a9058bb54cfcb6f0a4fc14a4ac8a66bdaa"
       },
       "fetcher": "fetchFromGitHub"
     }
   },
   "todo-comments.nvim": {
-    "fetched": {
-      "branch": "main",
-      "commit": {
-        "date": "2025-01-14T16:50:09+00:00",
-        "id": "304a8d204ee787d2544d8bc23cd38d2f929e7cc5"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "\u2705  Highlight, list and search todo comments in your projects",
-        "homepage": "",
-        "license": "Apache-2.0",
-        "stars": 3433
-      },
-      "owner": "folke",
-      "repo": "todo-comments.nvim"
-    },
     "info": {
       "owner": "folke",
       "repo": "todo-comments.nvim"
     },
-    "nurl_result": {
+    "nurl": {
       "args": {
         "hash": "sha256-at9OSBtQqyiDdxKdNn2x6z4k8xrDD90sACKEK7uKNUM=",
         "owner": "folke",
@@ -64,28 +30,11 @@
     }
   },
   "vim-surround": {
-    "fetched": {
-      "branch": "master",
-      "commit": {
-        "date": "2022-10-25T20:34:39+00:00",
-        "id": "3d188ed2113431cf8dac77be61b842acb64433d9"
-      },
-      "meta": {
-        "archived": false,
-        "archived_at": null,
-        "description": "surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
-        "homepage": "https://www.vim.org/scripts/script.php?script_id=1697",
-        "license": null,
-        "stars": 13566
-      },
-      "owner": "tpope",
-      "repo": "vim-surround"
-    },
     "info": {
       "owner": "tpope",
       "repo": "vim-surround"
     },
-    "nurl_result": {
+    "nurl": {
       "args": {
         "hash": "sha256-DZE5tkmnT+lAvx/RQHaDEgEJXRKsy56KJY919xiH1lE=",
         "owner": "tpope",

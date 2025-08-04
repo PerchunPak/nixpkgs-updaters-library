@@ -1,11 +1,10 @@
 from __future__ import annotations  # noqa: INP001
 
+import dataclasses
 import os
 import typing as t
 from pathlib import Path
 
-import attrs
-from attrs import define, field
 from loguru import logger
 
 from nupd.base import ABCBase
@@ -18,16 +17,18 @@ from nupd.fetchers.github import (
     github_fetch_rest,
 )
 from nupd.inputs.csv import CsvInput
-from nupd.models import Entry, EntryInfo, ImplClasses
+from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
 
 ROOT = Path(__file__).parent
+if "/nix/store" in str(ROOT):
+    # we are bundled using nix, use working directory instead of root
+    ROOT = Path.cwd()  # pyright: ignore[reportConstantRedefinition]
 
 
-@define(frozen=True)
-class MyEntryInfo(EntryInfo):
+class MyEntryInfo(EntryInfo, frozen=True):
     owner: str
     repo: str
 
@@ -54,22 +55,39 @@ class MyEntryInfo(EntryInfo):
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
-        result = await result.prefetch_commit()
-        prefetched = await nurl.nurl(result.url)
+        result = await result.prefetch_commit(github_token=github_token)
+        result = await result.prefetch_latest_version(github_token=github_token)
+        prefetched = await nurl.nurl(
+            result.url, submodules=bool(result.has_submodules)
+        )
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
-@define(frozen=True)
-class MyEntry(Entry[EntryInfo]):
+class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
+    nurl: nurl.NurlResult
+
+
+class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
+    info: MyEntryInfo
     fetched: GHRepository
-    info: MyEntryInfo = field(converter=Entry.info_converter(MyEntryInfo))
     nurl_result: nurl.NurlResult
 
+    @t.override
+    def minify(self) -> MyMiniEntry:
+        return MyMiniEntry(
+            info=self.info,
+            nurl=self.nurl_result,
+        )
 
-@define
+
+@dataclasses.dataclass
 class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
-    _default_input_file: Path = field(init=False, default=ROOT / "input.csv")
-    _default_output_file: Path = field(init=False, default=ROOT / "output.json")
+    _default_input_file: os.PathLike[str] = dataclasses.field(
+        init=False, default=ROOT / "input.csv"
+    )
+    _default_output_file: os.PathLike[str] = dataclasses.field(
+        init=False, default=ROOT / "output.json"
+    )
 
     @t.override
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
@@ -81,7 +99,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
         CsvInput[MyEntryInfo](self.input_file).write(
             entries_info,
-            serialize=attrs.asdict,
+            serialize=lambda x: x.model_dump(mode="json"),
         )
 
     @t.override
@@ -101,6 +119,7 @@ if __name__ == "__main__":
     assert isinstance(app.info.context_settings, dict)
     app.info.context_settings["obj"] = ImplClasses(
         base=MyImpl,
+        mini_entry=MyMiniEntry,
         entry=MyEntry,
         entry_info=MyEntryInfo,
     )

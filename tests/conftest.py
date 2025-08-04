@@ -9,7 +9,6 @@ from aioresponses import aioresponses
 from loguru import logger
 from pytest_mock import MockerFixture
 
-from nupd.cache import Cache
 from nupd.injections import Config, inject_configure
 from nupd.logs import LoggingLevel
 
@@ -19,13 +18,12 @@ def configure_injections() -> None:
     _ = inject.configure(
         inject_configure(
             config=Config(
-                nixpkgs_path=Path.cwd(),
+                nixpkgs_path=Path("/nixpkgs"),
                 input_file=None,
                 output_file=None,
                 jobs=1,
             ),
             classes=None,  # pyright: ignore[reportArgumentType]
-            cache=Cache(),
         ),
         clear=True,
     )
@@ -35,16 +33,6 @@ def configure_injections() -> None:
 def mock_aiohttp() -> c.Iterable[aioresponses]:
     with aioresponses() as m:
         yield m
-
-
-@pytest.fixture(scope="session", autouse=True)
-def mock_cache_dir(
-    session_mocker: MockerFixture, tmpdir_factory: pytest.TempPathFactory
-) -> None:
-    _ = session_mocker.patch(
-        "platformdirs.user_cache_dir",
-        return_value=str(tmpdir_factory.mktemp("cache")),
-    )
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:

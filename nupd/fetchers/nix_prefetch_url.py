@@ -1,49 +1,40 @@
 import asyncio
 import typing as t
 
-import inject
-from attrs import asdict, define
-
 from nupd import exc
-from nupd.cache import Cache
+from nupd.executables import Executable
+from nupd.models import NupdModel
+from nupd.utils import memory
 
 
 class URLPrefetchError(exc.NetworkError): ...
 
 
-@define(frozen=True)
-class URLPrefetchResult:
+class URLPrefetchResult(NupdModel, frozen=True):
     hash: str
     path: str
 
 
+@memory.cache
 async def prefetch_url(
     url: str,
     *,
     unpack: bool = True,
     name: str | None = None,
 ) -> URLPrefetchResult:
-    cache = inject.instance(Cache)["nix-prefetch"]
-    key = f"{url}?name={name}&unpack={unpack}"
-    try:
-        result = await cache.get(key)
-    except KeyError:
-        result = await _prefetch_url(url, unpack=unpack, name=name)
-        await cache.set(key, asdict(result))
-        return result
-    else:
-        assert isinstance(result, dict)
-        return URLPrefetchResult(**result)  # pyright: ignore[reportArgumentType]
+    """Just a fancy wrapper around `nix-prefetch-url` to handle edge-cases like caching.
 
+    Parameters:
+        unpack:
+            Whether to atomatically unpack the archive (raises an error if the
+            provided URL is not an archive).
+        name: A custom name to give in the Nix store.
 
-async def _prefetch_url(
-    url: str,
-    *,
-    unpack: bool = True,
-    name: str | None = None,
-) -> URLPrefetchResult:
+    Raises:
+        URLPrefetchError: If `nix-prefetch-url` return non-zero exit code or wrote something to stderr.
+    """
     process = await asyncio.create_subprocess_exec(
-        "nix-prefetch-url",
+        Executable.NIX_PREFETCH_URL,
         url,
         "--print-path",
         *(("--unpack",) if unpack else ()),
@@ -73,4 +64,25 @@ class Prefetchable(t.Protocol):
 
 
 async def prefetch_obj(obj: Prefetchable) -> URLPrefetchResult:
+    """Convenience function for objects that implement `get_prefetch_url()`.
+
+    This function is practically useless because of superior NURL wrapper.
+
+    Example:
+        ```py
+        gh_repo = await github_fetch_rest(owner="foo", repo="bar")
+        await prefetch_obj(gh_repo)
+        ```
+
+        Is equal to (`1e1356f` is an arbitrary commit)
+
+        ```py
+        await prefetch_url("https://github.com/foo/bar/archive/1e1356f.tar.gz")
+        ```
+        Or
+
+        ```py
+        await prefetch_url(gh_repo.get_prefetch_url())
+        ```
+    """
     return await prefetch_url(obj.get_prefetch_url())
