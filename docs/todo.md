@@ -9,3 +9,4 @@
 - [ ] progress bar
 - [ ] Duplicate plugins?
 - [ ] Some abstraction for implementing redirects & deprecations
+- [ ] Separate page for main branch and stable releases?
