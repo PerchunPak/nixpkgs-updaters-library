@@ -2,8 +2,8 @@
 
 - [x] Sourcehut does not support fetching the latest revision???
 - [x] Test fetching specific branch
-- [ ] `nix-prefetch-git` has `--quiet`, which we should always provide
 - [x] `nix-prefetch-url` should have `unpack` default to False
+- [x] `nix-prefetch-git` has `--quiet`, which we should always provide
 - [ ] Check that IDs are equal
 - [ ] Cache invalidation
 - [ ] progress bar

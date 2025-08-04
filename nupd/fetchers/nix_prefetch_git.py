@@ -64,6 +64,7 @@ async def prefetch_git(
         Executable.NIX_PREFETCH_GIT,
         url,
         *((revision,) if revision else ()),
+        "--quiet",
         *additional_args,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -76,7 +77,7 @@ async def prefetch_git(
             f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
-        logger.trace(
+        raise GitPrefetchError(
             f"nix-prefetch-git wrote something to stderr!\n{stdout=}\n{stderr=}"
         )
 

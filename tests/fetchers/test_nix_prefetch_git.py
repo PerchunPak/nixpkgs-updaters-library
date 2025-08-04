@@ -60,7 +60,7 @@ async def test_prefetch_git(
     )
     mock.return_value.communicate.return_value = (
         EXAMPLE_RESPONSE,
-        b"some logs",
+        b"",
     )
     mock.return_value.returncode = 0
 
@@ -79,6 +79,7 @@ async def test_prefetch_git(
     ]
     if rev:
         args.append(rev)
+    args.append("--quiet")
     if additional_args:
         args.extend(additional_args)
 
@@ -93,19 +94,26 @@ async def test_prefetch_git(
     "rev", ["e0d38c0563224aa7b0101f64640788691f6c15b9", None]
 )
 @pytest.mark.parametrize("additional_args", [[], ["a", "b", "c"]])
-async def test_prefetch_git_return_code_non_zero(
-    mocker: MockerFixture, rev: str, additional_args: list[str]
+@pytest.mark.parametrize("return_code", [0, 1])
+async def test_prefetch_git_error(
+    mocker: MockerFixture,
+    rev: str,
+    additional_args: list[str],
+    return_code: int,
 ) -> None:
     mock = mocker.patch("asyncio.create_subprocess_exec")
     mock.return_value.communicate.return_value = (b"stdout", b"stderr")
-    mock.return_value.returncode = 1
+    mock.return_value.returncode = return_code
+
+    error_msg = (
+        "^nix-prefetch-git returned exit code 1\n"
+        if return_code == 1
+        else "^nix-prefetch-git wrote something to stderr!\n"
+    ) + "stdout=b'stdout'\nstderr=b'stderr'$"
 
     with pytest.raises(
         GitPrefetchError,
-        match=(
-            "^nix-prefetch-git returned exit code 1\n"
-            "stdout=b'stdout'\nstderr=b'stderr'$"
-        ),
+        match=error_msg,
     ):
         _ = await prefetch_git.func(
             "https://git.sr.ht/~sircmpwn/hare.vim",
@@ -119,6 +127,7 @@ async def test_prefetch_git_return_code_non_zero(
     ]
     if rev:
         args.append(rev)
+    args.append("--quiet")
     if additional_args:
         args.extend(additional_args)
 
