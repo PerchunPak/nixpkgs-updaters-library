@@ -1,0 +1,33 @@
+name: Deploy Documentation
+
+on:
+  push:
+    paths:
+      - docs/**
+      - mkdocs.yml
+      - .github/workflows/docs.yml
+      - nix/**
+      - flake.nix
+      - flake.lock
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+
+      - name: Build environment
+        run: nix develop --command true
+
+      - name: Build Documentation
+        run: nix develop --command mkdocs build
+
+      - name: Deploy to Vercel
+        uses: npx vercel --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
