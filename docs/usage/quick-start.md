@@ -102,12 +102,16 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     # commands!), we have to provide default values for input and output files
     # this way.
     _default_input_file: Path = dataclasses.field(
-        init=False, default=ROOT / "input.csv"
+        init=False, default=ROOT / "input.csv"# (1)!
     )
     _default_output_file: Path = dataclasses.field(
         init=False, default=ROOT / "output.json"
     )
 ```
+
+1. If you want to provide a path to nixpkgs, you can do so using
+   `nupd.utils.NIXPKGS_PLACEHOLDER / "your" / "path" / "file.csv"`.
+   This will automatically use the nixpkgs path provided in CLI the flag.
 
 There are only 3 methods we have to implement to get access to all the features:
 

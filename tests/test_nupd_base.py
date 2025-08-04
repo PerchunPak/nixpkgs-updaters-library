@@ -12,6 +12,7 @@ from pydantic import Field
 
 from nupd.base import ABCBase, Nupd
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
+from nupd.utils import NIXPKGS_PLACEHOLDER
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -69,8 +70,8 @@ class DumbMiniEntry(MiniEntry[DumbEntryInfo], frozen=True):
 
 @dataclasses.dataclass
 class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
-    _default_input_file: os.PathLike[str] = Path("/homeless-shelter")
-    _default_output_file: os.PathLike[str] = Path("/homeless-shelter")
+    _default_input_file: os.PathLike[str] = Path("/input.csv")
+    _default_output_file: os.PathLike[str] = Path("/output.csv")
 
     @t.override
     async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
@@ -89,6 +90,12 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     @t.override
     def parse_entry_id(self, unparsed_argument: str) -> DumbEntryInfo:
         return DumbEntryInfo(name=unparsed_argument)
+
+
+@dataclasses.dataclass
+class DumbBaseWithNixpkgsPath(DumbBase):
+    _default_input_file: os.PathLike[str] = NIXPKGS_PLACEHOLDER / "input.csv"
+    _default_output_file: os.PathLike[str] = NIXPKGS_PLACEHOLDER / "output.csv"
 
 
 @pytest.fixture(autouse=True)
@@ -244,3 +251,15 @@ def test_get_all_entries_from_the_output_file(
     assert list(nupd.get_all_entries_from_the_output_file()) == (
         entries if file_exists else []
     )
+
+
+def test_nixpkgs_placeholder_resolve() -> None:
+    instance = DumbBaseWithNixpkgsPath()
+    assert instance.input_file == Path("/nixpkgs/input.csv")
+    assert instance.output_file == Path("/nixpkgs/output.csv")
+
+
+def test_normal_path_is_untouched() -> None:
+    instance = DumbBase()
+    assert instance.input_file == Path("/input.csv")
+    assert instance.output_file == Path("/output.csv")

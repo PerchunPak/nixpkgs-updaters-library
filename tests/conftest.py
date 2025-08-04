@@ -18,7 +18,7 @@ def configure_injections() -> None:
     _ = inject.configure(
         inject_configure(
             config=Config(
-                nixpkgs_path=Path.cwd(),
+                nixpkgs_path=Path("/nixpkgs"),
                 input_file=None,
                 output_file=None,
                 jobs=1,

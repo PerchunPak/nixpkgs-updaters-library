@@ -42,7 +42,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     def input_file(self) -> Path:
         input_file = self.config.input_file
         if input_file is None:
-            input_file = self._default_input_file
+            input_file = self.__resolve_default_path(self._default_input_file)
 
         return Path(input_file)
 
@@ -50,7 +50,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     def output_file(self) -> Path:
         output_file = self.config.output_file
         if output_file is None:
-            output_file = self._default_output_file
+            output_file = self.__resolve_default_path(self._default_output_file)
 
         return Path(output_file)
 
@@ -65,6 +65,16 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     @abc.abstractmethod
     def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
         """Parse argument, that user provided as an ID for the entry, to [EntryInfo](models.md#entryinfo)."""
+
+    def __resolve_default_path(
+        self, path: os.PathLike[str]
+    ) -> os.PathLike[str]:
+        placeholder = str(utils.NIXPKGS_PLACEHOLDER) + "/"
+        if str(path).startswith(placeholder):
+            return self.config.nixpkgs_path / str(path).removeprefix(
+                placeholder
+            )
+        return path
 
 
 @t.final

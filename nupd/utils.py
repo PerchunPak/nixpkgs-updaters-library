@@ -7,6 +7,7 @@ import functools
 import typing as t
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
+from pathlib import Path
 
 import joblib
 import platformdirs
@@ -22,6 +23,9 @@ if t.TYPE_CHECKING:
 memory = joblib.Memory(
     platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
 )
+
+NIXPKGS_PLACEHOLDER = Path(f"/nixpkgs_{id(object())}")
+"""Dummy path that is used to specify nixpkgs root in default input/output file location."""
 
 
 def async_to_sync[**P, R](  # pragma: no cover
