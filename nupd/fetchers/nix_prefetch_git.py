@@ -3,8 +3,6 @@ import collections.abc as c
 import json
 from datetime import datetime
 
-from loguru import logger
-
 from nupd import exc, utils
 from nupd.executables import Executable
 from nupd.models import NupdModel
