@@ -28,6 +28,7 @@ jobs:
 
       - name: Deploy to Vercel
         uses: npx vercel --token ${{ secrets.VERCEL_TOKEN }}
+        working-directory: site
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
