@@ -4,6 +4,27 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 3.0.0
+
+I have finally written documentation! The PR is #5 and you can preview them at
+https://nupd.perchun.it/. It ain't much but it's honest work.
+
+### Breaking changes
+
+- Replace custom cache with custom DB by joblib ([`305ace8`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/305ace8459c643e8bc3d2b11557ae5724eda2dc4))
+
+  Previous, we used homemade caching with a database I wrote. It was very flaky,
+  so we Switched to [joblib](https://joblib.readthedocs.io/en/stable/memory.html) instead.
+
+- nix_prefetch_url: change default value of unpack to False ([`aca2393`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/aca239339042e1991891cdb4932116d9ac04e9a2))
+
+  It is different from CLI's default which makes it confusing
+
+### Small changes
+
+- Accept any PathLike as a Path argument ([`428926e`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/428926eec56385fb9b4f61066433ade223382339))
+- [All code in this library was written by a human.](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/9fe43a17cc8cebc5cf8f125ee5909a42a44f941f)
+
 ## Version 2.1.1
 
 - Fix a bug where `has_submodules` in nurl result is an int ([`eac5c4f7`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/eac5c4f7b5ad8c471ed866e3f1fc967f65a0676d))

@@ -2,7 +2,7 @@ final: prev: {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (pfinal: pprev: {
       nixpkgs-updaters-library = pprev.nixpkgs-updaters-library.overridePythonAttrs (old: {
-        version = "2.1.1.dev"; # @version
+        version = "3.0.0.dev"; # @version
         src = ./..;
 
         preCheck =
