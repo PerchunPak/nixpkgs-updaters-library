@@ -25,7 +25,7 @@ class EntryInfo(NupdModel, abc.ABC, frozen=True):
 
 
 class Entry[I: EntryInfo, M: MiniEntry[t.Any]](NupdModel, abc.ABC, frozen=True):
-    """All information about the entry, that we need to generate Nix code."""
+    """All information about the entry, that we need to generate the Nix code."""
 
     info: I
 

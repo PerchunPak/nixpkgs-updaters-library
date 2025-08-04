@@ -1,21 +1,13 @@
 # nixpkgs-updaters-library
 
 [![Support Ukraine](https://badgen.net/badge/support/UKRAINE/?color=0057B8&labelColor=FFD700)](https://www.gov.uk/government/news/ukraine-what-you-can-do-to-help)
+[![Tests Status](https://github.com/PerchunPak/nixpkgs-updaters-library/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/PerchunPak/nixpkgs-updaters-library/actions?query=workflow%3Atest)
 
-[![Build Status](https://github.com/PerchunPak/nixpkgs-updaters-library/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/PerchunPak/nixpkgs-updaters-library/actions?query=workflow%3Atest)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Python support versions badge (from pypi)](https://img.shields.io/pypi/pyversions/nixpkgs-updaters-library)](https://www.python.org/downloads/)
+A boilerplate-less updater library for Nixpkgs bulk updaters.
 
-A boilerplate-less updater library for Nixpkgs ecosystems, that aims to replace
-[`pluginupdate.py`](https://github.com/NixOS/nixpkgs/blob/76d002f98bff2df45147d02d828315aeab934da7/maintainers/scripts/pluginupdate-py/pluginupdate.py).
-
-If you want to know more, I wrote an entire draft RFC for this (but commenters
-told me to just write the library):
-
-- https://discourse.nixos.org/t/new-rfc-draft-standardize-updater-scripts-successor-of-rfc-109/54290
-
-Feel free to reach out to me if you have any questions/concerns/requests for
-features.
+The goal of this library is for you to write a simple script, that implements
+a few abstract methods and classes, and get a powerful bulk updater in the
+result.
 
 > [!IMPORTANT]
 > All code in this library was written by a human.
@@ -23,46 +15,37 @@ features.
 > (you can still submit AI code in a PR, but it will be heavily reviewed and
 > would get a lot of scepticism)
 
-## Quick tour
+## Why?
 
-The main design idea is that you implement your ecosystem-specifics, and this
-library handles all boilerplate it could possible handle, while still being not
-too specific.
+Sometimes, there are types of packages, that are very simplistic to package. As
+an example we can take Vim plugins, (mostly) to package a plugin it is just
+enough to download a Git repository.
 
-### Terms
+```nix
+buildVimPlugin {
+  pname = "lazy.nvim";
+  version = "2025-02-25";
+  src = fetchFromGitHub {
+    owner = "folke";
+    repo = "lazy.nvim";
+    rev = "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a";
+    hash = "sha256-nQ8PR9DTdzg6Z2rViuVD6Pswc2VvDQwS3uMNgyDh5ls=";
+  };
+};
+```
 
-- The library — this package.
-- An updater script — this is what you would run to add/update plugins in
-  specific ecosystems.
-- An input — list of references to the outputs. As an example, for Vim plugins,
-  this would be a CSV table with GitHub URLs and other data.
-- An output — what is generated at the end. This can be for example a plugin or
-  an extension.
-- An entry — a single unit of what updater updates. For Vim plugins this would
-  be a plugin, for Gnome extensions this would be an extension.
+Now imagine we have a thousand of such plugins, writing out a package for each
+of them separately and then also keeping this up to date would be awful.
 
-### Technical details
+This library allows you to easily manage unlimited amount of packages. Before
+this became a thing, many would just write a Python script with all the logic
+from the ground up. Later, when we would want to add a feature to such
+a script, it would grow in complexity and result into a nightmare code.
 
-Generally you have to implement three classes:
-- `EntryInfo`: information about the entry. This must include only information
-  that is stored in your input file (e.g. a CSV table) and it is used to fetch
-  your output data.
-- `Entry`: fetched information about the entry. You cannot have here some hanging
-  information (e.g. commit is None means use latest commit).
-- `ABCBase`: your ecosystem specific functions.
+By using the library, we can avoid a lot of boilerplate and get many powerful
+features for free. As an example, single-plugin update (when you want to update
+only one plugin instead of all of them).
 
-The design is intentionally done this way, so you have either nothing but a URL
-for a prefetch or completely fetched everything. Look at `examples/simple` and
-[`examples/vim-plugins`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/vim-plugins-updater/example/vim-plugins)
-for a complete implementation of everything.
+## Usage
 
-## TODO
-
-- [x] Sourcehut does not support fetching the latest revision???
-- [ ] Check that IDs are equal
-- [x] Test fetching specific branch
-- [ ] Cache invalidation
-- [ ] progress bar
-- [ ] Duplicate plugins?
-- [ ] Documentation
-- [ ] Some abstraction for implementing redirects & deprecations
+Please consult our [documentation](https://nupd.perchun.it) for that.

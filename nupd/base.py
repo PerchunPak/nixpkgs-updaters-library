@@ -26,7 +26,7 @@ def undefined_default() -> t.Never:
 
 
 @dataclasses.dataclass
-class ABCBase[E: Entry[t.Any, t.Any], I: EntryInfo](abc.ABC):
+class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     config: Config = dataclasses.field(
         default_factory=lambda: inject.instance(Config)
     )
@@ -55,14 +55,16 @@ class ABCBase[E: Entry[t.Any, t.Any], I: EntryInfo](abc.ABC):
         return Path(output_file)
 
     @abc.abstractmethod
-    async def get_all_entries(self, /) -> c.Iterable[I]: ...
+    async def get_all_entries(self, /) -> c.Iterable[GEntryInfo]: ...
 
     @abc.abstractmethod
-    def write_entries_info(self, entries_info: c.Iterable[I], /) -> None: ...
+    def write_entries_info(
+        self, entries_info: c.Iterable[GEntryInfo], /
+    ) -> None: ...
 
     @abc.abstractmethod
-    def parse_entry_id(self, unparsed_argument: str, /) -> I:
-        """Parse argument, that user provided as ID for an entry, to EntryInfo."""
+    def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
+        """Parse argument, that user provided as an ID for the entry, to [EntryInfo](models.md#entryinfo)."""
 
 
 @t.final
