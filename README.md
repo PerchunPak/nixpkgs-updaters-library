@@ -48,7 +48,4 @@ only one plugin instead of all of them).
 
 ## Usage
 
-Please consult our [documentation] for that.
-
-<!-- TODO -->
-[documentation]: https://example.com
+Please consult our [documentation](https://nupd.perchun.it) for that.
