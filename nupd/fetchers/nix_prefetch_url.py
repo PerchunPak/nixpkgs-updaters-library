@@ -19,7 +19,7 @@ class URLPrefetchResult(NupdModel, frozen=True):
 async def prefetch_url(
     url: str,
     *,
-    unpack: bool = True,
+    unpack: bool = False,
     name: str | None = None,
 ) -> URLPrefetchResult:
     """Just a fancy wrapper around `nix-prefetch-url` to handle edge-cases like caching.
