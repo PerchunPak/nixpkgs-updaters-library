@@ -21,7 +21,7 @@ if t.TYPE_CHECKING:
 
 def undefined_default() -> t.Never:
     raise NotImplementedError(
-        "Please provide a default value for the output file. See example implementation"
+        "Please provide a default value for the input/output file. See the example implementation"
     )
 
 
