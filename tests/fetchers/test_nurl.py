@@ -102,7 +102,7 @@ async def test_nurl_return_code_non_zero(
     with pytest.raises(
         NurlError,
         match=(
-            "^nurl returned exit code 1\nstdout=b'stdout'\nstderr=b'stderr'$"
+            r"^nurl returned exit code 1\nstdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
         _ = await nurl.func("https://github.com/NixOS/patsh")

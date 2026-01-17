@@ -76,8 +76,8 @@ async def test_prefetch_url_return_code_non_zero(
     with pytest.raises(
         URLPrefetchError,
         match=(
-            "^nix-prefetch-url returned exit code 1\n"
-            "stdout=b'stdout'\nstderr=b'stderr'$"
+            r"^nix-prefetch-url returned exit code 1\n"
+            r"stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
         _ = await prefetch_url.func(
