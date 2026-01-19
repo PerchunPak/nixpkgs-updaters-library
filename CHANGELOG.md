@@ -6,14 +6,16 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 ## Version 3.1.0
 
-Added support for updating entries by their IDs. If we take Vim plugins as an example:
+- Added support for updating entries by their IDs ([`c1104d3`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/c1104d3c6bc5b5c893084078491ed45689cf4451))
 
-```sh
-# instead of using
-vim-plugins-updater update 'https://github.com/folke/lazy.nvim/'
-# you can now just reference the plugin's name!
-vim-plugins-updater update lazy-nvim
-```
+  If we take Vim plugins as an example:
+
+  ```sh
+  # instead of using
+  vim-plugins-updater update 'https://github.com/folke/lazy.nvim/'
+  # you can now just reference the plugin's name!
+  vim-plugins-updater update lazy-nvim
+  ```
 
 ## Version 3.0.0
 
@@ -25,7 +27,7 @@ https://nupd.perchun.it/. It ain't much but it's honest work.
 - Replace custom cache with custom DB by joblib ([`305ace8`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/305ace8459c643e8bc3d2b11557ae5724eda2dc4))
 
   Previous, we used homemade caching with a database I wrote. It was very flaky,
-  so we Switched to [joblib](https://joblib.readthedocs.io/en/stable/memory.html) instead.
+  so we switched to [joblib](https://joblib.readthedocs.io/en/stable/memory.html) instead.
 
 - nix_prefetch_url: change default value of unpack to False ([`aca2393`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/aca239339042e1991891cdb4932116d9ac04e9a2))
 
