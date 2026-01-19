@@ -4,6 +4,17 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 3.1.0
+
+Added support for updating entries by their IDs. If we take Vim plugins as an example:
+
+```sh
+# instead of using
+vim-plugins-updater update 'https://github.com/folke/lazy.nvim/'
+# you can now just reference the plugin's name!
+vim-plugins-updater update lazy-nvim
+```
+
 ## Version 3.0.0
 
 I have finally written documentation! The PR is #5 and you can preview them at
