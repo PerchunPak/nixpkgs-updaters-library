@@ -114,25 +114,27 @@ class Nupd:
         )
 
     async def update_cmd(self, entry_ids: c.Sequence[str] | None) -> None:
-        entries_info: set[EntryInfo] = (
-            {self.impl.parse_entry_id(entry_id) for entry_id in entry_ids}
-            if entry_ids is not None
-            else set()
-        )
-        all_entries_info = set(await self.impl.get_all_entries())
-
         all_entries: c.Mapping[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {}
-        if len(entries_info) == 0:  # update all entries
-            all_entries = await self.fetch_entries(all_entries_info)
+        all_entries_info = {
+            info.id: info for info in await self.impl.get_all_entries()
+        }
+
+        if not entry_ids:  # update all entries
+            all_entries = await self.fetch_entries(all_entries_info.values())
         else:  # update only selected entries
-            all_entries = {}
+            entries_info: set[EntryInfo] = set()
+            for entry_id in entry_ids:
+                if entry_id in all_entries_info:
+                    entries_info.add(all_entries_info[entry_id])
+                else:
+                    entries_info.add(self.impl.parse_entry_id(entry_id))
+
             for entry in self.get_all_entries_from_the_output_file():
                 all_entries[entry.info.id] = entry
 
             all_entries.update(await self.fetch_entries(entries_info))
 
         self.write_entries(set(all_entries.values()))
-
         logger.success(
             f"Successfully updated {len(all_entries_info) or len(all_entries)} entries!"
         )

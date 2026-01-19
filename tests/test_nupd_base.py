@@ -25,6 +25,7 @@ if t.TYPE_CHECKING:
 
 class DumbEntryInfo(EntryInfo, frozen=True):
     name: str
+    extra: str | None = None
 
     @property
     @t.override
@@ -73,13 +74,17 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     _default_input_file: os.PathLike[str] = Path("/input.csv")
     _default_output_file: os.PathLike[str] = Path("/output.csv")
 
-    @t.override
-    async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
-        return [
+    all_entries: list[DumbEntryInfo] = dataclasses.field(
+        default_factory=lambda: [
             DumbEntryInfo(name="one"),
             DumbEntryInfo(name="two"),
             DumbEntryInfo(name="three"),
         ]
+    )
+
+    @t.override
+    async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
+        return self.all_entries
 
     @t.override
     def write_entries_info(
@@ -89,7 +94,10 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
 
     @t.override
     def parse_entry_id(self, unparsed_argument: str) -> DumbEntryInfo:
-        return DumbEntryInfo(name=unparsed_argument)
+        name, extra = unparsed_argument, None
+        if "@" in unparsed_argument:
+            name, extra = unparsed_argument.split("@")
+        return DumbEntryInfo(name=name, extra=extra)
 
 
 @dataclasses.dataclass
@@ -154,7 +162,7 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     assert len(mocked_write_entries.call_args.args) == 1
     assert list(mocked_write_entries.call_args.args[0]) == [
         DumbEntry(info=DumbEntryInfo(name=name), hash="sha256-some/cool/hash")
-        for name in ["three", "one", "two", "five", "four"]
+        for name in ["two", "three", "one", "five", "four"]
     ]
 
 
@@ -185,11 +193,13 @@ async def test_update_cmd_everything(mocker: MockerFixture) -> None:
 
 
 async def test_update_cmd_specific(mocker: MockerFixture) -> None:
-    entries_info = {
+    entries_info = [
         DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="two"),
-        DumbEntryInfo(name="three"),
-    }
+        DumbEntryInfo(name="two", extra="extra"),
+        DumbEntryInfo(name="three", extra="nice"),
+        DumbEntryInfo(name="four"),
+        DumbEntryInfo(name="five", extra="aaa"),
+    ]
     _ = mocker.patch(
         "nupd.base.Nupd.get_all_entries_from_the_output_file",
         return_value=[
@@ -201,24 +211,41 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
     mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
-    await Nupd().update_cmd(["one", "three"])
+    nupd = Nupd()
+    nupd.impl.all_entries = entries_info
+    await nupd.update_cmd(["one", "two@extra", "three"])
 
     spy_fetch_entries.assert_called_once()
-    assert spy_fetch_entries.await_args.args[1] == {  # pyright: ignore[reportOptionalMemberAccess]
+    assert sorted(
+        spy_fetch_entries.await_args.args[1],  # pyright: ignore[reportOptionalMemberAccess]
+        key=lambda x: x.name,
+    ) == [
         DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="three"),
-    }
+        DumbEntryInfo(name="three", extra="nice"),
+        DumbEntryInfo(name="two", extra="extra"),
+    ]
     mocked_write_info.assert_not_called()
     mocked_write_entries.assert_called_once_with(
         {
             DumbEntry(
-                info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"
+                info=DumbEntryInfo(name="four"),
+                hash="sha256-some/old/hash",
             ),
             DumbEntry(
-                info=DumbEntryInfo(name="one"), hash="sha256-some/cool/hash"
+                info=DumbEntryInfo(name="five", extra="aaa"),
+                hash="sha256-some/old/hash",
             ),
             DumbEntry(
-                info=DumbEntryInfo(name="three"), hash="sha256-some/cool/hash"
+                info=DumbEntryInfo(name="two", extra="extra"),
+                hash="sha256-some/cool/hash",
+            ),
+            DumbEntry(
+                info=DumbEntryInfo(name="one"),
+                hash="sha256-some/cool/hash",
+            ),
+            DumbEntry(
+                info=DumbEntryInfo(name="three", extra="nice"),
+                hash="sha256-some/cool/hash",
             ),
         }
     )
