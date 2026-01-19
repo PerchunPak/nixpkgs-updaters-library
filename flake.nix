@@ -42,7 +42,6 @@
             basedpyright
             python3Packages.debugpy
             python3Packages.joblib-stubs
-            pre-commit
             ruff
 
             nurl
