@@ -92,9 +92,9 @@ class Nupd:
             "type[ABCBase[Entry[t.Any, t.Any], EntryInfo]]", self.impls.base
         )()
 
-    async def add_cmd(self, entry_ids: c.Sequence[str]) -> None:
+    async def add_cmd(self, to_add: c.Sequence[str]) -> None:
         entries_info = {
-            self.impl.parse_entry_id(entry_id) for entry_id in entry_ids
+            self.impl.parse_entry_id(entry_id) for entry_id in to_add
         }
         all_entries_info = set(await self.impl.get_all_entries())
 
@@ -108,22 +108,22 @@ class Nupd:
         self.impl.write_entries_info(entries_info.union(all_entries_info))
         self.write_entries(all_entries.values())
 
-        logger.success(f"Successfully added {len(entry_ids)} entries!")
+        logger.success(f"Successfully added {len(to_add)} entries!")
         logger.info(
             f"Changed amount of entries from {old_len} to {len(all_entries)}"
         )
 
-    async def update_cmd(self, entry_ids: c.Sequence[str] | None) -> None:
+    async def update_cmd(self, to_update: c.Sequence[str] | None) -> None:
         all_entries: c.Mapping[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {}
         all_entries_info = {
             info.id: info for info in await self.impl.get_all_entries()
         }
 
-        if not entry_ids:  # update all entries
+        if not to_update:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info.values())
         else:  # update only selected entries
             entries_info: set[EntryInfo] = set()
-            for entry_id in entry_ids:
+            for entry_id in to_update:
                 if entry_id in all_entries_info:
                     entries_info.add(all_entries_info[entry_id])
                 else:
