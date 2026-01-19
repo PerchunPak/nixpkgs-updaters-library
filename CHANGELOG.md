@@ -4,6 +4,10 @@ We follow [Semantic Versions](https://semver.org/) style.
 
 <!-- @version -->
 
+## Version 3.1.1
+
+Fixed tests, only internal changes.
+
 ## Version 3.1.0
 
 - Added support for updating entries by their IDs ([`c1104d3`](https://github.com/PerchunPak/nixpkgs-updaters-library/commit/c1104d3c6bc5b5c893084078491ed45689cf4451))
