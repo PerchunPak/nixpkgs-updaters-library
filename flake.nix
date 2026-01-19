@@ -58,15 +58,20 @@
         };
       }
     )
-    // {
-      githubActions = nix-github-actions.lib.mkGithubMatrix {
-        checks = self.packages;
-        platforms = {
-          "x86_64-linux" = "ubuntu-24.04";
-          "aarch64-linux" = "ubuntu-24.04-arm";
-          "x86_64-darwin" = "macos-15-intel";
-          "aarch64-darwin" = "macos-15";
+    // (
+      let
+        inherit (nixpkgs) lib;
+      in
+      {
+        githubActions = nix-github-actions.lib.mkGithubMatrix {
+          checks = lib.mapAttrs (n: v: { inherit (v) nixpkgs-updaters-library; }) self.packages;
+          platforms = {
+            "x86_64-linux" = "ubuntu-24.04";
+            "aarch64-linux" = "ubuntu-24.04-arm";
+            "x86_64-darwin" = "macos-15-intel";
+            "aarch64-darwin" = "macos-15";
+          };
         };
-      };
-    };
+      }
+    );
 }
