@@ -179,7 +179,7 @@ async def test_update_cmd_everything(mocker: MockerFixture) -> None:
     mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
-    await Nupd().update_cmd(entry_ids=None)
+    await Nupd().update_cmd(to_update=None)
 
     spy_fetch_entries.assert_called_once()
     mocked_gaeftof.assert_not_called()
