@@ -60,19 +60,13 @@
     )
     // {
       githubActions = nix-github-actions.lib.mkGithubMatrix {
-        checks = builtins.listToAttrs (
-          map
-            (system: {
-              name = system;
-              value.package = self.packages.${system}.default;
-            })
-            [
-              "x86_64-linux"
-              "aarch64-linux"
-              "x86_64-darwin"
-              "aarch64-darwin"
-            ]
-        );
+        checks = self.packages;
+        platforms = {
+          "x86_64-linux" = "ubuntu-24.04";
+          "aarch64-linux" = "ubuntu-24.04-arm";
+          "x86_64-darwin" = "macos-15-intel";
+          "aarch64-darwin" = "macos-15";
+        };
       };
     };
 }
