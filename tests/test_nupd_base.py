@@ -212,7 +212,7 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
     nupd = Nupd()
-    nupd.impl.all_entries = entries_info
+    nupd.impl.all_entries = entries_info  # pyright: ignore[reportAttributeAccessIssue]
     await nupd.update_cmd(["one", "two@extra", "three"])
 
     spy_fetch_entries.assert_called_once()
