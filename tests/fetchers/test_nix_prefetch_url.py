@@ -29,6 +29,7 @@ async def test_prefetch_url(
     mock.return_value.communicate.return_value = (
         b"079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7\n"
         + b"/nix/store/19zrmhm3m40xxaw81c8cqm6aljgrnwj2-0.8.tar.gz\n",
+        b"",
     )
     mock.return_value.returncode = 0
 

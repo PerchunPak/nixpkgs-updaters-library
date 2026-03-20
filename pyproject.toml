@@ -84,7 +84,7 @@ pythonPlatform = "Linux"
 pythonVersion = "3.13"
 typeCheckingMode = "all"
 exclude = [
-  ".venv",
+  ".direnv",
   "data",
 ]
 

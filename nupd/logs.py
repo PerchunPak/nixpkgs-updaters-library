@@ -32,8 +32,9 @@ def setup_logging(log_level: LoggingLevel) -> None:
         _ = logger.add(
             sys.stdout,
             level=log_level.as_int(),
-            filter=lambda record: record["level"].no
-            < LoggingLevel.WARNING.as_int(),
+            filter=lambda record: (
+                record["level"].no < LoggingLevel.WARNING.as_int()
+            ),
             colorize=True,
             backtrace=True,
             diagnose=True,
@@ -41,8 +42,9 @@ def setup_logging(log_level: LoggingLevel) -> None:
     _ = logger.add(
         sys.stderr,
         level=log_level.as_int(),
-        filter=lambda record: record["level"].no
-        >= LoggingLevel.WARNING.as_int(),
+        filter=lambda record: (
+            record["level"].no >= LoggingLevel.WARNING.as_int()
+        ),
         colorize=True,
         backtrace=True,
         diagnose=True,
