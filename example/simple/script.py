@@ -108,7 +108,7 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
         if len(split) != 2:
             raise InvalidArgumentError(
                 f"Invalid value passed: {to_parse!r}. "
-                "Should be something like 'owner/repo'"
+                + "Should be something like 'owner/repo'"
             )
 
         owner, repo = split

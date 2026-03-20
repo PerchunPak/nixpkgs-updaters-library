@@ -69,7 +69,10 @@ async def test_archived(mock_aiohttp: aioresponses) -> None:
         latest_version="v1.6.0",
         has_submodules=False,
         meta=MetaInformation(
-            description="Minecraft plugin helper, updates and checks versions of all plugins on a server!",
+            description=(
+                "Minecraft plugin helper, updates and checks versions of all "
+                + "plugins on a server!"
+            ),
             homepage=None,
             license="AGPL-3.0",
             stars=1,

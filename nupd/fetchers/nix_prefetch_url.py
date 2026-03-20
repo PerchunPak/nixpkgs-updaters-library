@@ -22,16 +22,20 @@ async def prefetch_url(
     unpack: bool = False,
     name: str | None = None,
 ) -> URLPrefetchResult:
-    """Just a fancy wrapper around `nix-prefetch-url` to handle edge-cases like caching.
+    """Wrap `nix-prefetch-url` to handle edge-cases like caching.
 
-    Parameters:
+    Parameters
+    ----------
         unpack:
-            Whether to atomatically unpack the archive (raises an error if the
+            Whether to automatically unpack the archive (raises an error if the
             provided URL is not an archive).
         name: A custom name to give in the Nix store.
 
-    Raises:
-        URLPrefetchError: If `nix-prefetch-url` return non-zero exit code or wrote something to stderr.
+    Raises
+    ------
+        URLPrefetchError:
+            If `nix-prefetch-url` returned non-zero exit code or wrote
+            something to stderr.
     """
     process = await asyncio.create_subprocess_exec(
         Executable.NIX_PREFETCH_URL,
@@ -47,15 +51,15 @@ async def prefetch_url(
     if process.returncode != 0:
         raise URLPrefetchError(
             f"nix-prefetch-url returned exit code {process.returncode}"
-            f"\n{stdout=}\n{stderr=}"
+            + f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
         raise URLPrefetchError(
             "nix-prefetch-url wrote something to stderr! (unexpected)"
-            f"\n{stdout=}\n{stderr=}"
+            + f"\n{stdout=}\n{stderr=}"
         )
 
-    hash, path = stdout.decode().strip().split("\n")  # noqa: A001
+    hash, path = stdout.decode().strip().split("\n")
     return URLPrefetchResult(hash=hash, path=path)
 
 
@@ -84,5 +88,5 @@ async def prefetch_obj(obj: Prefetchable) -> URLPrefetchResult:
         ```py
         await prefetch_url(gh_repo.get_prefetch_url())
         ```
-    """
+    """  # noqa: D401 # imperative mood
     return await prefetch_url(obj.get_prefetch_url())

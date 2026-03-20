@@ -21,7 +21,8 @@ if t.TYPE_CHECKING:
 
 def undefined_default() -> t.Never:
     raise NotImplementedError(
-        "Please provide a default value for the input/output file. See the example implementation"
+        "Please provide a default value for the input/output file. See the"
+        + "example implementation"
     )
 
 
@@ -64,7 +65,10 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
 
     @abc.abstractmethod
     def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
-        """Parse argument, that user provided as an ID for the entry, to [EntryInfo](models.md#entryinfo)."""
+        """Parse argument, that user provided as ID for the entry, to [EntryInfo].
+
+        [EntryInfo]: models.md#entryinfo
+        """  # noqa: E501 # one character off...
 
     def __resolve_default_path(
         self, path: os.PathLike[str]
@@ -136,7 +140,8 @@ class Nupd:
 
         self.write_entries(set(all_entries.values()))
         logger.success(
-            f"Successfully updated {len(all_entries_info) or len(all_entries)} entries!"
+            f"Successfully updated {len(all_entries_info) or len(all_entries)} "
+            + "entries!"
         )
 
     async def fetch_entries(
@@ -145,8 +150,8 @@ class Nupd:
     ) -> dict[str, Entry[t.Any, t.Any]]:
         config = inject.instance(Config)
         logger.info(
-            f"Going to fetch {len(entries)} entries with the limit of {config.jobs}"
-            " simultaneously"
+            f"Going to fetch {len(entries)} entries with the limit of"
+            + f"{config.jobs} simultaneously"
         )
 
         all_results: dict[str, Entry[t.Any, t.Any]] = {}
@@ -190,5 +195,6 @@ class Nupd:
 
         with self.impl.output_file.open("w", newline="\n") as f:
             json.dump(data, f, indent=2, sort_keys=True)
-            # add a new line on the end of the file, because nixpkgs CI requires it
+            # add a new line on the end of the file, because nixpkgs CI
+            # requires it
             _ = f.write("\n")

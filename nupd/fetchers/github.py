@@ -59,7 +59,8 @@ class GHRepository(NupdModel, frozen=True):
 
         Example:
             Note that the result object is immutable, which means this function
-            has to do a copy and return it. You have to call this function like this:
+            has to do a copy and return it. You have to call this function like
+            this:
 
             ```py
             result = await result.prefetch_latest_version()
@@ -78,11 +79,13 @@ class GHRepository(NupdModel, frozen=True):
 
         First it tries to fetch the latest GitHub release, if it fails - it
         fallbacks to Git tags. If there are no tags, the returned object's
-        [`latest_version`][nupd.fetchers.github.GHRepository.latest_version] stays `None`.
+        [`latest_version`][nupd.fetchers.github.GHRepository.latest_version]
+        stays `None`.
 
         Example:
             Note that the result object is immutable, which means this function
-            has to do a copy and return it. You have to call this function like this:
+            has to do a copy and return it. You have to call this function like
+            this:
 
             ```py
             result = await result.prefetch_latest_version()
@@ -140,42 +143,42 @@ async def github_fetch_graphql(
         json={
             "query": (
                 "query {"
-                f'  repository(owner: "{owner}", name: "{repo}") {{'
-                "    name"
-                "    isArchived"
-                "    archivedAt"
-                "    homepageUrl"
-                "    stargazerCount"
-                "    description"
-                ""
-                "    owner {"
-                "      login"
-                "    }"
-                "    licenseInfo {"
-                "      spdxId"
-                "    }"
-                "    latestRelease {"
-                "      tagName"
-                "    }"
-                "    defaultBranchRef {"
-                "      name"
-                "      target {"
-                "        oid"
-                "        ... on Commit {"
-                "          committedDate"
-                "        }"
-                "      }"
-                "    }"
-                "    submodules(first: 1) {"
-                "      nodes {"
-                "        name"
-                "      }"
-                "    }"
-                "  }"
-                "  rateLimit {"
-                "    cost"
-                "  }"
-                "}"
+                + f'  repository(owner: "{owner}", name: "{repo}") {{'
+                + "    name"
+                + "    isArchived"
+                + "    archivedAt"
+                + "    homepageUrl"
+                + "    stargazerCount"
+                + "    description"
+                + ""
+                + "    owner {"
+                + "      login"
+                + "    }"
+                + "    licenseInfo {"
+                + "      spdxId"
+                + "    }"
+                + "    latestRelease {"
+                + "      tagName"
+                + "    }"
+                + "    defaultBranchRef {"
+                + "      name"
+                + "      target {"
+                + "        oid"
+                + "        ... on Commit {"
+                + "          committedDate"
+                + "        }"
+                + "      }"
+                + "    }"
+                + "    submodules(first: 1) {"
+                + "      nodes {"
+                + "        name"
+                + "      }"
+                + "    }"
+                + "  }"
+                + "  rateLimit {"
+                + "    cost"
+                + "  }"
+                + "}"
             )
         },
     ) as response:
@@ -192,7 +195,8 @@ async def github_fetch_graphql(
             )
 
     logger.debug(
-        f"Fetching GH:{owner}/{repo} took {data['data']['rateLimit']['cost']} point(s)"
+        f"Fetching GH:{owner}/{repo} took {data['data']['rateLimit']['cost']} "
+        + "point(s)"
     )
     data = data["data"]["repository"]
 
@@ -259,7 +263,8 @@ async def github_fetch_rest(
     new_owner, new_repo = data["owner"]["login"], data["name"]
     if new_owner != owner:
         logger.warning(
-            f"GH repository's ({owner}/{repo}) owner has changed to {new_owner}!"
+            f"GH repository's ({owner}/{repo}) owner has changed to "
+            + f"{new_owner}!"
         )
     if new_repo != repo:
         logger.warning(

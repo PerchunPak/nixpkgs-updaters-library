@@ -22,6 +22,6 @@ def inject_configure(
     def wrapped(binder: inject.Binder) -> None:
         _ = binder.bind(Config, config)
         _ = binder.bind(ImplClasses, classes)
-        _ = binder.bind(Shutdowner, shutdowner if shutdowner else Shutdowner())
+        _ = binder.bind(Shutdowner, shutdowner or Shutdowner())
 
     return wrapped

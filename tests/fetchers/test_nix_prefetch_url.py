@@ -20,7 +20,7 @@ if t.TYPE_CHECKING:
 @pytest.mark.parametrize("name", [None, "test-123"])
 async def test_prefetch_url(
     mocker: MockerFixture,
-    unpack: bool,  # noqa: FBT001
+    unpack: bool,
     name: str | None,
 ) -> None:
     mock = mocker.patch(
@@ -28,8 +28,7 @@ async def test_prefetch_url(
     )
     mock.return_value.communicate.return_value = (
         b"079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7\n"
-        b"/nix/store/19zrmhm3m40xxaw81c8cqm6aljgrnwj2-0.8.tar.gz\n",
-        b"",
+        + b"/nix/store/19zrmhm3m40xxaw81c8cqm6aljgrnwj2-0.8.tar.gz\n",
     )
     mock.return_value.returncode = 0
 
@@ -64,7 +63,7 @@ async def test_prefetch_url(
 @pytest.mark.parametrize("name", [None, "test-123"])
 async def test_prefetch_url_return_code_non_zero(
     mocker: MockerFixture,
-    unpack: bool,  # noqa: FBT001
+    unpack: bool,
     name: str | None,
 ) -> None:
     mock = mocker.patch(
@@ -77,7 +76,7 @@ async def test_prefetch_url_return_code_non_zero(
         URLPrefetchError,
         match=(
             r"^nix-prefetch-url returned exit code 1\n"
-            r"stdout=b'stdout'\nstderr=b'stderr'$"
+            + r"stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
         _ = await prefetch_url.func(
@@ -108,7 +107,7 @@ async def test_prefetch_url_return_code_non_zero(
 @pytest.mark.parametrize("name", [None, "test-123"])
 async def test_prefetch_url_return_stderr(
     mocker: MockerFixture,
-    unpack: bool,  # noqa: FBT001
+    unpack: bool,
     name: str | None,
 ) -> None:
     mock = mocker.patch(
@@ -121,7 +120,7 @@ async def test_prefetch_url_return_stderr(
         URLPrefetchError,
         match=(
             r"^nix-prefetch-url wrote something to stderr! \(unexpected\)\n"
-            "stdout=b'stdout'\nstderr=b'stderr'$"
+            + "stdout=b'stdout'\nstderr=b'stderr'$"
         ),
     ):
         _ = await prefetch_url.func(

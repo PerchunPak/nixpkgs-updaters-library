@@ -255,7 +255,7 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
 def test_get_all_entries_from_the_output_file(
     mocker: MockerFixture,
     tmp_path: Path,
-    file_exists: bool,  # noqa: FBT001
+    file_exists: bool,
 ) -> None:
     output_file = tmp_path / "output.json"
     _ = mocker.patch.object(DumbBase, "output_file", output_file)

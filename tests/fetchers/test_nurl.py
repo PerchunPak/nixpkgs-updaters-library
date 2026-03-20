@@ -38,7 +38,7 @@ async def test_nurl_basic(
     mocker: MockerFixture,
     revision: str | None,
     additional_arguments: list[str],
-    submodules: bool,  # noqa: FBT001
+    submodules: bool,
     fetcher: FETCHERS | None,
     fallback: FETCHERS | None,
 ) -> None:
@@ -129,7 +129,7 @@ async def test_nurl_parse(
     assert (
         await nurl_parse(
             "https://github.com/NixOS/patsh",
-            additional_arguments=additional_args if additional_args else None,
+            additional_arguments=additional_args or None,
             submodules=True,
         )
         is EXAMPLE_RESPONSE_OBJ

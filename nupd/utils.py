@@ -25,7 +25,7 @@ memory = joblib.Memory(
 )
 
 NIXPKGS_PLACEHOLDER = Path(f"/nixpkgs_{id(object())}")
-"""Dummy path that is used to specify nixpkgs root in default input/output file location."""
+"""Dummy path that is used to specify nixpkgs root in default input/output file location."""  # noqa: E501
 
 
 def async_to_sync[**P, R](  # pragma: no cover
@@ -95,7 +95,7 @@ type FrozenDict[K, V] = t.Annotated[
 
 
 def replace[T](obj: T, **changes: t.Any) -> T:
-    """Analogue for `copy.replace` that works with 3.12 and dataclasses and pydantic."""
+    """Analogue for `copy.replace` that works with 3.12 and dataclasses and pydantic."""  # noqa: E501
     result = copy.copy(obj)
 
     if dataclasses.is_dataclass(obj):
@@ -121,14 +121,15 @@ def nullify(arg: str | t.Any) -> str | None:
 
     This helps to transform something like an empty string to a None.
     """
-    return arg if arg else None
+    return arg or None
 
 
 def cleanup_raw_string(arg: str | t.Any) -> str:
     """Clean up some common unnecessary symbols like leading/trailing spaces.
 
-    Basically this tries to make a string, that is compatible with `meta.description`
-    in https://github.com/NixOS/nixpkgs/tree/master/pkgs#meta-attributes.
+    Basically this tries to make a string, that is compatible with
+    `meta.description` in
+    https://github.com/NixOS/nixpkgs/tree/master/pkgs#meta-attributes.
     """
     # for scripting easibility, if it is not a string, just return it.
     # this allows us to use this function as a pydantic "before" validator

@@ -48,12 +48,19 @@ async def nurl(
 ) -> NurlResult:
     """Just a fancy wrapper around `nurl` to handle edge-cases like caching.
 
-    Parameters:
-        fetcher: A fetcher to use. List of all possible fethers can be obtained using `nurl -l`.
-        fallback: The fetcher to fall back to when nurl fails to infer it from the URL.
+    Parameters
+    ----------
+        fetcher:
+            A fetcher to use.
+            List of all possible fethers can be obtained using `nurl -l`.
+        fallback:
+            The fetcher to fall back to when nurl fails to infer it from the
+            URL.
 
-    Raises:
-        NurlError: If `nupd` return non-zero exit code or wrote something to stderr.
+    Raises
+    ------
+        NurlError:
+            If `nupd` return non-zero exit code or wrote something to stderr.
     """
     logger.debug(f"Running nurl on {url}")
 
@@ -79,7 +86,7 @@ async def nurl(
     if process.returncode != 0:
         raise NurlError(
             f"nurl returned exit code {process.returncode}"
-            f"\n{stdout=}\n{stderr=}"
+            + f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
         logger.trace(f"nurl wrote something to stderr!\n{stdout=}\n{stderr=}")
@@ -96,14 +103,18 @@ async def nurl_parse(
     fetcher: FETCHERS | None = None,
     fallback: FETCHERS | None = None,
 ) -> NurlResult:
-    """Wrapper around [`nurl`][nupd.fetchers.nurl.nurl] function, to also pass `--parse` argument.
+    """Like [`nurl`][nupd.fetchers.nurl.nurl], but with `--parse` argument.
 
-    From `nurl --help`: Parse the url without fetching the hash, output in json format.
+    From `nurl --help`: Parse the url without fetching the hash, output in json
+    format.
 
     Example:
         ```py
         >>> nurl_parse("https://github.com/NixOS/nixpkgs")
-        NurlResult(args=frozendict.frozendict({'owner': 'NixOS', 'repo': 'nixpkgs'}), fetcher='fetchFromGitHub')
+        NurlResult(
+            args=frozendict.frozendict({'owner': 'NixOS', 'repo': 'nixpkgs'}),
+            fetcher='fetchFromGitHub',
+        )
         ```
     """
     if additional_arguments is None:

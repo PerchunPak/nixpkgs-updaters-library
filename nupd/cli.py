@@ -61,13 +61,13 @@ def callback(
     ] = 32,
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO.value,  # pyright: ignore[reportArgumentType] # typer requires string here
 ) -> None:
-    """A boilerplate-less updater library for Nixpkgs ecosystems."""
+    """Boilerplate-less updater library for Nixpkgs ecosystems."""
     nupd.logs.setup_logging(log_level)
     if not isinstance(ctx.obj, ImplClasses):
         logger.error(
             "You have to provide your implementation of `ABCBase`, `Entry`"
-            " and `EntryInfo` using `app.info.context_settings`. Please see"
-            " `example` directory."
+            + " and `EntryInfo` using `app.info.context_settings`. Please see"
+            + " `example` directory."
         )
         raise typer.Exit(1)
 

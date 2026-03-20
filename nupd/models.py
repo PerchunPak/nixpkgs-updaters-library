@@ -14,7 +14,7 @@ class NupdModel(BaseModel, frozen=True, extra="forbid"): ...
 
 
 class EntryInfo(NupdModel, abc.ABC, frozen=True):
-    """A minimal amount of information that is only enough to prefetch the entry."""
+    """Minimal amount of information that is only enough to prefetch the entry."""  # noqa: E501
 
     @property
     @abc.abstractmethod
@@ -25,7 +25,7 @@ class EntryInfo(NupdModel, abc.ABC, frozen=True):
 
 
 class Entry[I: EntryInfo, M: MiniEntry[t.Any]](NupdModel, abc.ABC, frozen=True):
-    """All information about the entry, that we need to generate the Nix code."""
+    """All information about the entry, that we need to generate the Nix code."""  # noqa: E501
 
     info: I
 
