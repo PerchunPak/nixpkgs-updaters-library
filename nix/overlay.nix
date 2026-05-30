@@ -7,6 +7,7 @@ final: prev: {
 
         preCheck = (old.preCheck or "") + ''
           export HOME=$(mktemp -d)
+          export PYTHONPATH=".:$PYTHONPATH"
         '';
         nativeCheckInputs = old.nativeCheckInputs ++ [
           (pfinal.callPackage ./lint-hook/lint-hook.nix { })
