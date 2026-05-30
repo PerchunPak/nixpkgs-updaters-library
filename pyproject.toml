@@ -53,7 +53,7 @@ ignore = [
   "FBT001",   # Boolean-typed positional argument in function definition
   "SLF001",   # Private member accessed
 ]
-".github/scripts/**.py" = [
+"example/**"= [
   "INP001", # Implicit namespace package
 ]
 
