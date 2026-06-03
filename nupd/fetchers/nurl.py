@@ -24,7 +24,11 @@ type FETCHERS = t.Literal[
     "fetchPypi",
     "fetchgit",
     "fetchhg",
+    "fetchpatch",
+    "fetchpatch2",
     "fetchsvn",
+    "fetchurl",
+    "fetchzip",
 ]
 
 
