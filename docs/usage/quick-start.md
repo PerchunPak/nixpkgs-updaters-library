@@ -1,7 +1,7 @@
 # Quick Start
 
-Let's together create a simple example script, which loads GitHub URLs from an
-`input.csv` file, and outputs last commit plus hashes to an `output.json` file.
+Let's together create a simple example script, that loads GitHub URLs from an
+`input.csv` file, and outputs last commit and hashes to an `output.json` file.
 
 You can view the full code in the
 [`example/simple`](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/main/example/simple)
@@ -25,27 +25,52 @@ class MyEntryInfo(EntryInfo, frozen=True):
     def id(self) -> str:
         return self.repo
 
-    async def fetch(self) -> MyEntry:
-        # we will implement this later
-
 class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
     info: MyEntryInfo
     fetched: GHRepository
     nurl_result: NurlResult
 ```
 
-1. This is a property, because we could implement e.g. aliases
+1. This is a property because we could, for example, implement aliases.
 
 Wait, what is `GHRepository` and `NurlResult`? Nupd implements a bunch of
-helpers for you! This includes an [easy fetcher for GitHub
+helpers for you. This includes an [easy fetcher for GitHub
 repositories](./helpers/github.md) and [a wrapper](./helpers/nurl.md) around
 [nurl](https://github.com/nix-community/nurl) - THE prefetcher for Nix
 ecosystem.
 
-We should also implement [`MiniEntry`](./models.md#minientry),
-which is just a minified version of our
-[`Entry`](./models.md#entry) to not bloat the result file with
-unnecessary information:
+Next, let's implement `MyEntryInfo.fetch`:
+
+```py title="script.py"
+class MyEntryInfo(EntryInfo, frozen=True):
+    # ...
+
+    async def fetch(self) -> MyEntry:
+        logger.debug(f"Fetching {self.owner}/{self.repo}")
+
+        result = await github_fetch_rest(
+            self.owner, self.repo, github_token=None
+        )
+
+        # NOTE: We could also handle redirects like this
+        if (self.owner, self.repo) != (result.owner, result.repo):
+            ...
+
+        # fetch latest commit info
+        result = await result.prefetch_commit()
+        # and latest tag version
+        result = await result.prefetch_latest_version()
+        # then run nurl to generate `fetchFromGitHub`
+        prefetched = await nurl.nurl(
+            result.url, submodules=bool(result.has_submodules)
+        )
+
+        return MyEntry(info=self, fetched=result, nurl_result=prefetched)
+```
+
+We should also implement [`MiniEntry`](./models.md#minientry), which is just
+a minified version of our [`Entry`](./models.md#entry) so we won't bloat the
+result file with unnecessary information:
 
 ```py title="script.py"
 class MyEntry:
@@ -59,12 +84,14 @@ class MyEntry:
         )
 
 class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
+    # this class will automatically include an `info` field, which points to
+    # `EntryInfo`
     nurl: nurl.NurlResult
 ```
 
 ## Implement core logic
 
-!!! danger
+!!! note
 
     This section includes some nasty Python typing shenanigans, so don't worry
     if you are overwhelmed - just copy-paste and hope it works! You can also
@@ -80,14 +107,12 @@ class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
     I use for this library).
 
 ```py title="script.py"
+import collections.abc as c
 import dataclasses
 import typing as t
 from pathlib import Path
 
 from nupd.base import ABCBase
-
-if t.TYPE_CHECKING:
-    import collections.abc as c
 
 ROOT = Path(__file__).parent
 if "/nix/store" in str(ROOT):
@@ -113,32 +138,29 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
    `nupd.utils.NIXPKGS_PLACEHOLDER / "your" / "path" / "file.csv"`.
    This will automatically use the nixpkgs path provided in CLI the flag.
 
-There are only 3 methods we have to implement to get access to all the features:
+In this class, we only have to implement 3 methods to get access to all features:
 
 ::: nupd.base.ABCBase.get_all_entries
 
 ```py title="script.py"
-    @t.override# (1)!
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
-        return CsvInput[MyEntryInfo](self.input_file).read(
+        """Get all entries from the `input.csv` file."""
+        return CsvInput(self.input_file).read(
             lambda x: MyEntryInfo(**x)
         )
 ```
 
-1. This just means that we are overriding a method from parent class. You can
-   safely remove everything that is connected with `typing` module, if you
-   don't want to type-check (though I strongly don't recommend that)
-
 Note that this method is async, so you can implement reading a list of packages
-as an HTTP request to central package distribution center (e.g. PyPi), if it
-makes sense of course.
+as an HTTP request to central package distribution center (e.g. PyPi).
 
 ::: nupd.base.ABCBase.write_entries_info
 
+Save basic information about our entries.
+
 ```py title="script.py"
-    @t.override
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
-        CsvInput[MyEntryInfo](self.input_file).write(
+        """Save the result to `output.json`."""
+        CsvInput(self.input_file).write(
             entries_info,
             serialize=lambda x: x.model_dump(mode="json"),
         )
@@ -147,8 +169,13 @@ makes sense of course.
 ::: nupd.base.ABCBase.parse_entry_id
 
 ```py title="script.py"
-    @t.override
     def parse_entry_id(self, to_parse: str) -> MyEntryInfo:
+        """Parse CLI argument to `EntryInfo`.
+
+        Example:
+            If user runs `$ python script.py add foo/bar`,
+            we will get the `foo/bar` part to parse.
+        """
         split = to_parse.split("/")
         if len(split) != 2:
             raise InvalidArgumentError(
@@ -166,7 +193,7 @@ At last, we have to write some amount of boilerplate:
 
 ```py title="script.py"
 if __name__ == "__main__":# (1)!
-    assert isinstance(app.info.context_settings, dict)
+    # this is how we point out which implementation classes we use
     app.info.context_settings["obj"] = ImplClasses(
         base=MyImpl,
         mini_entry=MyMiniEntry,
@@ -180,14 +207,11 @@ if __name__ == "__main__":# (1)!
 1. If you don't know what is it:
    [https://stackoverflow.com/a/419185](https://stackoverflow.com/a/419185)
 
-The `app.info.context_settings["obj"]` block is how we point out what
-implementation classes we use.
-
 ## Let's run the actual script
 
 You can view the full script
 [here](https://github.com/PerchunPak/nixpkgs-updaters-library/tree/main/example/simple).
-But before running our creation, we have to create `input.csv`:
+But before running it, we have to create `input.csv`:
 
 ```csv title="input.csv"
 owner,repo

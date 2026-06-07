@@ -14,7 +14,7 @@ A minimal amount of information that is only enough to prefetch the entry. It
 is enough to implement only these two simple attributes:
 
 - `id`: a valid Nix key by which plugin then will be referenced. Note that this
-  must be a property, so we can implement (for example) aliases.
+  must be a property, so you can implement (for example) aliases.
 - `async fetch()`: a method which fetches all the information required and
   returns an `Entry` instance.
 

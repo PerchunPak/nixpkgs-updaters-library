@@ -11,40 +11,24 @@ result.
 
 > [!IMPORTANT]
 > All code in this library was written by a human.
->
-> (you can still submit AI code in a PR, but it will be heavily reviewed and
-> would get a lot of scepticism)
 
 ## Why?
 
-Sometimes, there are types of packages, that are very simplistic to package. As
-an example we can take Vim plugins, (mostly) to package a plugin it is just
-enough to download a Git repository.
+Some types of packages are very simple to package. For example, Vim plugins
+usually only require downloading a Git repository.
 
-```nix
-buildVimPlugin {
-  pname = "lazy.nvim";
-  version = "2025-02-25";
-  src = fetchFromGitHub {
-    owner = "folke";
-    repo = "lazy.nvim";
-    rev = "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a";
-    hash = "sha256-nQ8PR9DTdzg6Z2rViuVD6Pswc2VvDQwS3uMNgyDh5ls=";
-  };
-};
-```
+Now imagine having a thousand such plugins. Writing a separate package for each
+one and keeping them all up to date would be a tedious task.
 
-Now imagine we have a thousand of such plugins, writing out a package for each
-of them separately and then also keeping this up to date would be awful.
+This library allows you to easily manage an unlimited number of packages.
+Before it existed, many people would write a custom Python script and implement
+all the required logic from scratch. Over time, as new features were added,
+these scripts would grow in complexity and eventually become difficult to
+maintain.
 
-This library allows you to easily manage unlimited amount of packages. Before
-this became a thing, many would just write a Python script with all the logic
-from the ground up. Later, when we would want to add a feature to such
-a script, it would grow in complexity and result into a nightmare code.
-
-By using the library, we can avoid a lot of boilerplate and get many powerful
-features for free. As an example, single-plugin update (when you want to update
-only one plugin instead of all of them).
+By using this library, we can avoid a lot of boilerplate code and gain many
+powerful features out of the box. For example, it supports updating a single
+plugin when you want to update only one package instead of all of them.
 
 ## Usage
 

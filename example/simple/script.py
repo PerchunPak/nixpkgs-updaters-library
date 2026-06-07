@@ -11,11 +11,7 @@ from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
 from nupd.fetchers import nurl
-from nupd.fetchers.github import (
-    GHRepository,
-    github_fetch_graphql,
-    github_fetch_rest,
-)
+from nupd.fetchers.github import GHRepository, github_fetch_rest
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
@@ -41,25 +37,24 @@ class MyEntryInfo(EntryInfo, frozen=True):
     @t.override
     async def fetch(self) -> MyEntry:
         logger.debug(f"Fetching {self.owner}/{self.repo}")
-        github_token = os.environ.get("GITHUB_TOKEN")
-        if github_token is not None:
-            result = await github_fetch_graphql(
-                self.owner, self.repo, github_token
-            )
-        else:
-            result = await github_fetch_rest(
-                self.owner, self.repo, github_token=None
-            )
+
+        result = await github_fetch_rest(
+            self.owner, self.repo, github_token=None
+        )
 
         # NOTE: We could also handle redirects like this
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
-        result = await result.prefetch_commit(github_token=github_token)
-        result = await result.prefetch_latest_version(github_token=github_token)
+        # fetch latest commit info
+        result = await result.prefetch_commit()
+        # and latest tag version
+        result = await result.prefetch_latest_version()
+        # then run nurl to generate `fetchFromGitHub`
         prefetched = await nurl.nurl(
             result.url, submodules=bool(result.has_submodules)
         )
+
         return MyEntry(info=self, fetched=result, nurl_result=prefetched)
 
 
