@@ -27,8 +27,8 @@ class GitPrefetchResult(NupdModel, frozen=True):
 async def prefetch_git(
     url: str,
     *,
-    revision: str | None,
-    additional_args: c.Iterable[str],
+    revision: str | None = None,
+    additional_args: c.Iterable[str] | None = None,
 ) -> GitPrefetchResult:
     """Wrap `nix-prefetch-git` to handle edge-cases like caching.
 
@@ -64,6 +64,9 @@ async def prefetch_git(
             If `nix-prefetch-git` returned non-zero exit code or wrote
             something to stderr.
     """
+    if additional_args is None:
+        additional_args = ()
+
     process = await asyncio.create_subprocess_exec(
         Executable.NIX_PREFETCH_GIT,
         url,
