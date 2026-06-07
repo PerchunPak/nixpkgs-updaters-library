@@ -95,7 +95,7 @@ type FrozenDict[K, V] = t.Annotated[
 
 
 def replace[T](obj: T, **changes: t.Any) -> T:
-    """Analogue for `copy.replace` that works with 3.12 and dataclasses and pydantic."""  # noqa: E501
+    """Analogue for `copy.replace` that works with dataclasses and pydantic."""
     result = copy.copy(obj)
 
     if dataclasses.is_dataclass(obj):
@@ -107,21 +107,15 @@ def replace[T](obj: T, **changes: t.Any) -> T:
             object.__setattr__(result, field_name, value)
 
         return result
+
     if isinstance(obj, BaseModel):
         updated = obj.model_dump(mode="json")
         updated.update(changes)
         return type(obj)(**updated)
+
     raise TypeError(
         "replace() can be called on dataclass or pydantic instances"
     )
-
-
-def nullify(arg: str | t.Any) -> str | None:
-    """`arg if arg else None`.
-
-    This helps to transform something like an empty string to a None.
-    """
-    return arg or None
 
 
 def cleanup_raw_string(arg: str | t.Any) -> str:

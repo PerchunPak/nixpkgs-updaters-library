@@ -13,7 +13,7 @@ from nupd.models import NupdModel
 
 # mkdocstrings is not smart enough to resolve `t.Annotated` from a variable
 OptionalCleanedUpString = (
-    BeforeValidator(lambda x: utils.nullify(utils.cleanup_raw_string(x))),
+    BeforeValidator(lambda x: utils.cleanup_raw_string(x) or None),
 )
 
 
@@ -30,7 +30,7 @@ class GitHubTag(NupdModel, frozen=True):
 
 class MetaInformation(NupdModel, frozen=True):
     description: t.Annotated[str | None, OptionalCleanedUpString]
-    homepage: t.Annotated[str | None, BeforeValidator(utils.nullify)]
+    homepage: t.Annotated[str | None, BeforeValidator(lambda x: x or None)]
     license: t.Annotated[str | None, OptionalCleanedUpString]
     stars: int
     archived: bool
