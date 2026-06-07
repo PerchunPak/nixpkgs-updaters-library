@@ -19,6 +19,13 @@ if t.TYPE_CHECKING:
     import os
 
 
+async def with_semaphore[T](
+    semaphore: asyncio.Semaphore, func: c.Awaitable[T]
+) -> T:
+    async with semaphore:
+        return await func
+
+
 def undefined_default() -> t.Never:
     raise NotImplementedError(
         "Please provide a default value for the input/output file. See the"
@@ -150,24 +157,28 @@ class Nupd:
     ) -> dict[str, Entry[t.Any, t.Any]]:
         config = inject.instance(Config)
         logger.info(
-            f"Going to fetch {len(entries)} entries with the limit of"
+            f"Going to fetch {len(entries)} entries with the limit of "
             + f"{config.jobs} simultaneously"
         )
 
         all_results: dict[str, Entry[t.Any, t.Any]] = {}
-        for chunk in utils.chunks(list(entries), config.jobs):
-            logger.debug(f"Next chunk ({len(chunk)})")
+        semaphore = asyncio.Semaphore(config.jobs)
+        done, pending = await asyncio.wait(
+            {
+                asyncio.create_task(
+                    with_semaphore(semaphore, entry.fetch()), name=entry.id
+                )
+                for entry in entries
+            },
+            return_when=asyncio.FIRST_EXCEPTION,
+        )
 
-            done, pending = await asyncio.wait(
-                {
-                    asyncio.create_task(entry.fetch(), name=entry.id)
-                    for entry in chunk
-                },
-            )
+        if pending:
+            for task in pending:
+                _ = task.cancel()
 
-            assert len(pending) == 0
-            for task in done:
-                all_results[task.get_name()] = task.result()
+        for task in done:
+            all_results[task.get_name()] = task.result()
 
         return all_results
 
@@ -191,10 +202,12 @@ class Nupd:
         for entry in entries:
             if isinstance(entry, Entry):
                 entry = entry.minify()  # noqa: PLW2901
-            data[entry.info.id] = entry.model_dump(mode="json")
+            data[entry.info.id] = entry.model_dump(
+                mode="json", exclude_none=True
+            )
 
         with self.impl.output_file.open("w", newline="\n") as f:
-            json.dump(data, f, indent=2, sort_keys=True)
+            json.dump(data, f, indent="\t", sort_keys=True)
             # add a new line on the end of the file, because nixpkgs CI
             # requires it
             _ = f.write("\n")

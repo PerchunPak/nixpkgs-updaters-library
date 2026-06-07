@@ -53,12 +53,6 @@ def sync_to_async[**P, R](  # pragma: no cover
     return wrapper
 
 
-def chunks[T](lst: c.Sequence[T], n: int) -> c.Iterable[c.Sequence[T]]:
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i : i + n]
-
-
 class _PydanticFrozenDictAnnotation[K, V]:
     """https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166."""
 

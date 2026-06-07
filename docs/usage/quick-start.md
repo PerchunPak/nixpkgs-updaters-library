@@ -200,16 +200,15 @@ And, finally, let's run the script!
 
 ```
 $ python script.py --log-level debug update
-2025-07-01 18:24:15.568 | DEBUG    | nupd.logs:setup_logging:50 - Logging was setup!
-2025-07-01 18:24:15.569 | INFO     | nupd.base:fetch_entries:134 - Going to fetch 3 entries with the limit of 32 simultaneously
-2025-07-01 18:24:15.569 | DEBUG    | nupd.base:fetch_entries:141 - Next chunk (3)
-2025-07-01 18:24:15.569 | DEBUG    | __main__:fetch:43 - Fetching tpope/vim-surround
-2025-07-01 18:24:15.573 | DEBUG    | __main__:fetch:43 - Fetching folke/todo-comments.nvim
-2025-07-01 18:24:15.573 | DEBUG    | __main__:fetch:43 - Fetching nvim-treesitter/nvim-treesitter
-2025-07-01 18:24:17.179 | DEBUG    | nupd.fetchers.nurl:nurl:58 - Running nurl on https://github.com/folke/todo-comments.nvim
-2025-07-01 18:24:17.410 | DEBUG    | nupd.fetchers.nurl:nurl:58 - Running nurl on https://github.com/tpope/vim-surround
-2025-07-01 18:24:17.572 | DEBUG    | nupd.fetchers.nurl:nurl:58 - Running nurl on https://github.com/nvim-treesitter/nvim-treesitter
-2025-07-01 18:24:19.257 | SUCCESS  | nupd.base:update_cmd:125 - Successfully updated 3 entries!
+2026-06-07 14:31:11.455 | DEBUG    | nupd.logs:setup_logging:52 - Logging was setup!
+2026-06-07 14:31:11.456 | INFO     | nupd.base:fetch_entries:159 - Going to fetch 3 entries with the limit of 32 simultaneously
+2026-06-07 14:31:11.456 | DEBUG    | __main__:fetch:39 - Fetching nvim-treesitter/nvim-treesitter
+2026-06-07 14:31:11.460 | DEBUG    | __main__:fetch:39 - Fetching folke/todo-comments.nvim
+2026-06-07 14:31:11.461 | DEBUG    | __main__:fetch:39 - Fetching tpope/vim-surround
+2026-06-07 14:31:12.262 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/folke/todo-comments.nvim
+2026-06-07 14:31:12.433 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/tpope/vim-surround
+2026-06-07 14:31:12.586 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/nvim-treesitter/nvim-treesitter
+2026-06-07 14:31:12.719 | SUCCESS  | nupd.base:update_cmd:149 - Successfully updated 3 entries!
 ```
 
 It is that simple! Now, let's check out our `output.json`:
