@@ -24,7 +24,7 @@ class GitPrefetchResult(NupdModel, frozen=True):
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache
+@utils.memory.cache(cache_validation_callback=utils.cache_validate_by_revision)
 async def prefetch_git(
     url: str,
     *,

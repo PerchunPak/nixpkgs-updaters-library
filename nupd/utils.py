@@ -140,3 +140,10 @@ def restore_docstring_from_memoized_function[R, **P](
 ) -> MemorizedFunc[P, R]:
     func.__doc__ = func.func.__doc__  # pyright: ignore[reportAttributeAccessIssue]
     return func
+
+
+def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
+    """Never delete cache if ``revision`` argument was provided."""
+    if args["input_args"].get("revision"):
+        return False
+    return joblib.expires_after(hours=1)(args)

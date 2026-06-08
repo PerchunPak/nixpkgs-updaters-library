@@ -7,7 +7,7 @@
 - [x] ``nix-prefetch-url`` should have ``unpack`` default to False
 - [x] ``nix-prefetch-git`` has ``--quiet``, which we should always provide
 - [x] Check that IDs are equal
-- [ ] Cache invalidation
+- [x] Cache invalidation
 - [ ] cyclopts
 - [ ] progress bar
 - [ ] Duplicate plugins?

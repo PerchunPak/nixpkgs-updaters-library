@@ -1,10 +1,9 @@
 import asyncio
 import typing as t
 
-from nupd import exc
+from nupd import exc, utils
 from nupd.executables import Executable
 from nupd.models import NupdModel
-from nupd.utils import memory, restore_docstring_from_memoized_function
 
 
 class URLPrefetchError(exc.NetworkError): ...
@@ -15,8 +14,8 @@ class URLPrefetchResult(NupdModel, frozen=True):
     path: str
 
 
-@restore_docstring_from_memoized_function
-@memory.cache
+@utils.restore_docstring_from_memoized_function
+@utils.memory.cache
 async def prefetch_url(
     url: str,
     *,
