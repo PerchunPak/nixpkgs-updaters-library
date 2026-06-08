@@ -13,13 +13,13 @@ import joblib
 import platformdirs
 import pydantic_core
 from frozendict import frozendict
-from joblib.memory import MemorizedFunc
 from pydantic import BaseModel
 
 if t.TYPE_CHECKING:
     import collections.abc as c
 
     import pydantic
+    from joblib.memory import MemorizedFunc
 
 memory = joblib.Memory(
     platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
