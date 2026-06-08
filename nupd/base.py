@@ -72,10 +72,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
 
     @abc.abstractmethod
     def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
-        """Parse argument, that user provided as ID for the entry, to [EntryInfo].
-
-        [EntryInfo]: models.md#entryinfo
-        """  # noqa: E501 # one character off...
+        """Parse argument, that user provided as ID for the entry, to :class:`.EntryInfo`."""  # noqa: E501 # one character off...
 
     def __resolve_default_path(
         self, path: os.PathLike[str]

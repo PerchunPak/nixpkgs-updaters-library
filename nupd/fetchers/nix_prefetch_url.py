@@ -4,7 +4,7 @@ import typing as t
 from nupd import exc
 from nupd.executables import Executable
 from nupd.models import NupdModel
-from nupd.utils import memory
+from nupd.utils import memory, restore_docstring_from_memoized_function
 
 
 class URLPrefetchError(exc.NetworkError): ...
@@ -15,6 +15,7 @@ class URLPrefetchResult(NupdModel, frozen=True):
     path: str
 
 
+@restore_docstring_from_memoized_function
 @memory.cache
 async def prefetch_url(
     url: str,
@@ -22,19 +23,17 @@ async def prefetch_url(
     unpack: bool = False,
     name: str | None = None,
 ) -> URLPrefetchResult:
-    """Wrap `nix-prefetch-url` to handle edge-cases like caching.
+    """Wrap ``nix-prefetch-url`` to handle edge-cases like caching.
 
-    Parameters
-    ----------
+    Parameters:
         unpack:
             Whether to automatically unpack the archive (raises an error if the
             provided URL is not an archive).
         name: A custom name to give in the Nix store.
 
-    Raises
-    ------
+    Raises:
         URLPrefetchError:
-            If `nix-prefetch-url` returned non-zero exit code or wrote
+            If ``nix-prefetch-url`` returned non-zero exit code or wrote
             something to stderr.
     """
     process = await asyncio.create_subprocess_exec(
@@ -68,25 +67,24 @@ class Prefetchable(t.Protocol):
 
 
 async def prefetch_obj(obj: Prefetchable) -> URLPrefetchResult:
-    """Convenience function for objects that implement `get_prefetch_url()`.
-
-    This function is practically useless because of superior NURL wrapper.
+    """Convenience function for objects that implement ``get_prefetch_url()``.
 
     Example:
-        ```py
-        gh_repo = await github_fetch_rest(owner="foo", repo="bar")
-        await prefetch_obj(gh_repo)
-        ```
+        .. code-block:: python
 
-        Is equal to (`1e1356f` is an arbitrary commit)
+            gh_repo = await github_fetch_rest(owner="foo", repo="bar")
+            await prefetch_obj(gh_repo)
 
-        ```py
-        await prefetch_url("https://github.com/foo/bar/archive/1e1356f.tar.gz")
-        ```
+        Is equal to (``1e1356f`` is an arbitrary commit)
+
+        .. code-block:: python
+
+            await prefetch_url("https://github.com/foo/bar/archive/1e1356f.tar.gz")
+
         Or
 
-        ```py
-        await prefetch_url(gh_repo.get_prefetch_url())
-        ```
+        .. code-block:: python
+
+            await prefetch_url(gh_repo.get_prefetch_url())
     """  # noqa: D401 # imperative mood
     return await prefetch_url(obj.get_prefetch_url())

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-import os
 import typing as t
 from pathlib import Path
 
@@ -17,6 +16,7 @@ from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
+    import os
 
 ROOT = Path(__file__).parent
 if "/nix/store" in str(ROOT):

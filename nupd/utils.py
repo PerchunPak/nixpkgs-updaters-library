@@ -13,7 +13,8 @@ import joblib
 import platformdirs
 import pydantic_core
 from frozendict import frozendict
-from pydantic import BaseModel, BeforeValidator
+from joblib.memory import MemorizedFunc
+from pydantic import BaseModel
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -134,4 +135,8 @@ def cleanup_raw_string(arg: str | t.Any) -> str:
     return cleanup_raw_string(result)
 
 
-type CleanedUpString = t.Annotated[str, BeforeValidator(cleanup_raw_string)]
+def restore_docstring_from_memoized_function[R, **P](
+    func: MemorizedFunc[P, R],
+) -> MemorizedFunc[P, R]:
+    func.__doc__ = func.func.__doc__  # pyright: ignore[reportAttributeAccessIssue]
+    return func

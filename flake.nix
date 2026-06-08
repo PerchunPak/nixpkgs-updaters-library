@@ -48,10 +48,10 @@
             nix-prefetch-scripts
 
             # docs
-            python3Packages.mkdocs-material
-            python3Packages.mkdocs-github-admonitions-plugin
-            python3Packages.mkdocstrings
-            python3Packages.mkdocstrings-python
+            python3Packages.furo
+            python3Packages.sphinx
+            python3Packages.sphinx-autobuild
+            python3Packages.sphinx-autodoc-typehints
           ];
 
           PYTHONPATH = ".";

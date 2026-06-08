@@ -13,6 +13,13 @@ line-length = 80
 
 [tool.ruff.lint]
 select = ["ALL"]
+extend-select = [
+  # Disabled by the Google convention
+  "D400", # Missing trailing period
+  "D401", # Imperative mood
+  "D404", # Docstring starts with "This"
+  "D413", # Blank line after docstring section
+]
 
 ignore = [
   "A",       # Shadowing builtins
@@ -20,8 +27,6 @@ ignore = [
   "ARG",     # Unused argument; already handled by basedpyright
   "C90",     # {name} is too complex
   "COM812",  # Missing trailing comma (in multiline lists/tuples/...)
-  "D203",    # Blank line required before class docstring
-  "D213",    # Multiline docstring summary should start at the second line
   "EM",      # Very weird rules for using exceptions
   "FIX",     # Line contains TODO, consider resolving the issue
   "PLR09",   # {name} is too complex
@@ -56,6 +61,9 @@ ignore = [
 "example/**"= [
   "INP001", # Implicit namespace package
 ]
+"docs/**"= [
+  "INP001", # Implicit namespace package
+]
 
 [tool.ruff.lint.isort]
 order-by-type = false
@@ -74,6 +82,9 @@ allow-multiline = false
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.format]
 line-ending = "lf"

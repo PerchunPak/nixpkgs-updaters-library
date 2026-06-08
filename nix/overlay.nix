@@ -25,7 +25,6 @@ final: prev: {
         ];
       });
       joblib-stubs = pfinal.callPackage ./joblib-stubs.nix { };
-      mkdocs-github-admonitions-plugin = pfinal.callPackage ./mkdocs-github-admonitions-plugin.nix { };
     })
   ];
 }

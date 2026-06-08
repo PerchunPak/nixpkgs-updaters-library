@@ -23,6 +23,7 @@ class GitPrefetchResult(NupdModel, frozen=True):
     leave_dot_git: bool
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def prefetch_git(
     url: str,
@@ -32,36 +33,33 @@ async def prefetch_git(
 ) -> GitPrefetchResult:
     """Wrap `nix-prefetch-git` to handle edge-cases like caching.
 
-    Parameters
-    ----------
-        revision: If `None` (the default), tries to fetch the last commit.
+    Parameters:
+        revision: If ``None`` (the default), tries to fetch the last commit.
         additional_args:
-            Your custom additional arguments, e.g. `--branch-name` or
-            `--fetch-submodules`.
+            Your custom additional arguments, e.g. ``--branch-name`` or
+            ``--fetch-submodules``.
 
     Example:
-        ```py
-        await prefetch_git(
-            "https://github.com/PerchunPak/nixpkgs-updaters-library",
-            additional_args=[
-                "--branch-name", "foo",# (1)!
-                "--leave-dotGit",
-                "--fetch-submodules",
-            ],
-        )
-        ```
+        .. code-block:: python
 
-        1. If you provide `--branch-name foo` as a single string, it would
-           equal to `nix-prefetch-git ... '--branch-name foo'`. Do you see the
-           problem? Because `additional_args` is not parsed by a shell
-           (`/bin/sh`), you have to manually separate each word, otherwise the
-           script won't recognize it as separate words, which leads to an
-           obscure error.
+            await prefetch_git(
+                "https://github.com/PerchunPak/nixpkgs-updaters-library",
+                additional_args=[
+                    "--branch-name", "foo",
+                    "--leave-dotGit",
+                    "--fetch-submodules",
+                ],
+            )
 
-    Raises
-    ------
+        If you provide ``--branch-name foo`` as a single string, it would equal
+        to ``nix-prefetch-git ... '--branch-name foo'``. It won't work, because
+        ``additional_args`` is not parsed by a shell (``/bin/sh``); you have to
+        manually separate each word, otherwise the script won't recognize it as
+        separate words, which leads to an obscure error.
+
+    Raises:
         GitPrefetchError:
-            If `nix-prefetch-git` returned non-zero exit code or wrote
+            If ``nix-prefetch-git`` returned non-zero exit code or wrote
             something to stderr.
     """
     if additional_args is None:

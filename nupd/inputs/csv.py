@@ -24,14 +24,14 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
         Arguments:
             parse:
                 Function, that parses a row to an
-                [`EntryInfo`](../models.md#entryinfo).
+                :class:`.EntryInfo`.
 
-                !!! warning
+                .. warning::
 
-                    Item in a line can be an empty string instead of a None. We
-                    don't handle it, as "not optional" value would be opt-in
-                    and it is pretty annoying to handle that. You have to
-                    handle it by yourself.
+                  Item in a line can be an empty string instead of a None. We
+                  don't handle it, as "not optional" value would be opt-in
+                  and it is pretty annoying to handle that. You have to
+                  handle it by yourself.
         """
         with Path(self.file).open("r", newline="") as f:
             parsed = csv.DictReader(f, **self.kwargs)
@@ -52,7 +52,7 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
         Arguments:
             serialize:
                 Function, that is called to serialize an
-                [`EntryInfo`](../models.md#entryinfo)
+                :class:`.EntryInfo`.
                 to a dict, that we can then put into CSV.
         """
         writer = None

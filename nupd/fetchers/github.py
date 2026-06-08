@@ -4,6 +4,7 @@ from datetime import datetime
 
 import aiohttp
 import inject
+import pydantic
 from loguru import logger
 from pydantic import BeforeValidator
 
@@ -29,12 +30,30 @@ class GitHubTag(NupdModel, frozen=True):
 
 
 class MetaInformation(NupdModel, frozen=True):
-    description: t.Annotated[str | None, OptionalCleanedUpString]
-    homepage: t.Annotated[str | None, BeforeValidator(lambda x: x or None)]
-    license: t.Annotated[str | None, OptionalCleanedUpString]
+    description: str | None
+    homepage: str | None
+    license: str | None
     stars: int
     archived: bool
     archived_at: datetime | None
+
+    # sphinx does not allow turning off `typing.Annotated`, so we have to
+    # register validators like this
+
+    @pydantic.field_validator("description")
+    @classmethod
+    def _cleanup_raw_description(cls, value: str) -> str | None:
+        return utils.cleanup_raw_string(value) or None
+
+    @pydantic.field_validator("homepage")
+    @classmethod
+    def _cleanup_raw_homepage(cls, value: str) -> str | None:
+        return value or None
+
+    @pydantic.field_validator("license")
+    @classmethod
+    def _cleanup_raw_license(cls, value: str) -> str | None:
+        return utils.cleanup_raw_string(value) or None
 
 
 class Commit(NupdModel, frozen=True):
@@ -52,19 +71,22 @@ class GHRepository(NupdModel, frozen=True):
     commit: Commit | None
     latest_version: str | None
 
+    @property
+    def url(self) -> str:
+        """Simply return ``https://github.com/{owner}/{repo}``."""
+        return f"https://github.com/{self.owner}/{self.repo}"
+
     async def prefetch_commit(
         self, *, github_token: str | None = None
     ) -> t.Self:
         """Prefetch latest commit, if it is not yet prefetched.
 
-        Example:
-            Note that the result object is immutable, which means this function
-            has to do a copy and return it. You have to call this function like
-            this:
+        Note that the result object is immutable, which means this function has
+        to do a copy and return it. You need to call this function like this:
 
-            ```py
-            result = await result.prefetch_latest_version()
-            ```
+        .. code-block:: python
+
+            result = await result.prefetch_commit()
         """
         commit = await github_prefetch_commit(self, github_token=github_token)
         has_submodules = await github_does_have_submodules(
@@ -79,19 +101,16 @@ class GHRepository(NupdModel, frozen=True):
 
         First it tries to fetch the latest GitHub release, if it fails - it
         fallbacks to Git tags. If there are no tags, the returned object's
-        [`latest_version`][nupd.fetchers.github.GHRepository.latest_version]
-        stays `None`.
+        :meth:`GHRepository.latest_version`
+        stays ``None``.
 
-        Example:
-            Note that the result object is immutable, which means this function
-            has to do a copy and return it. You have to call this function like
-            this:
+        Note that the result object is immutable, which means this function has
+        to do a copy and return it. You need to call this function like this:
 
-            ```py
+        .. code-block:: python
+
             result = await result.prefetch_latest_version()
-            ```
         """
-        """Get the latest version from either releases or tags."""
         if self.latest_version:
             return self
 
@@ -114,10 +133,6 @@ class GHRepository(NupdModel, frozen=True):
             pass
         return self
 
-    @property
-    def url(self) -> str:
-        return f"https://github.com/{self.owner}/{self.repo}"
-
     def get_prefetch_url(self) -> str:
         if self.commit is None:
             raise ValueError(
@@ -126,6 +141,7 @@ class GHRepository(NupdModel, frozen=True):
         return f"{self.url}/archive/{self.commit}.tar.gz"
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def github_fetch_graphql(
     owner: str, repo: str, github_token: str
@@ -233,6 +249,7 @@ async def github_fetch_graphql(
     )
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
@@ -294,6 +311,7 @@ async def github_fetch_rest(
     )
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None = None
@@ -323,6 +341,7 @@ async def github_prefetch_commit(
     )
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def github_does_have_submodules(
     repo: GHRepository, *, github_token: str | None = None
@@ -348,6 +367,7 @@ async def github_does_have_submodules(
     return response.status != 404
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def fetch_latest_release(
     owner: str, repo: str, github_token: str | None = None
@@ -384,6 +404,7 @@ async def fetch_latest_release(
     )
 
 
+@utils.restore_docstring_from_memoized_function
 @utils.memory.cache
 async def fetch_tags(
     owner: str, repo: str, github_token: str | None = None
