@@ -9,8 +9,9 @@ final: prev: {
           export HOME=$(mktemp -d)
           export PYTHONPATH=".:$PYTHONPATH"
         '';
-        nativeCheckInputs = old.nativeCheckInputs ++ [
+        nativeCheckInputs = (final.lib.lists.remove pfinal.pytest-cov-stub old.nativeCheckInputs) ++ [
           (pfinal.callPackage ./lint-hook/lint-hook.nix { })
+          pfinal.pytest-cov
         ];
 
         dependencies = with pfinal; [
