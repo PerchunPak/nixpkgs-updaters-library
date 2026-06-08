@@ -160,9 +160,11 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     mocked_write_info.assert_called_once_with(entries_info)
     mocked_write_entries.assert_called_once()
     assert len(mocked_write_entries.call_args.args) == 1
-    assert list(mocked_write_entries.call_args.args[0]) == [
+    assert sorted(
+        mocked_write_entries.call_args.args[0], key=lambda x: x.info.id
+    ) == [
         DumbEntry(info=DumbEntryInfo(name=name), hash="sha256-some/cool/hash")
-        for name in ["two", "three", "one", "five", "four"]
+        for name in ["five", "four", "one", "three", "two"]
     ]
 
 
