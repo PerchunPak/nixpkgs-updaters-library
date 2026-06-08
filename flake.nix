@@ -54,7 +54,9 @@
             python3Packages.sphinx-autodoc-typehints
           ];
 
-          PYTHONPATH = ".";
+          shellHook = ''
+            export PYTHONPATH=$PWD:$PYTHONPATH
+          '';
         };
       }
     )
