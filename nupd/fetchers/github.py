@@ -143,7 +143,10 @@ class GHRepository(NupdModel, frozen=True):
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(days=3))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(days=3),
+)
 async def github_fetch_graphql(
     owner: str, repo: str, github_token: str
 ) -> GHRepository:
@@ -251,7 +254,10 @@ async def github_fetch_graphql(
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(days=3))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(days=3),
+)
 async def github_fetch_rest(
     owner: str, repo: str, *, github_token: str | None
 ) -> GHRepository:
@@ -313,7 +319,10 @@ async def github_fetch_rest(
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(hours=1))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(hours=1),
+)
 async def github_prefetch_commit(
     repo: GHRepository, *, github_token: str | None = None
 ) -> Commit:
@@ -343,7 +352,10 @@ async def github_prefetch_commit(
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(days=3))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(days=3),
+)
 async def github_does_have_submodules(
     repo: GHRepository, *, github_token: str | None = None
 ) -> bool:
@@ -369,7 +381,10 @@ async def github_does_have_submodules(
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(hours=1))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(hours=1),
+)
 async def fetch_latest_release(
     owner: str, repo: str, *, github_token: str | None = None
 ) -> GitHubRelease | None:
@@ -406,7 +421,10 @@ async def fetch_latest_release(
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=expires_after(hours=1))
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=expires_after(hours=1),
+)
 async def fetch_tags(
     owner: str, repo: str, github_token: str | None = None
 ) -> c.Iterable[GitHubTag]:
