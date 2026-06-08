@@ -105,7 +105,7 @@ strictDictionaryInference = false
 strictSetInference = false
 analyzeUnannotatedFunctions = false
 strictParameterNoneValue = true
-deprecateTypingAliases = true      # only applies up to pythonVersion
+deprecateTypingAliases = true # only applies up to pythonVersion
 enableExperimentalFeatures = false
 disableBytesTypePromotions = true
 

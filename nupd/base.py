@@ -5,6 +5,7 @@ import asyncio
 import dataclasses
 import json
 import typing as t
+from collections import defaultdict
 from pathlib import Path
 
 import inject
@@ -19,7 +20,7 @@ if t.TYPE_CHECKING:
     import os
 
 
-async def with_semaphore[T](
+async def _with_semaphore[T](
     semaphore: asyncio.Semaphore, func: c.Awaitable[T]
 ) -> T:
     async with semaphore:
@@ -31,6 +32,36 @@ def undefined_default() -> t.Never:
         "Please provide a default value for the input/output file. See the"
         + "example implementation"
     )
+
+
+def _entries_to_map(
+    all_entries: c.Iterable[EntryInfo],
+) -> c.Mapping[str, EntryInfo]:
+    """Transform a list of :class:`.EntryInfo` to a map where ``{id: entry}``.
+
+    Raises:
+        ValueError: If any duplicates found.
+    """
+    result: dict[str, EntryInfo] = {}
+    duplicates: dict[str, list[EntryInfo]] = defaultdict(list)
+
+    for entry in all_entries:
+        if entry.id in result:
+            duplicates[entry.id].append(entry)
+        else:
+            result[entry.id] = entry
+
+    if duplicates:
+        message = ""
+        for key, entries in duplicates.items():
+            message += f"id={key!r}:\n"
+            message += f"  {result[key]!r}\n"
+            for entry in entries:
+                message += f"  {entry!r}\n"
+
+        raise ValueError(f"These entries have duplicate IDs!\n{message}")
+
+    return result
 
 
 @dataclasses.dataclass
@@ -123,9 +154,7 @@ class Nupd:
 
     async def update_cmd(self, to_update: c.Sequence[str] | None) -> None:
         all_entries: c.Mapping[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {}
-        all_entries_info = {
-            info.id: info for info in await self.impl.get_all_entries()
-        }
+        all_entries_info = _entries_to_map(await self.impl.get_all_entries())
 
         if not to_update:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info.values())
@@ -163,7 +192,7 @@ class Nupd:
         done, pending = await asyncio.wait(
             {
                 asyncio.create_task(
-                    with_semaphore(semaphore, entry.fetch()), name=entry.id
+                    _with_semaphore(semaphore, entry.fetch()), name=entry.id
                 )
                 for entry in entries
             },

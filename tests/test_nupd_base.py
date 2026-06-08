@@ -251,6 +251,39 @@ async def test_update_cmd_specific(mocker: MockerFixture) -> None:
     )
 
 
+async def test_update_cmd_duplicate_entries(mocker: MockerFixture) -> None:
+    entries_info = [
+        DumbEntryInfo(name="one"),
+        DumbEntryInfo(name="two"),
+        DumbEntryInfo(name="two"),
+        DumbEntryInfo(name="three"),
+        DumbEntryInfo(name="three"),
+        DumbEntryInfo(name="three"),
+    ]
+
+    # this should not be called
+    _ = mocker.patch.object(Nupd, "fetch_entries", None)
+
+    nupd = Nupd()
+    nupd.impl.all_entries = entries_info  # pyright: ignore[reportAttributeAccessIssue]
+
+    with pytest.raises(
+        ValueError, match=r"^These entries have duplicate IDs"
+    ) as error:
+        await nupd.update_cmd(to_update=None)
+
+    assert error.value.args[0] == (
+        "These entries have duplicate IDs!\n"
+        + "id='two':\n"
+        + "  DumbEntryInfo(name='two', extra=None)\n"
+        + "  DumbEntryInfo(name='two', extra=None)\n"
+        + "id='three':\n"
+        + "  DumbEntryInfo(name='three', extra=None)\n"
+        + "  DumbEntryInfo(name='three', extra=None)\n"
+        + "  DumbEntryInfo(name='three', extra=None)\n"
+    )
+
+
 @pytest.mark.parametrize("file_exists", [True, False])
 def test_get_all_entries_from_the_output_file(
     mocker: MockerFixture,
