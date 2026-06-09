@@ -159,6 +159,21 @@ async def test_github_does_have_submodules_not_found(
     ) is False
 
 
+async def test_github_does_have_submodules_server_error(
+    example_obj: github.GHRepository, mock_aiohttp: aioresponses
+) -> None:
+    mock_aiohttp.get(
+        "https://api.github.com/repos/neovim/nvim-lspconfig/contents/.gitmodules?ref=master",
+        payload={},
+        status=500,
+    )
+
+    with pytest.raises(aiohttp.ClientResponseError):
+        assert await github_does_have_submodules.func(
+            example_obj, github_token=None
+        )
+
+
 async def test_github_does_have_submodules_already_fetched(
     example_obj: github.GHRepository,
 ) -> None:

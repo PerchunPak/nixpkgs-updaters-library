@@ -30,15 +30,7 @@ EXAMPLE_RESPONSE = json.dumps(
 EXAMPLE_RESPONSE_OBJ = GitPrefetchResult(
     url="https://git.sr.ht/~sircmpwn/hare.vim",
     rev="e0d38c0563224aa7b0101f64640788691f6c15b9",
-    date=datetime.datetime(
-        2024,
-        5,
-        24,
-        12,
-        54,
-        22,
-        tzinfo=datetime.timezone(datetime.timedelta(days=-1, seconds=68400)),
-    ),
+    date=datetime.datetime.fromisoformat("2024-05-24T12:54:22-05:00"),
     path="/nix/store/ck5hljy1f47v09g31gfx63w1kdrampab-hare.vim",
     hash="sha256-RuOMLGL7qzq3KXz7XfiHmuw0qJoOgx4fV8czNUQqTLM=",
     fetch_lfs=False,
@@ -93,12 +85,12 @@ async def test_prefetch_git(
 @pytest.mark.parametrize(
     "rev", ["e0d38c0563224aa7b0101f64640788691f6c15b9", None]
 )
-@pytest.mark.parametrize("additional_args", [[], ["a", "b", "c"]])
+@pytest.mark.parametrize("additional_args", [None, ["a", "b", "c"]])
 @pytest.mark.parametrize("return_code", [0, 1])
 async def test_prefetch_git_error(
     mocker: MockerFixture,
     rev: str,
-    additional_args: list[str],
+    additional_args: list[str] | None,
     return_code: int,
 ) -> None:
     mock = mocker.patch("asyncio.create_subprocess_exec")
@@ -136,3 +128,22 @@ async def test_prefetch_git_error(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
+
+
+async def test_prefetch_git_invalid_json(mocker: MockerFixture) -> None:
+    mock = mocker.patch("asyncio.create_subprocess_exec")
+    mock.return_value.communicate.return_value = (b"stdout", b"")
+    mock.return_value.returncode = 0
+
+    error_msg = (
+        "^nix-prefetch-git output invalid JSON\n"
+        + "stdout=b'stdout'\nstderr=b''$"
+    )
+
+    with pytest.raises(
+        GitPrefetchError,
+        match=error_msg,
+    ):
+        _ = await prefetch_git.func(
+            "https://git.sr.ht/~sircmpwn/hare.vim", revision="foo"
+        )

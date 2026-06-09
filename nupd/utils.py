@@ -123,7 +123,9 @@ def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
     return joblib.expires_after(hours=1)(args)
 
 
-def register_implementation_classes(impl: ImplClasses) -> None:
+def register_implementation_classes(  # pragma: no cover
+    impl: ImplClasses,
+) -> None:
     register_implementation_classes.impl = impl  # pyright: ignore[reportFunctionMemberAccess]
 
 

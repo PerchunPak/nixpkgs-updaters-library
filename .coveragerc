@@ -7,3 +7,6 @@ exclude_lines =
     class .*\bProtocol\):
     @(abc\.)?abstractmethod
     raise NotImplementedError
+
+omit =
+    nupd/cli.py

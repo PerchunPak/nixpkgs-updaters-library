@@ -7,6 +7,7 @@ import aiohttp
 import pytest
 from aioresponses import aioresponses
 
+from nupd.exc import HTTPError
 from nupd.fetchers.github import (
     Commit,
     GHRepository,
@@ -91,12 +92,33 @@ async def test_404(mock_aiohttp: aioresponses) -> None:
         "https://api.github.com/graphql", payload=response, status=404
     )
 
-    with pytest.raises(aiohttp.ClientResponseError) as error:
+    with pytest.raises(
+        aiohttp.ClientResponseError, match=r"^404, message='Not Found'.*"
+    ):
         _ = await github_fetch_graphql.func(
             "aaaa", "bbbb", github_token="TOKEN"
         )
 
-    assert error.match("^404, message='Not Found'.*")
+
+async def test_data_errors(mock_aiohttp: aioresponses) -> None:
+    with Path("tests/fetchers/github/responses/graphql_404.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+    mock_aiohttp.post(
+        "https://api.github.com/graphql", payload=response, status=200
+    )
+
+    with pytest.raises(
+        HTTPError,
+        match=(
+            "^Could not resolve to a Repository with the name "
+            + r"'PerchunaaaPak/auto-join-spam'\.$"
+        ),
+    ):
+        _ = await github_fetch_graphql.func(
+            "aaaa", "bbbb", github_token="TOKEN"
+        )
 
 
 async def test_no_license(mock_aiohttp: aioresponses) -> None:
@@ -129,3 +151,21 @@ async def test_no_release(mock_aiohttp: aioresponses) -> None:
     expected_response = copy.deepcopy(LSPCONFIG_RESPONSE)
     object.__setattr__(expected_response, "latest_version", None)
     assert result == expected_response
+
+
+async def test_no_commit_date(mock_aiohttp: aioresponses) -> None:
+    with Path("tests/fetchers/github/responses/graphql_lspconfig.json").open(
+        "r"
+    ) as f:
+        response = json.load(f)
+        response["data"]["repository"]["defaultBranchRef"]["target"][
+            "committedDate"
+        ] = None
+    mock_aiohttp.post("https://api.github.com/graphql", payload=response)
+
+    with pytest.raises(
+        RuntimeError, match=r"^You've encountered a weird edge-case"
+    ):
+        assert await github_fetch_graphql.func(
+            "neovim", "nvim-lspconfig", github_token="TOKEN"
+        )

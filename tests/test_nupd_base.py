@@ -11,6 +11,7 @@ from loguru import logger
 from pydantic import Field
 
 from nupd.base import ABCBase, Nupd
+from nupd.injections import Config
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 from nupd.utils import NIXPKGS_PLACEHOLDER
 
@@ -315,6 +316,28 @@ def test_get_all_entries_from_the_output_file(
     )
 
 
+def test_write_entries_on_unminified(
+    mocker: MockerFixture,
+    tmp_path: Path,
+) -> None:
+    output_file = tmp_path / "output.json"
+    _ = mocker.patch.object(DumbBase, "output_file", output_file)
+
+    nupd = Nupd()
+    entries = [
+        DumbEntry(info=DumbEntryInfo(name="one"), hash="sha256-some/cool/hash"),
+        DumbEntry(
+            info=DumbEntryInfo(name="three"), hash="sha256-some/cool/hash"
+        ),
+        DumbEntry(info=DumbEntryInfo(name="two"), hash="sha256-some/old/hash"),
+    ]
+
+    nupd.write_entries(entries)
+    assert list(nupd.get_all_entries_from_the_output_file()) == [
+        entry.minify() for entry in entries
+    ]
+
+
 def test_nixpkgs_placeholder_resolve() -> None:
     instance = DumbBaseWithNixpkgsPath()
     assert instance.input_file == Path("/nixpkgs/input.csv")
@@ -325,3 +348,16 @@ def test_normal_path_is_untouched() -> None:
     instance = DumbBase()
     assert instance.input_file == Path("/input.csv")
     assert instance.output_file == Path("/output.csv")
+
+
+def test_input_output_files_from_config() -> None:
+    instance = DumbBase(
+        config=Config(
+            nixpkgs_path=Path("/nixpkgs"),
+            input_file=Path("/input-file.csv"),
+            output_file=Path("/output-file.csv"),
+            jobs=10,
+        )
+    )
+    assert instance.input_file == Path("/input-file.csv")
+    assert instance.output_file == Path("/output-file.csv")

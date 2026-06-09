@@ -217,7 +217,7 @@ class Nupd:
                 return_when=asyncio.FIRST_EXCEPTION,
             )
 
-        if pending:
+        if pending:  # pragma: no cover
             for task in pending:
                 _ = task.cancel()
 

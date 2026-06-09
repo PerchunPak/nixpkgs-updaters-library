@@ -143,7 +143,7 @@ addopts = [
   "--cov-report=html",
   "--cov-report=xml",
   "--cov-branch",
-  "--cov-fail-under=70"
+  "--cov-fail-under=90"
 ]
 
 [tool.hatch.build.targets.wheel]

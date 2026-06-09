@@ -28,7 +28,7 @@ class LoggingLevel(enum.Enum):
         }[self.value]
 
 
-def setup_logging(log_level: LoggingLevel) -> None:
+def setup_logging(log_level: LoggingLevel) -> None:  # pragma: no cover
     logger.remove()
     _ = logger.add(
         lambda s: utils.console.print(Text.from_ansi(s)),

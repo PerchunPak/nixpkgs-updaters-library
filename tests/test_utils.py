@@ -1,4 +1,6 @@
 import dataclasses
+import time
+import typing as t
 
 import pydantic
 import pytest
@@ -68,6 +70,14 @@ def test_replace_something_else() -> None:
         _ = utils.replace(object(), a=123)
 
 
+@pytest.mark.parametrize("cls", [Dataclass, DataclassFrozen])
+def test_replace_unknown_field(cls: type[Dataclass]) -> None:
+    obj = cls(a=123, b=321)
+
+    with pytest.raises(TypeError, match="has no field named 'foo'"):
+        _ = utils.replace(obj, foo=123)
+
+
 @pytest.mark.parametrize(
     ("inp", "out"),
     [
@@ -81,3 +91,12 @@ def test_replace_something_else() -> None:
 )
 def test_cleanup_raw_string(inp: str, out: str) -> None:
     assert utils.cleanup_raw_string(inp) == out
+
+
+@pytest.mark.parametrize("with_revision", [False, True])
+def test_cache_validate_by_revision(with_revision: bool) -> None:
+    args: dict[str, t.Any] = {"input_args": {}, "time": time.time()}
+    if with_revision:
+        args["input_args"]["revision"] = "foo"
+
+    assert utils.cache_validate_by_revision(args) is not with_revision

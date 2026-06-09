@@ -12,13 +12,13 @@
 - [x] progress bar
 - [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
-- [ ] nurl FETCHERS | str
+- [x] nurl FETCHERS | str
 - [ ] Auto commit
 - [ ] Explore nix vs json vs yaml evaluation speed and file size
 
 ## Docs
 
-- [ ] import README.md to index.rst
+- [x] import README.md to index.rst
 - [ ] Separate page for main branch and stable releases?
 
 ## Vim plugins updater
