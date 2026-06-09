@@ -13,9 +13,8 @@
 - [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
 - [ ] nurl FETCHERS | str
-- [ ] Cache TTL
 - [ ] Auto commit
-- [ ] Explore nix vs json evaluation speed and file size
+- [ ] Explore nix vs json vs yaml evaluation speed and file size
 
 ## Docs
 

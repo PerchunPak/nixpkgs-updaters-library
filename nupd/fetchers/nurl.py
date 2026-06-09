@@ -37,7 +37,7 @@ class NurlError(exc.NetworkError): ...
 
 class NurlResult(NupdModel, frozen=True):
     args: FrozenDict[str, t.Any]
-    fetcher: FETCHERS
+    fetcher: FETCHERS | str
 
 
 @utils.restore_docstring_from_memoized_function
@@ -48,8 +48,8 @@ async def nurl(
     *,
     additional_arguments: c.Iterable[str] | None = None,
     submodules: bool = False,
-    fetcher: FETCHERS | None = None,
-    fallback: FETCHERS | None = None,
+    fetcher: FETCHERS | str | None = None,
+    fallback: FETCHERS | str | None = None,
 ) -> NurlResult:
     """Just a fancy wrapper around `nurl` to handle edge-cases like caching.
 
@@ -103,8 +103,8 @@ async def nurl_parse(
     *,
     additional_arguments: c.Iterable[str] | None = None,
     submodules: bool = False,
-    fetcher: FETCHERS | None = None,
-    fallback: FETCHERS | None = None,
+    fetcher: FETCHERS | str | None = None,
+    fallback: FETCHERS | str | None = None,
 ) -> NurlResult:
     """Like :func:`.nurl`, but with ``--parse`` argument.
 
