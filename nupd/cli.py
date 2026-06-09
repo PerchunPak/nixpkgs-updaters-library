@@ -1,3 +1,4 @@
+import os
 import typing as t
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from nupd.utils import register_implementation_classes
 
 app = cyclopts.App(console=utils.console)
 _CWD = Path.cwd()
+_CORES = os.cpu_count() or 1
 
 
 @app.meta.default
@@ -46,7 +48,7 @@ def callback(
     jobs: t.Annotated[
         int,
         cyclopts.Parameter(alias="-j", help="Limit for concurrent jobs."),
-    ] = 32,
+    ] = _CORES,
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO,
 ) -> None:
     """Boilerplate-less updater library for Nixpkgs ecosystems."""
