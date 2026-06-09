@@ -29,6 +29,7 @@ def callback(
         cyclopts.Parameter(
             alias="-N",
             help="Path to nixpkgs",
+            show_default="current directory",
         ),
     ] = _CWD,
     input_file: t.Annotated[
@@ -36,6 +37,7 @@ def callback(
         cyclopts.Parameter(
             alias="-i",
             help="The input file with information about entries.",
+            show_default="automatic",
         ),
     ] = None,
     output_file: t.Annotated[
@@ -43,11 +45,18 @@ def callback(
         cyclopts.Parameter(
             alias="-o",
             help="The output file with information about entries.",
+            show_default="automatic",
         ),
     ] = None,
     jobs: t.Annotated[
         int,
-        cyclopts.Parameter(alias="-j", help="Limit for concurrent jobs."),
+        cyclopts.Parameter(
+            alias="-j",
+            help=(
+                "Limit for concurrent jobs. "
+                + "Defaults to your amount of CPU cores."
+            ),
+        ),
     ] = _CORES,
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO,
 ) -> None:
@@ -87,6 +96,7 @@ async def add(
         list[str],
         cyclopts.Parameter(help="Entries to add"),
     ],
+    /,
 ) -> None:
     """Add a new entry (or multiple)."""
     try:
@@ -100,10 +110,9 @@ async def add(
 async def update(
     entry_ids: t.Annotated[
         list[str] | None,
-        cyclopts.Parameter(
-            help="Entries to update",
-        ),
+        cyclopts.Parameter(help="Entries to update", show_default="everything"),
     ] = None,
+    /,
 ) -> None:
     """Update an entry (or multiple)."""
     try:
