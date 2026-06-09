@@ -13,6 +13,7 @@ from nupd.fetchers import nurl
 from nupd.fetchers.github import GHRepository, github_fetch_rest
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
+from nupd.utils import register_implementation_classes
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -111,12 +112,14 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
 
 
 if __name__ == "__main__":
-    assert isinstance(app.info.context_settings, dict)
-    app.info.context_settings["obj"] = ImplClasses(
-        base=MyImpl,
-        mini_entry=MyMiniEntry,
-        entry=MyEntry,
-        entry_info=MyEntryInfo,
+    # this is how we point out which implementation classes we use
+    register_implementation_classes(
+        ImplClasses(
+            base=MyImpl,
+            mini_entry=MyMiniEntry,
+            entry=MyEntry,
+            entry_info=MyEntryInfo,
+        )
     )
 
-    app()
+    app.meta()

@@ -21,6 +21,8 @@ if t.TYPE_CHECKING:
     import pydantic
     from joblib.memory import MemorizedFunc
 
+    from nupd.models import ImplClasses
+
 memory = joblib.Memory(
     platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
 )
@@ -147,3 +149,7 @@ def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
     if args["input_args"].get("revision"):
         return False
     return joblib.expires_after(hours=1)(args)
+
+
+def register_implementation_classes(impl: ImplClasses) -> None:
+    register_implementation_classes.impl = impl  # pyright: ignore[reportFunctionMemberAccess]

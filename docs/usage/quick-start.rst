@@ -179,14 +179,16 @@ At last, we have to write some amount of boilerplate:
 
   if __name__ == "__main__":
       # this is how we point out which implementation classes we use
-      app.info.context_settings["obj"] = ImplClasses(
-          base=MyImpl,
-          mini_entry=MyMiniEntry,
-          entry=MyEntry,
-          entry_info=MyEntryInfo,
+      register_implementation_classes(
+          ImplClasses(
+              base=MyImpl,
+              mini_entry=MyMiniEntry,
+              entry=MyEntry,
+              entry_info=MyEntryInfo,
+          )
       )
 
-      app()
+      app.meta()
 
 Let's run the actual script
 ---------------------------

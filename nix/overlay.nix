@@ -17,13 +17,13 @@ final: prev: {
 
         dependencies = with pfinal; [
           aiohttp
+          cyclopts
           frozendict
           inject
           joblib
           loguru
           platformdirs
           pydantic
-          typer
         ];
       });
       joblib-stubs = pfinal.callPackage ./joblib-stubs.nix { };

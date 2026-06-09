@@ -1,8 +1,8 @@
 import typing as t
 from pathlib import Path
 
+import cyclopts
 import inject
-import typer
 from loguru import logger
 
 import nupd.logs
@@ -10,66 +10,56 @@ from nupd.base import Nupd
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
 from nupd.shutdown import Shutdowner
-from nupd.utils import async_to_sync
+from nupd.utils import register_implementation_classes
 
-app = typer.Typer(context_settings={}, no_args_is_help=True)
+app = cyclopts.App()
 _CWD = Path.cwd()
 
 
-@app.callback()
+@app.meta.default
 def callback(
-    ctx: typer.Context,
+    *tokens: t.Annotated[
+        str, cyclopts.Parameter(show=False, allow_leading_hyphen=True)
+    ],
     nixpkgs_path: t.Annotated[
-        Path,
-        typer.Option(
-            "--nixpkgs-path",
-            "-N",
+        cyclopts.types.ResolvedExistingDirectory,
+        cyclopts.Parameter(
+            alias="-N",
             help="Path to nixpkgs",
-            show_default="current directory",
-            exists=True,
-            file_okay=False,
-            writable=True,
         ),
     ] = _CWD,
     input_file: t.Annotated[
-        Path | None,
-        typer.Option(
-            "--input-file",
-            "-i",
+        cyclopts.types.ResolvedFile | None,
+        cyclopts.Parameter(
+            alias="-i",
             help="The input file with information about entries.",
-            show_default="automatically",
-            writable=True,
         ),
     ] = None,
     output_file: t.Annotated[
-        Path | None,
-        typer.Option(
-            "--output-file",
-            "-o",
+        cyclopts.types.ResolvedFile | None,
+        cyclopts.Parameter(
+            alias="-o",
             help="The output file with information about entries.",
-            show_default="automatically",
-            writable=True,
         ),
     ] = None,
     jobs: t.Annotated[
         int,
-        typer.Option(
-            "--jobs",
-            "-j",
-            help="Limit for concurrent jobs.",
-        ),
+        cyclopts.Parameter(alias="-j", help="Limit for concurrent jobs."),
     ] = 32,
-    log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO.value,  # pyright: ignore[reportArgumentType] # typer requires string here
+    log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO,
 ) -> None:
     """Boilerplate-less updater library for Nixpkgs ecosystems."""
+    # TODO: this gets called when no argument is supplied
     nupd.logs.setup_logging(log_level)
-    if not isinstance(ctx.obj, ImplClasses):
+
+    impl_classes = register_implementation_classes.impl  # pyright: ignore[reportFunctionMemberAccess]
+    if not isinstance(impl_classes, ImplClasses):
         logger.error(
             "You have to provide your implementation of `ABCBase`, `Entry`"
-            + " and `EntryInfo` using `app.info.context_settings`. Please see"
-            + " `example` directory."
+            + " and `EntryInfo` using `register_implementation_classes`. "
+            + "Please see the `example` directory."
         )
-        raise typer.Exit(1)
+        return
 
     _ = inject.configure(
         inject_configure(
@@ -79,21 +69,20 @@ def callback(
                 output_file=output_file,
                 jobs=jobs,
             ),
-            classes=ctx.obj,
+            classes=impl_classes,
         ),
         allow_override=True,
     )
 
+    app(tokens)
+
 
 @app.command()
-@async_to_sync
+@logger.catch
 async def add(
     entry_ids: t.Annotated[
         list[str],
-        typer.Argument(
-            help="Entries to add",
-            show_default=False,
-        ),
+        cyclopts.Parameter(help="Entries to add"),
     ],
 ) -> None:
     """Add a new entry (or multiple)."""
@@ -104,13 +93,12 @@ async def add(
 
 
 @app.command()
-@async_to_sync
+@logger.catch
 async def update(
     entry_ids: t.Annotated[
         list[str] | None,
-        typer.Argument(
-            help="Entries to add",
-            show_default="all entries",
+        cyclopts.Parameter(
+            help="Entries to update",
         ),
     ] = None,
 ) -> None:

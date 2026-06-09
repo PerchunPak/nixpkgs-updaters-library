@@ -8,7 +8,7 @@
 - [x] ``nix-prefetch-git`` has ``--quiet``, which we should always provide
 - [x] Check that IDs are equal
 - [x] Cache invalidation
-- [ ] cyclopts
+- [x] cyclopts
 - [ ] progress bar
 - [ ] Duplicate plugins?
 - [ ] Some abstraction for implementing redirects & deprecations

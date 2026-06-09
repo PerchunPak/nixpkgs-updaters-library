@@ -57,7 +57,7 @@ class MiniEntry[GEntryInfo: EntryInfo](NupdModel, abc.ABC, frozen=True):
 @t.final
 @dataclasses.dataclass(frozen=True)
 class ImplClasses:
-    """Settings, passed to `app.info.context_settings["obj"] = HERE`."""
+    """Settings, passed to `register_implementation_classes`."""
 
     base: type[ABCBase[t.Any, t.Any]]
     mini_entry: type[MiniEntry[t.Any]]
