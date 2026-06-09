@@ -10,7 +10,6 @@
 - [x] Cache invalidation
 - [x] cyclopts
 - [x] progress bar
-- [ ] Duplicate plugins?
 - [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
 - [ ] nurl FETCHERS | str

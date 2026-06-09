@@ -147,7 +147,7 @@ async def test_add_cmd(mocker: MockerFixture) -> None:
     mocked_write_info = mocker.patch.object(DumbBase, "write_entries_info")
     mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
 
-    await Nupd().add_cmd(["four", "five"])
+    await Nupd().add_cmd(["four", "four", "five"])
 
     new_entries_info = {
         DumbEntryInfo(name="four"),
