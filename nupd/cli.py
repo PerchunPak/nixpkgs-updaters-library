@@ -6,13 +6,14 @@ import inject
 from loguru import logger
 
 import nupd.logs
+from nupd import utils
 from nupd.base import Nupd
 from nupd.injections import Config, inject_configure
 from nupd.models import ImplClasses
 from nupd.shutdown import Shutdowner
 from nupd.utils import register_implementation_classes
 
-app = cyclopts.App()
+app = cyclopts.App(console=utils.console)
 _CWD = Path.cwd()
 
 

@@ -14,6 +14,7 @@ import platformdirs
 import pydantic_core
 from frozendict import frozendict
 from pydantic import BaseModel
+from rich.console import Console
 
 if t.TYPE_CHECKING:
     import collections.abc as c
@@ -23,6 +24,7 @@ if t.TYPE_CHECKING:
 
     from nupd.models import ImplClasses
 
+console = Console(stderr=True)
 memory = joblib.Memory(
     platformdirs.user_cache_path("nupd", "PerchunPak") / "cache", verbose=0
 )

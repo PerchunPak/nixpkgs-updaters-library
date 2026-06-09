@@ -1,7 +1,9 @@
 import enum
-import sys
 
 from loguru import logger
+from rich.text import Text
+
+from nupd import utils
 
 
 class LoggingLevel(enum.Enum):
@@ -28,24 +30,10 @@ class LoggingLevel(enum.Enum):
 
 def setup_logging(log_level: LoggingLevel) -> None:
     logger.remove()
-    if log_level.as_int() < LoggingLevel.WARNING.as_int():
-        _ = logger.add(
-            sys.stdout,
-            level=log_level.as_int(),
-            filter=lambda record: (
-                record["level"].no < LoggingLevel.WARNING.as_int()
-            ),
-            colorize=True,
-            backtrace=True,
-            diagnose=True,
-        )
     _ = logger.add(
-        sys.stderr,
+        lambda s: utils.console.print(Text.from_ansi(s)),
         level=log_level.as_int(),
-        filter=lambda record: (
-            record["level"].no >= LoggingLevel.WARNING.as_int()
-        ),
-        colorize=True,
+        colorize=utils.console.is_terminal,
         backtrace=True,
         diagnose=True,
     )

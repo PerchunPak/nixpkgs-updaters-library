@@ -24,6 +24,7 @@ final: prev: {
           loguru
           platformdirs
           pydantic
+          rich
         ];
       });
       joblib-stubs = pfinal.callPackage ./joblib-stubs.nix { };
