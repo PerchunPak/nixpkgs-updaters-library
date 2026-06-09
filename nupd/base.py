@@ -9,6 +9,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import inject
+import rich.progress
 from loguru import logger
 
 from nupd import utils
@@ -20,11 +21,17 @@ if t.TYPE_CHECKING:
     import os
 
 
-async def _with_semaphore[T](
-    semaphore: asyncio.Semaphore, func: c.Awaitable[T]
+async def _fetch_entries_worker[T](
+    *,
+    semaphore: asyncio.Semaphore,
+    progress: rich.progress.Progress,
+    task_id: rich.progress.TaskID,
+    func: c.Awaitable[T],
 ) -> T:
     async with semaphore:
-        return await func
+        r = await func
+        progress.advance(task_id)
+        return r
 
 
 def undefined_default() -> t.Never:
@@ -189,15 +196,26 @@ class Nupd:
 
         all_results: dict[str, Entry[t.Any, t.Any]] = {}
         semaphore = asyncio.Semaphore(config.jobs)
-        done, pending = await asyncio.wait(
-            {
-                asyncio.create_task(
-                    _with_semaphore(semaphore, entry.fetch()), name=entry.id
-                )
-                for entry in entries
-            },
-            return_when=asyncio.FIRST_EXCEPTION,
-        )
+        with rich.progress.Progress(
+            *utils.get_formatted_progress_bar(),
+            console=utils.console,
+        ) as progress:
+            task_id = progress.add_task("Fetching entries", total=len(entries))
+            done, pending = await asyncio.wait(
+                {
+                    asyncio.create_task(
+                        _fetch_entries_worker(
+                            semaphore=semaphore,
+                            progress=progress,
+                            task_id=task_id,
+                            func=entry.fetch(),
+                        ),
+                        name=entry.id,
+                    )
+                    for entry in sorted(entries, key=lambda x: x.id)
+                },
+                return_when=asyncio.FIRST_EXCEPTION,
+            )
 
         if pending:
             for task in pending:

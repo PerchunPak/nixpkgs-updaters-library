@@ -12,6 +12,7 @@ from pathlib import Path
 import joblib
 import platformdirs
 import pydantic_core
+import rich.progress
 from frozendict import frozendict
 from pydantic import BaseModel
 from rich.console import Console
@@ -155,3 +156,17 @@ def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
 
 def register_implementation_classes(impl: ImplClasses) -> None:
     register_implementation_classes.impl = impl  # pyright: ignore[reportFunctionMemberAccess]
+
+
+def get_formatted_progress_bar() -> tuple[
+    str | rich.progress.ProgressColumn, ...
+]:
+    return (
+        "[progress.description]{task.description}",
+        rich.progress.MofNCompleteColumn(),
+        rich.progress.BarColumn(),
+        "[",
+        rich.progress.TimeElapsedColumn(),
+        rich.progress.TimeRemainingColumn(),
+        "]",
+    )

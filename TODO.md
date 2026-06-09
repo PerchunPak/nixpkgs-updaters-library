@@ -9,7 +9,7 @@
 - [x] Check that IDs are equal
 - [x] Cache invalidation
 - [x] cyclopts
-- [ ] progress bar
+- [x] progress bar
 - [ ] Duplicate plugins?
 - [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
