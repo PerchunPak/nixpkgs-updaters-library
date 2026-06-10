@@ -41,6 +41,7 @@ Content
 
    usage/quick-start.rst
    usage/models.rst
+   usage/advanced.rst
 
 .. toctree::
    :maxdepth: 1

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import dataclasses
 import typing as t
@@ -10,8 +11,12 @@ import platformdirs
 import pydantic_core
 import rich.progress
 from frozendict import frozendict
+from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
+
+from nupd.exc import GitError
+from nupd.executables import Executable
 
 if t.TYPE_CHECKING:
     import pydantic
@@ -141,3 +146,24 @@ def get_formatted_progress_bar() -> tuple[
         rich.progress.TimeRemainingColumn(),
         "]",
     )
+
+
+async def git_commit(message: str) -> None:
+    process = await asyncio.create_subprocess_exec(
+        Executable.GIT,
+        "commit",
+        "-a",
+        "--message",
+        message,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        raise GitError(
+            f"git returned exit code {process.returncode}"
+            + f"\n{stdout=}\n{stderr=}"
+        )
+    if stderr.decode() != "":
+        logger.trace(f"git wrote something to stderr!\n{stdout=}\n{stderr=}")

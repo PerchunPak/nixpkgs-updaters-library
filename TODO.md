@@ -13,7 +13,10 @@
 - [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
 - [x] nurl FETCHERS | str
-- [ ] Auto commit
+- [x] Auto commit
+- [ ] AIOHttp session pooling
+- [ ] Handle errors in `fetch_entries`
+- [ ] Reduce mocking in tests
 - [ ] Explore nix vs json vs yaml evaluation speed and file size
 
 ## Docs

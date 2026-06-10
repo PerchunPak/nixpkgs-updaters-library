@@ -8,3 +8,4 @@ class Executable:
     NURL = "nurl"
     NIX_PREFETCH_URL = "nix-prefetch-url"  # noqa: E501, RUF100
     NIX_PREFETCH_GIT = "nix-prefetch-git"  # noqa: E501, RUF100
+    GIT = "git"  # noqa: E501, RUF100

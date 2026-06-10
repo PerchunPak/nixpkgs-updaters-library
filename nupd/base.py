@@ -112,6 +112,35 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
         """Parse argument, that user provided as ID for the entry, to :class:`.EntryInfo`."""  # noqa: E501 # one character off...
 
+    def gen_autocommit_message_add(self, entry: GEntry, /) -> str:  # pyright: ignore[reportUnusedParameter]
+        """Generate commit message, when user adds a new entry.
+
+        Example: ``somePlugins.{id}: init at {version}``.
+        """
+        raise NotImplementedError
+
+    def gen_autocommit_message_update_one(
+        self,
+        # this argument is MiniEntry, but to properly support annotation
+        # I would need to add another generics argument to this class.
+        # And I don't want to do this right now
+        old_entry: t.Any,  # pyright: ignore[reportUnusedParameter]
+        entry: GEntry,  # pyright: ignore[reportUnusedParameter]
+        /,
+    ) -> str:
+        """Generate commit message, when user updates one entry.
+
+        Example: ``somePlugins.{id}: {old_version} -> {new_version}``.
+        """
+        raise NotImplementedError
+
+    def gen_autocommit_message_update_all(self, /) -> str:
+        """Generate commit message, when user updates all entries.
+
+        Example: ``somePlugins: update on {today}``.
+        """
+        raise NotImplementedError
+
     def __resolve_default_path(
         self, path: os.PathLike[str]
     ) -> os.PathLike[str]:
@@ -138,33 +167,90 @@ class Nupd:
             "type[ABCBase[Entry[t.Any, t.Any], EntryInfo]]", self.impls.base
         )()
 
-    async def add_cmd(self, to_add: c.Sequence[str]) -> None:
+    @property
+    def is_autocommit_implemented(self) -> bool:
+        # check if all required methods were overwritten by child
+        return (
+            type(self.impl).gen_autocommit_message_add
+            != ABCBase.gen_autocommit_message_add
+            and type(self.impl).gen_autocommit_message_update_one
+            != ABCBase.gen_autocommit_message_update_one
+            and type(self.impl).gen_autocommit_message_update_all
+            != ABCBase.gen_autocommit_message_update_all
+        )
+
+    async def add_cmd(
+        self, to_add: c.Sequence[str], *, autocommit: bool = False
+    ) -> None:
+        if (  # pragma: no cover # tests access the property directly
+            autocommit and not self.is_autocommit_implemented
+        ):
+            logger.error("This updater does not support --autocommit")
+            return
+
         entries_info = {
             self.impl.parse_entry_id(entry_id) for entry_id in to_add
         }
         all_entries_info = set(await self.impl.get_all_entries())
 
         all_entries: dict[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {
-            entry.info: entry
+            entry.info.id: entry
             for entry in self.get_all_entries_from_the_output_file()
         }
         old_len = len(all_entries)
-        all_entries.update(await self.fetch_entries(entries_info))
+        new_entries = await self.fetch_entries(entries_info)
 
-        self.impl.write_entries_info(entries_info.union(all_entries_info))
-        self.write_entries(all_entries.values())
+        logger.success(f"Successfully fetched {len(new_entries)} entries")
+
+        if autocommit:
+            for entry in new_entries.values():
+                message = self.impl.gen_autocommit_message_add(entry)
+                logger.info(
+                    f"Committing {entry.info.id} with message {message!r}..."
+                )
+
+                all_entries_info.add(entry.info)
+                all_entries[entry.info] = entry
+                self.impl.write_entries_info(all_entries_info.copy())
+                self.write_entries(set(all_entries.values()))
+
+                await utils.git_commit(message)
+
+        else:
+            all_entries.update(new_entries)
+            self.impl.write_entries_info(entries_info.union(all_entries_info))
+            self.write_entries(set(all_entries.values()))
 
         logger.success(f"Successfully added {len(to_add)} entries!")
         logger.info(
             f"Changed amount of entries from {old_len} to {len(all_entries)}"
         )
 
-    async def update_cmd(self, to_update: c.Sequence[str] | None) -> None:
+    async def update_cmd(
+        self, to_update: c.Sequence[str] | None, *, autocommit: bool = False
+    ) -> None:
+        if (  # pragma: no cover # tests access the property directly
+            autocommit and not self.is_autocommit_implemented
+        ):
+            logger.error("This updater does not support --autocommit")
+            return
+
         all_entries: c.Mapping[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {}
         all_entries_info = _entries_to_map(await self.impl.get_all_entries())
 
         if not to_update:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info.values())
+            logger.success(f"Successfully fetched {len(all_entries)} entries")
+
+            if autocommit:
+                message = self.impl.gen_autocommit_message_update_all()
+                logger.info(f"Committing with message {message!r}...")
+
+                self.write_entries(set(all_entries.values()))
+                await utils.git_commit(message)
+            else:
+                self.write_entries(set(all_entries.values()))
+
         else:  # update only selected entries
             entries_info: set[EntryInfo] = set()
             for entry_id in to_update:
@@ -176,9 +262,30 @@ class Nupd:
             for entry in self.get_all_entries_from_the_output_file():
                 all_entries[entry.info.id] = entry
 
-            all_entries.update(await self.fetch_entries(entries_info))
+            if autocommit:
+                updated_entries = await self.fetch_entries(entries_info)
+                logger.success(
+                    f"Successfully fetched {len(updated_entries)} entries"
+                )
 
-        self.write_entries(set(all_entries.values()))
+                for new_entry in reversed(updated_entries.values()):
+                    old_entry = all_entries.pop(new_entry.info.id)
+                    all_entries[new_entry.info.id] = new_entry
+
+                    message = self.impl.gen_autocommit_message_update_one(
+                        old_entry, new_entry
+                    )
+                    logger.info(
+                        f"Committing {new_entry.info.id} "
+                        + f"with message {message!r}..."
+                    )
+
+                    self.write_entries(set(all_entries.values()))
+                    await utils.git_commit(message)
+            else:
+                all_entries.update(await self.fetch_entries(entries_info))
+                self.write_entries(set(all_entries.values()))
+
         logger.success(
             f"Successfully updated {len(all_entries_info) or len(all_entries)} "
             + "entries!"
@@ -217,7 +324,8 @@ class Nupd:
                 return_when=asyncio.FIRST_EXCEPTION,
             )
 
-        if pending:  # pragma: no cover
+        # TODO: this does not collect errors
+        if pending:
             for task in pending:
                 _ = task.cancel()
 

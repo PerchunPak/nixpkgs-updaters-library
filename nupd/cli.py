@@ -97,10 +97,14 @@ async def add(
         cyclopts.Parameter(help="Entries to add"),
     ],
     /,
+    *,
+    autocommit: t.Annotated[
+        bool, cyclopts.Parameter(help="Auto-commit changes (if supported)")
+    ] = False,
 ) -> None:
     """Add a new entry (or multiple)."""
     try:
-        await Nupd().add_cmd(entry_ids)
+        await Nupd().add_cmd(entry_ids, autocommit=autocommit)
     finally:
         await inject.instance(Shutdowner).shutdown()
 
@@ -113,10 +117,14 @@ async def update(
         cyclopts.Parameter(help="Entries to update", show_default="everything"),
     ] = None,
     /,
+    *,
+    autocommit: t.Annotated[
+        bool, cyclopts.Parameter(help="Auto-commit changes (if supported)")
+    ] = False,
 ) -> None:
     """Update an entry (or multiple)."""
     try:
-        await Nupd().update_cmd(entry_ids)
+        await Nupd().update_cmd(entry_ids, autocommit=autocommit)
     finally:
         await inject.instance(Shutdowner).shutdown()
 
