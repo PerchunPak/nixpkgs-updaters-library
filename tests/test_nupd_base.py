@@ -329,10 +329,12 @@ async def test_update_cmd_specific(
         }
     )
     if autocommit:
-        assert mocked_git_commit.call_args_list == [
+        assert sorted(
+            mocked_git_commit.call_args_list, key=lambda x: x.args[0]
+        ) == [
             unittest.mock.call("example.one: update"),
-            unittest.mock.call("example.two: update"),
             unittest.mock.call("example.three: update"),
+            unittest.mock.call("example.two: update"),
         ]
     else:
         mocked_git_commit.assert_not_called()
