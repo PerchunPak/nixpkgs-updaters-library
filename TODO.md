@@ -15,7 +15,7 @@
 - [x] nurl FETCHERS | str
 - [x] Auto commit
 - [ ] ~~AIOHttp session pooling~~ Requires https://github.com/ivankorobkov/python-inject/pull/134
-- [ ] Handle errors in `fetch_entries`
+- [x] Handle errors in `fetch_entries`
 - [x] Reduce mocking in tests
 - [ ] Explore nix vs json vs yaml evaluation speed and file size
 - [x] Fix commit order in autocommit

@@ -334,13 +334,22 @@ class Nupd:
                 return_when=asyncio.FIRST_EXCEPTION,
             )
 
-        # TODO: this does not collect errors
-        if pending:
-            for task in pending:
-                _ = task.cancel()
+        for task in pending:
+            _ = task.cancel()
 
-        for task in done:
-            all_results[task.get_name()] = task.result()
+        exceptions: list[Exception] = []
+        for task in done | pending:
+            try:
+                all_results[task.get_name()] = task.result()
+            except asyncio.InvalidStateError:  # canceled
+                pass
+            except Exception as error:  # noqa: BLE001 # blindly catching exceptions
+                exceptions.append(error)
+
+        if exceptions:
+            raise ExceptionGroup(
+                f"Failed to fetch {len(entries)} entries", exceptions
+            )
 
         return all_results
 

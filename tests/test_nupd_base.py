@@ -6,10 +6,12 @@ import datetime as dt
 import typing as t
 from pathlib import Path
 
+import inject
 import pytest
 from loguru import logger
 from pydantic import Field
 
+from nupd import utils
 from nupd.base import ABCBase, Nupd
 from nupd.injections import Config
 from nupd.inputs.csv import CsvInput
@@ -40,11 +42,17 @@ class DumbEntryInfo(EntryInfo, frozen=True):
         return DumbEntry(info=self, hash="sha256-some/cool/hash")
 
 
+class FailingEntryInfo(DumbEntryInfo, frozen=True):
+    @t.override
+    async def fetch(self) -> t.Never:
+        raise RuntimeError("oops")
+
+
 class TimeoutEntryInfo(DumbEntryInfo, frozen=True):
     @t.override
     async def fetch(self) -> t.Never:
         await asyncio.sleep(10)
-        raise NotImplementedError
+        raise TimeoutError
 
 
 class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
@@ -271,3 +279,18 @@ def test_change_cwd_on_conflicting_directories(mocker: MockerFixture) -> None:
     )
     with pytest.raises(ValueError, match="input and output files must be"):
         Nupd()._change_cwd()
+
+
+async def test_nupd_fetch_entries_timeout(mock_inject: MOCK_INJECT) -> None:
+    # allow running fetches simultaneously
+    mock_inject(Config, utils.replace(inject.instance(Config), jobs=10))
+
+    nupd = Nupd()
+    all_entries: list[DumbEntryInfo] = [
+        DumbEntryInfo(name="one"),
+        FailingEntryInfo(name="two"),
+        TimeoutEntryInfo(name="three"),
+    ]
+
+    with pytest.RaisesGroup(RuntimeError, match="^Failed to fetch 3 entries$"):
+        _ = await nupd.fetch_entries(all_entries)
