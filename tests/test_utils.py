@@ -5,8 +5,11 @@ import typing as t
 import pydantic
 import pytest
 from frozendict import deepfreeze, frozendict
+from pytest_mock import MockerFixture
 
 from nupd import utils
+from nupd.exc import GitError
+from nupd.executables import Executable
 
 
 def test_frozendict_type_alias() -> None:
@@ -100,3 +103,29 @@ def test_cache_validate_by_revision(with_revision: bool) -> None:
         args["input_args"]["revision"] = "foo"
 
     assert utils.cache_validate_by_revision(args) is not with_revision
+
+
+async def test_git_commit_fails_returncode(mocker: MockerFixture) -> None:
+    _ = mocker.patch.object(Executable, "GIT")
+    mock = mocker.patch("asyncio.create_subprocess_exec")
+    mock.return_value.returncode = 1
+    mock.return_value.communicate.return_value = (
+        b"stdout",
+        b"stderr",
+    )
+
+    with pytest.raises(GitError, match="git returned exit code"):
+        await utils.git_commit("foo")
+
+
+async def test_git_commit_fails_stderr(mocker: MockerFixture) -> None:
+    _ = mocker.patch.object(Executable, "GIT")
+    mock = mocker.patch("asyncio.create_subprocess_exec")
+    mock.return_value.returncode = 0
+    mock.return_value.communicate.return_value = (
+        b"stdout",
+        b"stderr",
+    )
+
+    with pytest.raises(GitError, match="git wrote something to stderr"):
+        await utils.git_commit("foo")

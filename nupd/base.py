@@ -122,7 +122,7 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     def gen_autocommit_message_update_one(
         self,
         # this argument is MiniEntry, but to properly support annotation
-        # I would need to add another generics argument to this class.
+        # I would need to add another generics argument to this class...
         # And I don't want to do this right now
         old_entry: t.Any,  # pyright: ignore[reportUnusedParameter]
         entry: GEntry,  # pyright: ignore[reportUnusedParameter]

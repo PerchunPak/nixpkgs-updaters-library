@@ -1,4 +1,5 @@
 import collections.abc as c
+import subprocess
 import sys
 import typing as t
 from pathlib import Path
@@ -9,6 +10,7 @@ from aioresponses import aioresponses
 from loguru import logger
 from pytest_mock import MockerFixture
 
+from nupd.executables import Executable
 from nupd.injections import Config, inject_configure
 from nupd.logs import LoggingLevel
 
@@ -76,3 +78,14 @@ def mock_inject(mocker: MockerFixture) -> MOCK_INJECT:
         _ = mocker.patch("inject.instance", my_impl)
 
     return wrapped
+
+
+def setup_git(repo: Path) -> None:
+    _ = subprocess.check_output(
+        [Executable.GIT, "config", "user.email", "test@gmail.com"],
+        cwd=repo,
+    )
+    _ = subprocess.check_output(
+        [Executable.GIT, "config", "user.name", "test nupd"],
+        cwd=repo,
+    )

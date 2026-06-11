@@ -54,8 +54,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
   "ANN",      # flake8-annotations
+  "ASYNC221", # Async functions should not run processes with blocking methods
   "ASYNC230", # Async functions should not open files with blocking methods like `open`
   "FBT001",   # Boolean-typed positional argument in function definition
+  "S603",     # `subprocess` call: check for execution of untrusted input
   "SLF001",   # Private member accessed
 ]
 "example/**"= [

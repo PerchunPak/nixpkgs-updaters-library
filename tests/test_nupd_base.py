@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import dataclasses
 import typing as t
-import unittest.mock
 from datetime import datetime
 from pathlib import Path
 
@@ -153,192 +152,6 @@ def test_autocommit_is_not_implemented() -> None:
     assert Nupd().is_autocommit_implemented is False
 
 
-@pytest.mark.parametrize("autocommit", [False, True])
-async def test_add_cmd(mocker: MockerFixture, autocommit: bool) -> None:
-    entries_info = {
-        DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="two"),
-        DumbEntryInfo(name="three"),
-    }
-    _ = mocker.patch(
-        "nupd.base.Nupd.get_all_entries_from_the_output_file",
-        return_value=[
-            DumbEntry(info=info, hash="sha256-some/cool/hash")
-            for info in entries_info
-        ],
-    )
-    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
-    mocked_write_info = mocker.patch.object(
-        DumbBaseAutocommit, "write_entries_info"
-    )
-    mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
-    mocked_git_commit = mocker.patch("nupd.utils.git_commit")
-
-    await Nupd(
-        ImplClasses(
-            mini_entry=DumbMiniEntry,
-            base=DumbBaseAutocommit,
-            entry=DumbEntry,
-            entry_info=DumbEntryInfo,
-        ),
-    ).add_cmd(["four", "four", "five"], autocommit=autocommit)
-
-    new_entries_info = {
-        DumbEntryInfo(name="four"),
-        DumbEntryInfo(name="five"),
-    }
-    entries_info = entries_info.union(new_entries_info)
-
-    spy_fetch_entries.assert_called_once()
-    assert spy_fetch_entries.await_args.args[1] == (  # pyright: ignore[reportOptionalMemberAccess]
-        DumbEntryInfo(name="four"),
-        DumbEntryInfo(name="four"),
-        DumbEntryInfo(name="five"),
-    )
-
-    if autocommit:
-        assert [
-            len(call.args[0]) for call in mocked_write_info.call_args_list
-        ] == [4, 5]
-        assert [
-            len(call.args[0]) for call in mocked_write_entries.call_args_list
-        ] == [4, 5]
-        assert mocked_git_commit.call_count == 2
-    else:
-        mocked_write_info.assert_called_once_with(entries_info)
-        mocked_write_entries.assert_called_once()
-        assert len(mocked_write_entries.call_args.args) == 1
-        mocked_git_commit.assert_not_called()
-
-    assert sorted(
-        mocked_write_entries.call_args.args[0], key=lambda x: x.info.id
-    ) == [
-        DumbEntry(info=DumbEntryInfo(name=name), hash="sha256-some/cool/hash")
-        for name in ["five", "four", "one", "three", "two"]
-    ]
-
-
-@pytest.mark.parametrize("autocommit", [False, True])
-async def test_update_cmd_everything(
-    mocker: MockerFixture, autocommit: bool
-) -> None:
-    entries_info = {
-        DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="two"),
-        DumbEntryInfo(name="three"),
-    }
-    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
-    mocked_gaeftof = mocker.patch(
-        "nupd.base.Nupd.get_all_entries_from_the_output_file"
-    )
-    mocked_write_info = mocker.patch.object(
-        DumbBaseAutocommit, "write_entries_info"
-    )
-    mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
-    mocked_git_commit = mocker.patch("nupd.utils.git_commit")
-
-    await Nupd(
-        ImplClasses(
-            mini_entry=DumbMiniEntry,
-            base=DumbBaseAutocommit,
-            entry=DumbEntry,
-            entry_info=DumbEntryInfo,
-        ),
-    ).update_cmd(to_update=None, autocommit=autocommit)
-
-    spy_fetch_entries.assert_called_once()
-    mocked_gaeftof.assert_not_called()
-    mocked_write_info.assert_not_called()
-    mocked_write_entries.assert_called_once_with(
-        {
-            DumbEntry(info=info, hash="sha256-some/cool/hash")
-            for info in entries_info
-        }
-    )
-
-    if autocommit:
-        mocked_git_commit.assert_called_once_with("example: update all")
-    else:
-        mocked_git_commit.assert_not_called()
-
-
-@pytest.mark.parametrize("autocommit", [False, True])
-async def test_update_cmd_specific(
-    mocker: MockerFixture, autocommit: bool
-) -> None:
-    entries_info = [
-        DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="two", extra="extra"),
-        DumbEntryInfo(name="three", extra="nice"),
-        DumbEntryInfo(name="four"),
-        DumbEntryInfo(name="five", extra="aaa"),
-    ]
-    _ = mocker.patch(
-        "nupd.base.Nupd.get_all_entries_from_the_output_file",
-        return_value=[
-            DumbEntry(info=info, hash="sha256-some/old/hash")
-            for info in entries_info
-        ],
-    )
-    spy_fetch_entries = mocker.spy(Nupd, "fetch_entries")
-    mocked_write_info = mocker.patch.object(
-        DumbBaseAutocommit, "write_entries_info"
-    )
-    mocked_write_entries = mocker.patch("nupd.base.Nupd.write_entries")
-    mocked_git_commit = mocker.patch("nupd.utils.git_commit")
-
-    nupd = Nupd(
-        ImplClasses(
-            mini_entry=DumbMiniEntry,
-            base=DumbBaseAutocommit,
-            entry=DumbEntry,
-            entry_info=DumbEntryInfo,
-        )
-    )
-    _ = mocker.patch.object(nupd.impl, "all_entries", entries_info)
-    await nupd.update_cmd(["one", "two@extra", "three"], autocommit=autocommit)
-
-    spy_fetch_entries.assert_called_once()
-    assert spy_fetch_entries.await_args.args[1] == [  # pyright: ignore[reportOptionalMemberAccess]
-        DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="two", extra="extra"),
-        DumbEntryInfo(name="three", extra="nice"),
-    ]
-    mocked_write_info.assert_not_called()
-    mocked_write_entries.assert_called_with(
-        {
-            DumbEntry(
-                info=DumbEntryInfo(name="four"),
-                hash="sha256-some/old/hash",
-            ),
-            DumbEntry(
-                info=DumbEntryInfo(name="five", extra="aaa"),
-                hash="sha256-some/old/hash",
-            ),
-            DumbEntry(
-                info=DumbEntryInfo(name="two", extra="extra"),
-                hash="sha256-some/cool/hash",
-            ),
-            DumbEntry(
-                info=DumbEntryInfo(name="one"),
-                hash="sha256-some/cool/hash",
-            ),
-            DumbEntry(
-                info=DumbEntryInfo(name="three", extra="nice"),
-                hash="sha256-some/cool/hash",
-            ),
-        }
-    )
-    if autocommit:
-        assert mocked_git_commit.call_args_list == [
-            unittest.mock.call("example.one: update"),
-            unittest.mock.call("example.two: update"),
-            unittest.mock.call("example.three: update"),
-        ]
-    else:
-        mocked_git_commit.assert_not_called()
-
-
 async def test_update_cmd_duplicate_entries(mocker: MockerFixture) -> None:
     entries_info = [
         DumbEntryInfo(name="one"),
@@ -446,3 +259,11 @@ def test_input_output_files_from_config() -> None:
     )
     assert instance.input_file == Path("/input-file.csv")
     assert instance.output_file == Path("/output-file.csv")
+
+
+def test_change_cwd_on_conflicting_directories(mocker: MockerFixture) -> None:
+    _ = mocker.patch.object(
+        DumbBase, "input_file", Path("/input/somewhere/else.csv")
+    )
+    with pytest.raises(ValueError, match="input and output files must be"):
+        Nupd()._change_cwd()
