@@ -4,6 +4,7 @@ import abc
 import asyncio
 import dataclasses
 import json
+import os
 import typing as t
 from collections import defaultdict
 from pathlib import Path
@@ -18,7 +19,6 @@ from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
-    import os
 
 
 async def _fetch_entries_worker[T](
@@ -182,6 +182,7 @@ class Nupd:
     async def add_cmd(
         self, to_add: c.Sequence[str], *, autocommit: bool = False
     ) -> None:
+        self._change_cwd()
         if (  # pragma: no cover # tests access the property directly
             autocommit and not self.is_autocommit_implemented
         ):
@@ -229,6 +230,7 @@ class Nupd:
     async def update_cmd(
         self, to_update: c.Sequence[str] | None, *, autocommit: bool = False
     ) -> None:
+        self._change_cwd()
         if (  # pragma: no cover # tests access the property directly
             autocommit and not self.is_autocommit_implemented
         ):
@@ -363,3 +365,12 @@ class Nupd:
             # add a new line on the end of the file, because nixpkgs CI
             # requires it
             _ = f.write("\n")
+
+    def _change_cwd(self) -> None:
+        if self.impl.input_file.parent != self.impl.output_file.parent:
+            raise ValueError(
+                "When using auto commit, input and output files must be in the "
+                + "same directory"
+            )
+
+        os.chdir(self.impl.input_file.parent)

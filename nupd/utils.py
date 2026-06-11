@@ -11,7 +11,6 @@ import platformdirs
 import pydantic_core
 import rich.progress
 from frozendict import frozendict
-from loguru import logger
 from pydantic import BaseModel
 from rich.console import Console
 
@@ -166,4 +165,4 @@ async def git_commit(message: str) -> None:
             + f"\n{stdout=}\n{stderr=}"
         )
     if stderr.decode() != "":
-        logger.trace(f"git wrote something to stderr!\n{stdout=}\n{stderr=}")
+        raise GitError(f"git wrote something to stderr!\n{stdout=}\n{stderr=}")
