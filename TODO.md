@@ -17,7 +17,12 @@
 - [ ] ~~AIOHttp session pooling~~ Requires https://github.com/ivankorobkov/python-inject/pull/134
 - [x] Handle errors in `fetch_entries`
 - [x] Reduce mocking in tests
-- [ ] Explore nix vs json vs yaml evaluation speed and file size
+- [x] Explore nix vs json vs yaml evaluation speed and file size
+  - Tested with 100k entries
+  - Nix 1.1 seconds (including importing nixpkgs and eval of `fetchFromGitHub`)
+  - JSON 1.5 seconds
+  - TOML 15 seconds
+  - Yaml reader is not implemented
 - [x] Fix commit order in autocommit
 
 ## Docs
