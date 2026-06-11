@@ -14,10 +14,11 @@
 - [x] Use semaphores instead of chunks
 - [x] nurl FETCHERS | str
 - [x] Auto commit
-- [ ] AIOHttp session pooling
+- [ ] ~~AIOHttp session pooling~~ Requires https://github.com/ivankorobkov/python-inject/pull/134
 - [ ] Handle errors in `fetch_entries`
 - [ ] Reduce mocking in tests
 - [ ] Explore nix vs json vs yaml evaluation speed and file size
+- [ ] Fix commit order in autocommit
 
 ## Docs
 

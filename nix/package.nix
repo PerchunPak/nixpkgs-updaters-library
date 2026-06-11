@@ -23,6 +23,7 @@ pprev.nixpkgs-updaters-library.overridePythonAttrs (old: {
     (pfinal.callPackage ./lint-hook/lint-hook.nix { })
     pfinal.pytest-cov
   ];
+  pytestFlags = [ "-vvv" ];
 
   dependencies = with pfinal; [
     aiohttp
