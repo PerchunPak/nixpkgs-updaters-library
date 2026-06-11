@@ -189,9 +189,9 @@ class Nupd:
             logger.error("This updater does not support --autocommit")
             return
 
-        entries_info = {
+        entries_info = tuple(
             self.impl.parse_entry_id(entry_id) for entry_id in to_add
-        }
+        )
         all_entries_info = set(await self.impl.get_all_entries())
 
         all_entries: dict[str, Entry[t.Any, t.Any] | MiniEntry[t.Any]] = {
@@ -204,7 +204,10 @@ class Nupd:
         logger.success(f"Successfully fetched {len(new_entries)} entries")
 
         if autocommit:
-            for entry in new_entries.values():
+            for entry in sorted(
+                new_entries.values(),
+                key=lambda x: entries_info.index(x.info),
+            ):
                 message = self.impl.gen_autocommit_message_add(entry)
                 logger.info(
                     f"Committing {entry.info.id} with message {message!r}..."
@@ -219,7 +222,9 @@ class Nupd:
 
         else:
             all_entries.update(new_entries)
-            self.impl.write_entries_info(entries_info.union(all_entries_info))
+            self.impl.write_entries_info(
+                set(entries_info).union(all_entries_info)
+            )
             self.write_entries(set(all_entries.values()))
 
         logger.success(f"Successfully added {len(to_add)} entries!")
@@ -254,12 +259,12 @@ class Nupd:
                 self.write_entries(set(all_entries.values()))
 
         else:  # update only selected entries
-            entries_info: set[EntryInfo] = set()
+            entries_info: list[EntryInfo] = []
             for entry_id in to_update:
                 if entry_id in all_entries_info:
-                    entries_info.add(all_entries_info[entry_id])
+                    entries_info.append(all_entries_info[entry_id])
                 else:
-                    entries_info.add(self.impl.parse_entry_id(entry_id))
+                    entries_info.append(self.impl.parse_entry_id(entry_id))
 
             for entry in self.get_all_entries_from_the_output_file():
                 all_entries[entry.info.id] = entry
@@ -270,7 +275,10 @@ class Nupd:
                     f"Successfully fetched {len(updated_entries)} entries"
                 )
 
-                for new_entry in reversed(updated_entries.values()):
+                for new_entry in sorted(
+                    updated_entries.values(),
+                    key=lambda x: entries_info.index(x.info),
+                ):
                     old_entry = all_entries.pop(new_entry.info.id)
                     all_entries[new_entry.info.id] = new_entry
 
@@ -321,7 +329,7 @@ class Nupd:
                         ),
                         name=entry.id,
                     )
-                    for entry in sorted(entries, key=lambda x: x.id)
+                    for entry in sorted(set(entries), key=lambda x: x.id)
                 },
                 return_when=asyncio.FIRST_EXCEPTION,
             )

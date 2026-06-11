@@ -32,8 +32,3 @@ addition/update. It is enough to just implement these three methods:
 Implementing these three methods will allow the usage of the ``--autocommit``
 CLI option. The library creates one commit per every entry added/updated,
 unless user asks to update all entries.
-
-.. warning::
-
-   Commit order is not deterministic due to implementation details. This may be
-   fixed in the future, if I figure out how.

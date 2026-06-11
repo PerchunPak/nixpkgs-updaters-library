@@ -190,7 +190,11 @@ async def test_add_cmd(mocker: MockerFixture, autocommit: bool) -> None:
     entries_info = entries_info.union(new_entries_info)
 
     spy_fetch_entries.assert_called_once()
-    assert spy_fetch_entries.await_args.args[1] == new_entries_info  # pyright: ignore[reportOptionalMemberAccess]
+    assert spy_fetch_entries.await_args.args[1] == (  # pyright: ignore[reportOptionalMemberAccess]
+        DumbEntryInfo(name="four"),
+        DumbEntryInfo(name="four"),
+        DumbEntryInfo(name="five"),
+    )
 
     if autocommit:
         assert [
@@ -295,13 +299,10 @@ async def test_update_cmd_specific(
     await nupd.update_cmd(["one", "two@extra", "three"], autocommit=autocommit)
 
     spy_fetch_entries.assert_called_once()
-    assert sorted(
-        spy_fetch_entries.await_args.args[1],  # pyright: ignore[reportOptionalMemberAccess]
-        key=lambda x: x.name,
-    ) == [
+    assert spy_fetch_entries.await_args.args[1] == [  # pyright: ignore[reportOptionalMemberAccess]
         DumbEntryInfo(name="one"),
-        DumbEntryInfo(name="three", extra="nice"),
         DumbEntryInfo(name="two", extra="extra"),
+        DumbEntryInfo(name="three", extra="nice"),
     ]
     mocked_write_info.assert_not_called()
     mocked_write_entries.assert_called_with(
@@ -329,12 +330,10 @@ async def test_update_cmd_specific(
         }
     )
     if autocommit:
-        assert sorted(
-            mocked_git_commit.call_args_list, key=lambda x: x.args[0]
-        ) == [
+        assert mocked_git_commit.call_args_list == [
             unittest.mock.call("example.one: update"),
-            unittest.mock.call("example.three: update"),
             unittest.mock.call("example.two: update"),
+            unittest.mock.call("example.three: update"),
         ]
     else:
         mocked_git_commit.assert_not_called()
