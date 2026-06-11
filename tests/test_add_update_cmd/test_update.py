@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 
 from nupd.base import Nupd
 from nupd.models import ImplClasses
-from tests.test_add_update_cmd.models import (
+from tests.test_nupd_base import (
     DumbBaseAutocommit,
     DumbEntry,
     DumbEntryInfo,

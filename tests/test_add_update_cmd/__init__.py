@@ -8,8 +8,7 @@ from pytest_mock import MockerFixture
 
 from nupd.executables import Executable
 from tests.conftest import setup_git
-
-from .models import DumbBaseAutocommit, DumbEntry
+from tests.test_nupd_base import DumbBaseAutocommit, DumbEntry
 
 
 @dataclasses.dataclass()

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import dataclasses
+import datetime as dt
 import typing as t
-from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -12,6 +12,7 @@ from pydantic import Field
 
 from nupd.base import ABCBase, Nupd
 from nupd.injections import Config
+from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 from nupd.utils import NIXPKGS_PLACEHOLDER
 
@@ -49,8 +50,8 @@ class TimeoutEntryInfo(DumbEntryInfo, frozen=True):
 class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
     info: DumbEntryInfo
     hash: str
-    some_date: datetime = Field(
-        default_factory=lambda: datetime.fromtimestamp(0)  # noqa: DTZ006
+    some_date: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.fromtimestamp(0, dt.UTC)
     )
 
     @t.override
@@ -65,8 +66,8 @@ class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
 class DumbMiniEntry(MiniEntry[DumbEntryInfo], frozen=True):
     info: DumbEntryInfo
     hash: str
-    some_date: datetime = Field(
-        default_factory=lambda: datetime.fromtimestamp(0)  # noqa: DTZ006
+    some_date: dt.datetime = Field(
+        default_factory=lambda: dt.datetime.fromtimestamp(0, dt.UTC)
     )
 
 
@@ -89,9 +90,12 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
 
     @t.override
     def write_entries_info(
-        self, _entries_info: c.Iterable[DumbEntryInfo]
+        self, entries_info: c.Iterable[DumbEntryInfo]
     ) -> None:
-        raise NotImplementedError
+        CsvInput[DumbEntryInfo](self.input_file).write(
+            entries_info,
+            serialize=lambda x: x.model_dump(mode="json"),
+        )
 
     @t.override
     def parse_entry_id(self, unparsed_argument: str) -> DumbEntryInfo:
