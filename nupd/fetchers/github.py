@@ -74,7 +74,7 @@ class GHRepository(NupdModel, frozen=True):
 
     @property
     def url(self) -> str:
-        """Simply return ``https://github.com/{owner}/{repo}``."""
+        """Simply returns ``https://github.com/{owner}/{repo}``."""
         return f"https://github.com/{self.owner}/{self.repo}"
 
     async def prefetch_commit(

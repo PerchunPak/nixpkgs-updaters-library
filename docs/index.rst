@@ -50,6 +50,7 @@ Content
    usage/helpers/csv-reader.rst
    usage/helpers/github.rst
    usage/helpers/nix-prefetch-git.rst
+   usage/helpers/nix-prefetch-github.rst
    usage/helpers/nix-prefetch-url.rst
    usage/helpers/nurl.rst
 

@@ -6,11 +6,14 @@ pprev.nixpkgs-updaters-library.overridePythonAttrs (old: {
   version = "3.1.1.dev"; # @version
   src = ./..;
 
+  # TODO: build inputs?
   postPatch = with pkgs; ''
     substituteInPlace nupd/executables.py \
       --replace-fail '"nurl"' '"${lib.getExe nurl}"' \
       --replace-fail '"nix-prefetch-url"' '"${lib.getExe' nix "nix-prefetch-git"}"' \
       --replace-fail '"nix-prefetch-git"' '"${lib.getExe' nix-prefetch-git "nix-prefetch-git"}"' \
+      --replace-fail '"nix-prefetch-github"' '"${lib.getExe' nix-prefetch-github "nix-prefetch-github"}"' \
+      --replace-fail '"nix-prefetch-github-latest-release"' '"${lib.getExe' nix-prefetch-github "nix-prefetch-github"}"' \
       --replace-fail '"git"' '"${lib.getExe git}"'
   '';
 

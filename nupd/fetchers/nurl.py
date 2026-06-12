@@ -63,7 +63,7 @@ async def nurl(
 
     Raises:
         NurlError:
-            If `nupd` return non-zero exit code or wrote something to stderr.
+            If `nupd` return non-zero exit code.
     """
     logger.debug(f"Running nurl on {url}")
 

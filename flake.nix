@@ -46,6 +46,7 @@
 
             nurl
             nix-prefetch-scripts
+            nix-prefetch-github
 
             # docs
             python3Packages.furo

@@ -4,7 +4,6 @@ import asyncio
 import copy
 import dataclasses
 import typing as t
-from os import PathLike
 from pathlib import Path
 
 import joblib
@@ -19,6 +18,8 @@ from nupd.exc import GitError
 from nupd.executables import Executable
 
 if t.TYPE_CHECKING:
+    from os import PathLike
+
     import pydantic
     from joblib.memory import MemorizedFunc
 

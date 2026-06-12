@@ -5,7 +5,6 @@ import asyncio
 import dataclasses
 import functools
 import json
-import os
 import typing as t
 from collections import defaultdict
 from pathlib import Path
@@ -20,6 +19,7 @@ from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 
 if t.TYPE_CHECKING:
     import collections.abc as c
+    import os
 
 
 async def _fetch_entries_worker[T](
