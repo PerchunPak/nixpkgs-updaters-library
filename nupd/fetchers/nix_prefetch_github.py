@@ -33,7 +33,10 @@ class GithubPrefetchResult(NupdModel, frozen=True):
 
 
 @utils.restore_docstring_from_memoized_function
-@utils.memory.cache(cache_validation_callback=utils.cache_validate_by_revision)
+@utils.memory.cache(
+    ignore=["github_token"],
+    cache_validation_callback=utils.cache_validate_by_revision,
+)
 async def prefetch_github(
     owner: str,
     repo: str,
