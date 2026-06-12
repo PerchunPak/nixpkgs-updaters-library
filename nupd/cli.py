@@ -61,7 +61,11 @@ def callback(
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO,
 ) -> None:
     """Boilerplate-less updater library for Nixpkgs ecosystems."""
-    # TODO: this gets called when no argument is supplied
+    # if there are no arguments
+    if not tokens:
+        app(tokens)
+        return
+
     nupd.logs.setup_logging(log_level)
 
     impl_classes = register_implementation_classes.impl  # pyright: ignore[reportFunctionMemberAccess]
