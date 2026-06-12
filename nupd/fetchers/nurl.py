@@ -87,7 +87,6 @@ async def nurl(
     stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
-        breakpoint()
         raise NurlError(
             f"nurl returned exit code {process.returncode}"
             + f"\n{stdout=}\n{stderr=}"
