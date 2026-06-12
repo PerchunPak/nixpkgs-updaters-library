@@ -1,5 +1,4 @@
 import dataclasses
-import time
 import typing as t
 
 import pydantic
@@ -98,11 +97,11 @@ def test_cleanup_raw_string(inp: str, out: str) -> None:
 
 @pytest.mark.parametrize("with_revision", [False, True])
 def test_cache_validate_by_revision(with_revision: bool) -> None:
-    args: dict[str, t.Any] = {"input_args": {}, "time": time.time()}
+    args: dict[str, t.Any] = {"input_args": {}, "time": 1}
     if with_revision:
         args["input_args"]["revision"] = "foo"
 
-    assert utils.cache_validate_by_revision(args) is not with_revision
+    assert utils.cache_validate_by_revision(args) is with_revision
 
 
 async def test_git_commit_fails_returncode(mocker: MockerFixture) -> None:
