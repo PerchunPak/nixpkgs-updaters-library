@@ -1,10 +1,27 @@
 ``nurl`` wrapper
 ================
 
-`nurl`_ is THE prefetcher, that can prefetch all imaginable sources with ease.
-You should always prefer it over other fetchers (only for prefetching the hash,
-it can't do the job of the :doc:`GitHub helper <github>` for
-example).
+`nurl`_ is a simple tool, that can prefetch all imaginable sources with ease.
+
+.. warning::
+
+   Nurl uses ``nix flake prefetch`` which often fails under high workload.
+   Prefer to use other fetchers or retry this function in case of a failure.
+   Error might look like this:
+
+   .. code:: bash
+
+      $ nix flake prefetch --extra-experimental-features 'nix-command flakes' --json github:kristijanhusak/vim-dadbod-ui/07e92e22114cc5b1ba4938d99897d85b58e20475
+      unpacking 'github:kristijanhusak/vim-dadbod-ui/07e92e22114cc5b1ba4938d99897d85b58e20475' into the Git cache...
+      error:
+             … while fetching the input 'github:kristijanhusak/vim-dadbod-ui/07e92e22114cc5b1ba4938d99897d85b58e20475'
+
+             error: adding a file to a tree builder: failed to insert entry: invalid object specified - LICENSE (libgit2 error code = 14)
+      Error: command exited with exit status: 1
+
+      Location:
+          src/prefetch.rs:22:13
+
 
 .. note::
 
