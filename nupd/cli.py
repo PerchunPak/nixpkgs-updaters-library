@@ -16,7 +16,7 @@ from nupd.utils import register_implementation_classes
 
 app = cyclopts.App(console=utils.console)
 _CWD = Path.cwd()
-_CORES = os.cpu_count() or 1
+_CORES = (os.cpu_count() or 2) - 1
 
 
 @app.meta.default
@@ -54,7 +54,7 @@ def callback(
             alias="-j",
             help=(
                 "Limit for concurrent jobs. "
-                + "Defaults to your amount of CPU cores."
+                + "Defaults to your amount of CPU cores minus one."
             ),
         ),
     ] = _CORES,
