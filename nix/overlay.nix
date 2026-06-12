@@ -7,7 +7,7 @@ final: prev: {
       # remove the overlay when the package in nixpkgs gets updated
       cyclopts = pprev.cyclopts.overridePythonAttrs (
         old:
-        assert old.version == "4.16.1";
+        assert old.version == "4.17.0";
         {
           version = "4.18.0";
           src = final.fetchFromGitHub {
