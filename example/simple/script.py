@@ -19,7 +19,7 @@ if t.TYPE_CHECKING:
     import collections.abc as c
     import os
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.resolve()
 if "/nix/store" in str(ROOT):
     # we are bundled using nix, use working directory instead of root
     ROOT = Path.cwd()  # pyright: ignore[reportConstantRedefinition]

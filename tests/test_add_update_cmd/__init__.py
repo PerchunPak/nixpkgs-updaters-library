@@ -59,7 +59,8 @@ def get_commits(cwd: Path) -> list[tuple[str, str]]:
     commits = [
         Commit(*line.strip().split(" ", 1))
         for line in subprocess.check_output(
-            [Executable.GIT, "log", "--format=%H %s"]
+            [Executable.GIT, "log", "--format=%H %s"],
+            cwd=cwd,
         )
         .decode()
         .splitlines()

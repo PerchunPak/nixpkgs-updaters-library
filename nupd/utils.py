@@ -4,6 +4,7 @@ import asyncio
 import copy
 import dataclasses
 import typing as t
+from os import PathLike
 from pathlib import Path
 
 import joblib
@@ -147,13 +148,14 @@ def get_formatted_progress_bar() -> tuple[
     )
 
 
-async def git_commit(message: str) -> None:
+async def git_commit(message: str, cwd: PathLike[str] | None = None) -> None:
     process = await asyncio.create_subprocess_exec(
         Executable.GIT,
         "commit",
         "-a",
         "--message",
         message,
+        cwd=cwd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )

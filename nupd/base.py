@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import asyncio
 import dataclasses
+import functools
 import json
 import os
 import typing as t
@@ -84,21 +85,21 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
         init=False, default_factory=undefined_default
     )
 
-    @property
+    @functools.cached_property
     def input_file(self) -> Path:
         input_file = self.config.input_file
         if input_file is None:
             input_file = self.__resolve_default_path(self._default_input_file)
 
-        return Path(input_file)
+        return Path(input_file).resolve()
 
-    @property
+    @functools.cached_property
     def output_file(self) -> Path:
         output_file = self.config.output_file
         if output_file is None:
             output_file = self.__resolve_default_path(self._default_output_file)
 
-        return Path(output_file)
+        return Path(output_file).resolve()
 
     @abc.abstractmethod
     async def get_all_entries(self, /) -> c.Iterable[GEntryInfo]: ...
@@ -182,7 +183,6 @@ class Nupd:
     async def add_cmd(
         self, to_add: c.Sequence[str], *, autocommit: bool = False
     ) -> None:
-        self._change_cwd()
         if (  # pragma: no cover # tests access the property directly
             autocommit and not self.is_autocommit_implemented
         ):
@@ -218,7 +218,9 @@ class Nupd:
                 self.impl.write_entries_info(all_entries_info.copy())
                 self.write_entries(set(all_entries.values()))
 
-                await utils.git_commit(message)
+                await utils.git_commit(
+                    message, cwd=self._get_repo_for_autocommit()
+                )
 
         else:
             all_entries.update(new_entries)
@@ -235,7 +237,6 @@ class Nupd:
     async def update_cmd(
         self, to_update: c.Sequence[str] | None, *, autocommit: bool = False
     ) -> None:
-        self._change_cwd()
         if (  # pragma: no cover # tests access the property directly
             autocommit and not self.is_autocommit_implemented
         ):
@@ -254,7 +255,9 @@ class Nupd:
                 logger.info(f"Committing with message {message!r}...")
 
                 self.write_entries(set(all_entries.values()))
-                await utils.git_commit(message)
+                await utils.git_commit(
+                    message, cwd=self._get_repo_for_autocommit()
+                )
             else:
                 self.write_entries(set(all_entries.values()))
 
@@ -291,7 +294,9 @@ class Nupd:
                     )
 
                     self.write_entries(set(all_entries.values()))
-                    await utils.git_commit(message)
+                    await utils.git_commit(
+                        message, cwd=self._get_repo_for_autocommit()
+                    )
             else:
                 all_entries.update(await self.fetch_entries(entries_info))
                 self.write_entries(set(all_entries.values()))
@@ -383,11 +388,11 @@ class Nupd:
             # requires it
             _ = f.write("\n")
 
-    def _change_cwd(self) -> None:
+    def _get_repo_for_autocommit(self) -> Path:
         if self.impl.input_file.parent != self.impl.output_file.parent:
             raise ValueError(
                 "When using auto commit, input and output files must be in the "
                 + "same directory"
             )
 
-        os.chdir(self.impl.input_file.parent)
+        return self.impl.input_file.parent

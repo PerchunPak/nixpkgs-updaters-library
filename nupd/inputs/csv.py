@@ -15,6 +15,9 @@ class CsvInput[GEntryInfo: EntryInfo](ABCInput[GEntryInfo]):
     kwargs: dict[str, t.Any] = dataclasses.field(default_factory=dict)
     """Kwargs, passed to `csv` functions."""
 
+    def __post_init__(self) -> None:
+        self.file = Path(self.file).resolve()
+
     @t.override
     def read(
         self, parse: c.Callable[[c.Mapping[str, str]], GEntryInfo]

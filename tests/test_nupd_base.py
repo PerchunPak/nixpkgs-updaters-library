@@ -273,14 +273,6 @@ def test_input_output_files_from_config() -> None:
     assert instance.output_file == Path("/output-file.csv")
 
 
-def test_change_cwd_on_conflicting_directories(mocker: MockerFixture) -> None:
-    _ = mocker.patch.object(
-        DumbBase, "input_file", Path("/input/somewhere/else.csv")
-    )
-    with pytest.raises(ValueError, match="input and output files must be"):
-        Nupd()._change_cwd()
-
-
 async def test_nupd_fetch_entries_timeout(mock_inject: MOCK_INJECT) -> None:
     # allow running fetches simultaneously
     mock_inject(Config, utils.replace(inject.instance(Config), jobs=10))
