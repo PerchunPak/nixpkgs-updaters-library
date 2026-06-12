@@ -10,6 +10,11 @@ Look at `the models.py file <https://github.com/PerchunPak/nixpkgs-updaters-libr
 for the exact details.
 
 .. autoclass:: nupd.models.NupdModel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   Base class for all nupd models.
 
 .. autoclass:: nupd.models.EntryInfo
    :members:

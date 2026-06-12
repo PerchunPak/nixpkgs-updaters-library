@@ -10,8 +10,7 @@ if t.TYPE_CHECKING:
     from nupd.base import ABCBase
 
 
-class NupdModel(BaseModel, frozen=True, extra="forbid"):
-    """Base class for all nupd models."""
+class NupdModel(BaseModel, frozen=True, extra="forbid"): ...
 
 
 class EntryInfo(NupdModel, abc.ABC, frozen=True):

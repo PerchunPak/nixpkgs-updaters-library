@@ -5,6 +5,7 @@ import sys
 import typing as t
 
 from packaging.version import parse as parse_version
+from pydantic import BaseModel
 
 sys.path.insert(0, os.path.abspath(".."))  # noqa: PTH100
 
@@ -116,3 +117,7 @@ def mock_autodoc() -> None:
 
 
 mock_autodoc()
+
+# Don't inherit docstrings from pydantic
+del BaseModel.__doc__
+del BaseModel.__init__.__doc__
