@@ -2,6 +2,7 @@ import asyncio
 import collections.abc as c
 import datetime as dt
 import json
+import os
 
 from loguru import logger
 from pydantic import ConfigDict, alias_generators
@@ -88,7 +89,9 @@ async def prefetch_github(
         *(("--leave-dot-git",) if leave_dot_git else ()),
         *(("--deep-clone",) if deep_clone else ()),
         *additional_arguments,
-        env={"GITHUB_TOKEN": github_token} if github_token else {},
+        env={**os.environ, "GITHUB_TOKEN": github_token}
+        if github_token
+        else None,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )

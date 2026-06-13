@@ -87,7 +87,7 @@ async def test_prefetch_github(
 
     mock.assert_called_once_with(
         *args,
-        env={},
+        env=None,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
@@ -115,7 +115,7 @@ async def test_prefetch_github_latest_release(mocker: MockerFixture) -> None:
 
     mock.assert_called_once_with(
         *args,
-        env={},
+        env=None,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
@@ -180,7 +180,7 @@ async def test_prefetch_github_extra_attributes(
 
     mock.assert_called_once_with(
         *args,
-        env={},
+        env=None,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
@@ -231,7 +231,7 @@ async def test_prefetch_github_error(
 
     mock.assert_called_once_with(
         *args,
-        env={},
+        env=None,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
