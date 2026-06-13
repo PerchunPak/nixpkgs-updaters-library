@@ -16,7 +16,8 @@ from nupd.utils import register_implementation_classes
 
 app = cyclopts.App(console=utils.console)
 _CWD = Path.cwd()
-_CORES = (os.cpu_count() or 2) - 1
+_CORES = os.cpu_count() or 1
+_JOBS = max(_CORES, round(_CORES * 1.7))
 
 
 @app.meta.default
@@ -54,13 +55,12 @@ def callback(
             alias="-j",
             help=(
                 "Limit for concurrent jobs. "
-                + "Defaults to your amount of CPU cores minus one."
+                + "Defaults to your amount of CPU cores times 1.8"
             ),
         ),
-    ] = _CORES,
+    ] = _JOBS,
     log_level: nupd.logs.LoggingLevel = nupd.logs.LoggingLevel.INFO,
 ) -> None:
-    """Boilerplate-less updater library for Nixpkgs ecosystems."""
     # if there are no arguments
     if not tokens:
         app(tokens)
