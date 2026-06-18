@@ -10,10 +10,8 @@ from pytest_mock import MockerFixture
 from nupd import utils
 from nupd.exc import HTTPError
 from nupd.fetchers import github
-from nupd.fetchers.github import (
-    Commit,
-    GitHubRelease,
-    GitHubTag,
+from nupd.fetchers.github import Commit, GitHubRelease, GitHubTag
+from nupd.fetchers.github._fetchers import (
     fetch_latest_release,
     fetch_tags,
     github_does_have_submodules,
@@ -45,12 +43,12 @@ async def test_prefetch_commit_on_repo_class(
     mocker: MockerFixture, example_obj: github.GHRepository
 ) -> None:
     mock = mocker.patch(
-        "nupd.fetchers.github.github_prefetch_commit",
+        "nupd.fetchers.github._fetchers.github_prefetch_commit",
         spec=github_prefetch_commit.func,
         return_value=example_obj.commit,
     )
     mock = mocker.patch(
-        "nupd.fetchers.github.github_does_have_submodules",
+        "nupd.fetchers.github._fetchers.github_does_have_submodules",
         spec=github_does_have_submodules.func,
         return_value=example_obj.has_submodules,
     )
@@ -190,7 +188,7 @@ async def test_github_prefetch_latest_version_release(
     mocker: MockerFixture,
 ) -> None:
     release_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_latest_release",
+        "nupd.fetchers.github._fetchers.fetch_latest_release",
         spec=fetch_latest_release.func,
         return_value=GitHubRelease(
             name="1.2.3",
@@ -199,7 +197,7 @@ async def test_github_prefetch_latest_version_release(
         ),
     )
     tag_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_tags", spec=fetch_tags.func
+        "nupd.fetchers.github._fetchers.fetch_tags", spec=fetch_tags.func
     )
 
     assert (
@@ -217,12 +215,12 @@ async def test_github_prefetch_latest_version_tag(
     mocker: MockerFixture,
 ) -> None:
     release_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_latest_release",
+        "nupd.fetchers.github._fetchers.fetch_latest_release",
         spec=fetch_latest_release.func,
         return_value=None,
     )
     tag_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_tags",
+        "nupd.fetchers.github._fetchers.fetch_tags",
         spec=fetch_tags.func,
         return_value=[
             GitHubTag(
@@ -249,12 +247,14 @@ async def test_github_prefetch_latest_version_nothing(
     mocker: MockerFixture,
 ) -> None:
     release_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_latest_release",
+        "nupd.fetchers.github._fetchers.fetch_latest_release",
         spec=fetch_latest_release.func,
         return_value=None,
     )
     tag_mock = mocker.patch(
-        "nupd.fetchers.github.fetch_tags", spec=fetch_tags.func, return_value=[]
+        "nupd.fetchers.github._fetchers.fetch_tags",
+        spec=fetch_tags.func,
+        return_value=[],
     )
 
     assert (

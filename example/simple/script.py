@@ -10,7 +10,7 @@ from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
 from nupd.fetchers import nurl
-from nupd.fetchers.github import GHRepository, github_fetch_rest
+from nupd.fetchers.github import GHRepository, github_full_fetch_auto
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 from nupd.utils import register_implementation_classes
@@ -39,18 +39,15 @@ class MyEntryInfo(EntryInfo, frozen=True):
     async def fetch(self) -> MyEntry:
         logger.debug(f"Fetching {self.owner}/{self.repo}")
 
-        result = await github_fetch_rest(
-            self.owner, self.repo, github_token=None
-        )
+        # fetch all possible information about the entry
+        # this will also automatically use GitHub token from the `GITHUB_TOKEN`
+        # environment variable
+        result = await github_full_fetch_auto(self.owner, self.repo)
 
         # NOTE: We could also handle redirects like this
         if (self.owner, self.repo) != (result.owner, result.repo):
             ...
 
-        # fetch latest commit info
-        result = await result.prefetch_commit()
-        # and latest tag version
-        result = await result.prefetch_latest_version()
         # then run nurl to generate `fetchFromGitHub`
         prefetched = await nurl.nurl(
             result.url, submodules=bool(result.has_submodules)

@@ -10,12 +10,19 @@ This helper implements extensive fetching for GitHub repositories.
 Fetching general information about GitHub repository
 ----------------------------------------------------
 
-If you have a GitHub API token, you should use :func:`.github_fetch_graphql`,
-if you don't - :func:`.github_fetch_rest`.
+There are four main methods to prefetch a GitHub repository:
 
-The difference, is that GraphQL requires API key, but has much higher rate
-limits, while REST API is the opposite. Which makes REST API great for one-time
-uses and GraphQL for massive updates.
+- :func:`.github_fetch_rest`: Uses REST API to prefetch the repository. Token
+  is optional, but rate limits are strict and not all information can be
+  fetched in a single request.
+- :func:`.github_fetch_graphql`: Uses GraphQL API, but requires a token. Has
+  much bigger rate limits though, and allows to fetch all possible information
+  in a single request.
+- :func:`.github_fetch_auto`: Automatically chooses between GraphQL and REST
+  APIs, based on whether ``GITHUB_TOKEN`` is present in environment variables.
+- :func:`.github_full_fetch_auto`: The same as above, but does additional calls
+  to fetch other optional information (only REST API can't fetch everything in
+  one request).
 
 After you fetched general information about the repository, you would probably
 want to fetch such things as latest commit/release/Git tag. For this you should
@@ -25,9 +32,13 @@ limiting intuitive), :func:`.github_fetch_rest` will not fetch that data but
 :func:`.github_fetch_graphql` will (GraphQL allows us to include multiple
 requests into one).
 
+- :meth:`GHRepository.prefetch_commit`: Prefetch latest commit SHA and whether
+  the repository has submodules.
+- :meth:`GHRepository.prefetch_latest_version`: Prefetch latest version.
+
 .. note::
 
-    Those functions don't do any additional requests if data is already present
+    These functions don't do any additional requests if data is already present
     in the result object. Which means, you can safely do like this:
 
     .. code-block:: python
@@ -42,17 +53,15 @@ requests into one).
       result = await result.prefetch_commit()
       result = await result.prefetch_latest_version()
 
-Don't forget to consult
-:meth:`result.prefetch_commit() <.GHRepository.prefetch_commit>`
-and :meth:`result.prefetch_latest_version() <.GHRepository.prefetch_latest_version>`.
-
 Functions
 ---------
 
-.. warning::
+.. autofunction:: nupd.fetchers.github.github_fetch_auto
 
-    Other undocumented functions in this module are considered private and you
-    should not use them.
+.. autofunction:: nupd.fetchers.github.github_full_fetch_auto
+
+Low-level fetchers
+^^^^^^^^^^^^^^^^^^
 
 .. autofunction:: nupd.fetchers.github.github_fetch_graphql
 
