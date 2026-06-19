@@ -112,7 +112,7 @@ class GHRepository(NupdModel, frozen=True):
 
             result = await result.prefetch_latest_version()
         """
-        if self.latest_version:
+        if self.latest_version is not None:
             return self
 
         from ._fetchers import (  # noqa: PLC0415 # circular dependency

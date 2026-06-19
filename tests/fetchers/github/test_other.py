@@ -10,13 +10,14 @@ from pytest_mock import MockerFixture
 from nupd import utils
 from nupd.exc import HTTPError
 from nupd.fetchers import github
-from nupd.fetchers.github import Commit, GitHubRelease, GitHubTag
+from nupd.fetchers.github import Commit
 from nupd.fetchers.github._fetchers import (
     fetch_latest_release,
     fetch_tags,
     github_does_have_submodules,
     github_prefetch_commit,
 )
+from nupd.fetchers.github._models import GitHubRelease, GitHubTag
 
 
 @pytest.fixture

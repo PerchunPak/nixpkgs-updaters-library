@@ -90,9 +90,7 @@ async def test_nurl_basic(
     )
 
 
-async def test_nurl_return_code_non_zero(
-    mocker: MockerFixture,
-) -> None:
+async def test_nurl_return_code_non_zero(mocker: MockerFixture) -> None:
     mock = mocker.patch(
         "asyncio.create_subprocess_exec",
     )
