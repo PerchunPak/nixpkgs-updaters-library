@@ -35,6 +35,7 @@ pprev.nixpkgs-updaters-library.overridePythonAttrs (old: {
     inject
     joblib
     loguru
+    packaging
     platformdirs
     pydantic
     rich

@@ -24,6 +24,14 @@
   - TOML 15 seconds
   - Yaml reader is not implemented
 - [x] Fix commit order in autocommit
+- [x] GitHub auto fetcher
+- Recipe fetchers
+  - [x] GitHub
+  - [ ] Git
+- [ ] `to_fetcher_args`
+- [ ] Pipeline class instead of `ABCBase`
+- [ ] Documentation for `utils`
+- [ ] Why `github_prefetch_commit` fetches submodules?
 
 ## Docs
 
@@ -32,7 +40,7 @@
 
 ## Vim plugins updater
 
-- [ ] Support `fetchgit`
+- [x] Support `fetchgit`
 - [ ] Plugin renames
 - [ ] Fetching latest git tags
   - [x] Fetch latest release
