@@ -30,7 +30,7 @@ EXAMPLE_REPO = GHRepository(
     has_submodules=False,
     meta=GHMetaInformation(
         description="Quickstart configs for Nvim LSP",
-        homepage="",
+        homepage="https://neovim.org",
         license="Apache-2.0",
         stars=10794,
         archived=False,
@@ -110,7 +110,7 @@ async def test_github_recipy_fetch(
         fetcher_args=frozendict(fetcher_args),
         meta=NixMetaInformation(
             description="Quickstart configs for Nvim LSP",
-            homepage="https://github.com/neovim/nvim-lspconfig",
+            homepage="https://neovim.org",
             license="Apache-2.0",
         ),
         fetched_repo=repo,
@@ -183,7 +183,7 @@ async def test_github_recipy_fetch_misc(
         fetcher_args=frozendict(fetcher_args),
         meta=NixMetaInformation(
             description="Quickstart configs for Nvim LSP",
-            homepage="https://github.com/neovim/nvim-lspconfig",
+            homepage="https://neovim.org",
             license="Apache-2.0",
         ),
         fetched_repo=utils.replace(EXAMPLE_REPO, has_submodules=True),

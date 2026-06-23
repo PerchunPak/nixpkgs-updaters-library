@@ -99,8 +99,7 @@ class GithubRecipy(ABCRecipy, frozen=True):
             fetcher_args=frozendict(fetcher_args),
             meta=NixMetaInformation(
                 description=result.meta.description,
-                homepage=result.meta.homepage
-                or f"https://github.com/{owner}/{repo}",
+                homepage=result.meta.homepage,
                 license=result.meta.license,
             ),
             fetched_repo=result,
