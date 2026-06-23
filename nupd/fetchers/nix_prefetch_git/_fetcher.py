@@ -1,6 +1,7 @@
 import asyncio
 import collections.abc as c
 import json
+import typing as t
 from datetime import datetime
 
 from nupd import exc, utils
@@ -21,6 +22,26 @@ class GitPrefetchResult(NupdModel, frozen=True):
     fetch_submodules: bool
     deep_clone: bool
     leave_dot_git: bool
+
+    def to_fetcher_args(self) -> dict[str, t.Any]:
+        fetcher_args: dict[str, t.Any] = {
+            "url": self.url,
+            "rev": self.rev,
+            "hash": self.hash,
+        }
+
+        # disable coverage, because testing these combinations would require
+        # a lot of useless parametrizing
+        if self.fetch_lfs:  # pragma: no cover
+            fetcher_args["fetchLFS"] = True
+        if self.fetch_submodules:  # pragma: no cover
+            fetcher_args["fetchSubmodules"] = True
+        if self.deep_clone:  # pragma: no cover
+            fetcher_args["deepClone"] = True
+        if self.leave_dot_git:  # pragma: no cover
+            fetcher_args["leaveDotGit"] = True
+
+        return fetcher_args
 
 
 @utils.restore_docstring_from_memoized_function

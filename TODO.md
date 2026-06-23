@@ -27,7 +27,7 @@
 - [x] GitHub auto fetcher
 - Recipe fetchers
   - [x] GitHub
-  - [ ] Git
+  - [x] Git
 - [ ] `to_fetcher_args`
 - [ ] Pipeline class instead of `ABCBase`
 - [ ] Documentation for `utils`
