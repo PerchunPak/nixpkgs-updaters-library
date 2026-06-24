@@ -20,10 +20,13 @@ class ListGitTagsError(exc.NetworkError): ...
 
 class GitTag(NupdModel, frozen=True):
     revision: str
+    """Commit SHA."""
     reference: str
+    """Tag reference, e.g. ``v1.6.0``."""
 
     @property
     def parsed(self) -> Version | None:
+        """SemVer version parsed by `packaging.version <https://packaging.pypa.io/en/stable/version.html>`_."""
         with contextlib.suppress(InvalidVersion):
             return parse_version(self.reference)
 
@@ -33,6 +36,15 @@ class GitTag(NupdModel, frozen=True):
 async def list_git_tags(
     url: str, *, additional_arguments: c.Iterable[str] | None = None
 ) -> list[GitTag]:
+    """List Git tags, without cloning the repository.
+
+    Internally uses `git ls-remote <https://git-scm.com/docs/git-ls-remote>`_.
+
+    Parameters:
+        url: Repository URL.
+        additional_arguments:
+            Additional arguments that will be passed to ``git ls-remote``.
+    """
     logger.debug(f"Listing tags for {url}")
 
     if additional_arguments is None:
@@ -73,6 +85,7 @@ async def list_git_tags(
 
 
 def find_latest_tag(tags: c.Iterable[GitTag]) -> GitTag | None:
+    """Find latest SemVer tag."""
     best_version: tuple[GitTag, Version] | None = None
 
     for tag in tags:

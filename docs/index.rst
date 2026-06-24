@@ -48,11 +48,18 @@ Content
    :caption: Helpers
 
    usage/helpers/csv-reader.rst
-   usage/helpers/github.rst
-   usage/helpers/nix-prefetch-git.rst
-   usage/helpers/nix-prefetch-github.rst
-   usage/helpers/nix-prefetch-url.rst
-   usage/helpers/nurl.rst
+   usage/helpers/git.rst
+   usage/helpers/recipes.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Fetchers
+
+   usage/fetchers/github.rst
+   usage/fetchers/nix-prefetch-git.rst
+   usage/fetchers/nix-prefetch-github.rst
+   usage/fetchers/nix-prefetch-url.rst
+   usage/fetchers/nurl.rst
 
 Indices and tables
 ------------------

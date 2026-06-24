@@ -33,9 +33,10 @@ class GitRecipy(ABCRecipy, frozen=True):
         Parameters:
             url: Repository URL.
             additional_args:
-                ``additional_args`` from :func:`.prefetch_git`.
+                ``additional_args`` for :func:`.prefetch_git`.
             versioning_strategy:
                 Which versioning strategy to use. Valid values:
+
                 - :attr:`.GitPrefetchVersioning.LATEST_TAG` (``1.2.3``)
                 - :attr:`.GitPrefetchVersioning.BY_COMMIT`
                   (``1.2.3-unstable-2026-06-17``)

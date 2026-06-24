@@ -11,10 +11,13 @@ SHA1_REGEX = re.compile("^[0-9a-f]{5,40}$")
 
 class ResolvedVersion(NupdModel, frozen=True):
     version: str
+    """Nix-formatted version, e.g. ``0-unstable-2026-06-18``."""
     reference: str
+    """Git reference, e.g. ``v1.6.0`` or ``8f7df72ae``."""
 
     @property
     def is_commit(self) -> bool:
+        """Is ``reference`` a commit."""
         return SHA1_REGEX.fullmatch(self.reference) is not None
 
 

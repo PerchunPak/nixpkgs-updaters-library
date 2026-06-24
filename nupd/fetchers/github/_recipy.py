@@ -13,6 +13,10 @@ from . import _auto_fetch as auto  # pyright: ignore[reportPrivateUsage]
 from ._models import GHRepository
 from ._versioning import ResolvedVersion, version_by_commit
 
+type VersioningStrategy = c.Callable[
+    [GHRepository], c.Awaitable[ResolvedVersion]
+]
+
 
 class GithubRecipy(ABCRecipy, frozen=True):
     fetched_repo: GHRepository = pydantic.Field(exclude=True)
@@ -26,9 +30,7 @@ class GithubRecipy(ABCRecipy, frozen=True):
         owner: str,
         repo: str,
         *,
-        versioning_strategy: c.Callable[
-            [GHRepository], c.Awaitable[ResolvedVersion]
-        ] = version_by_commit,
+        versioning_strategy: VersioningStrategy = version_by_commit,
         attribute_overrides: dict[str, t.Any] | None = None,
         full: bool = True,
         github_token: str | None = "auto",  # noqa: S107 # possible hardcoded password
@@ -40,9 +42,9 @@ class GithubRecipy(ABCRecipy, frozen=True):
             repo: For https://github.com/NixOS/nixpkgs, it would be ``nixpkgs``.
             versioning_strategy:
                 Strategy function, that turns :class:`.GHRepository` into a Nix
-                formatted version (e.g. ``1.2.3-unstable-2026-06-17``).
+                formatted version (e.g. ``1.2.3-unstable-2026-06-17``). Valid
+                values:
 
-                Valid values:
                 - :func:`.version_by_tag` (``1.2.3``)
                 - :func:`.version_by_commit` (``1.2.3-unstable-2026-06-17``)
 
@@ -55,7 +57,7 @@ class GithubRecipy(ABCRecipy, frozen=True):
                 :func:`.github_full_fetch_auto`.
             github_token:
                 If this is ``"auto"`` (the default), the function tries to get
-                the token from ``os.environ["GITHUB_TOKEN"]``.
+                the token from the ``GITHUB_TOKEN`` environment variable.
         """
         if github_token == "auto":  # noqa: S105 # possible hardcoded password
             github_token = os.environ.get("GITHUB_TOKEN")

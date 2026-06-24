@@ -8,6 +8,11 @@ from nupd.utils import FrozenDict
 
 
 class NixMetaInformation(NupdModel, frozen=True):
+    """Class, representing Nix's ``meta`` attribute set.
+
+    .. seealso:: https://nixos.org/manual/nixpkgs/unstable/#chap-meta
+    """
+
     model_config: ConfigDict = ConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
         alias_generator=alias_generators.to_camel,
         validate_by_name=True,
@@ -34,6 +39,8 @@ class NixMetaInformation(NupdModel, frozen=True):
 
 
 class ABCRecipy(NupdModel, abc.ABC, frozen=True):
+    """Base class for all recipes."""
+
     version: str
     fetcher: str
     fetcher_args: FrozenDict[str, t.Any]
