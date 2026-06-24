@@ -134,7 +134,7 @@ async def test_github_recipy_fetch(
     _ = prefetch_github.assert_awaited_once_with(
         "neovim",
         "nvim-lspconfig",
-        reference=COMMIT_SHA if is_commit else f"v{version}",
+        revision=COMMIT_SHA if is_commit else f"v{version}",
         fetch_submodules=fetch_submodules,
         github_token="aaa",
     )
@@ -197,7 +197,7 @@ async def test_github_recipy_fetch_misc(
     _ = prefetch_github.assert_awaited_once_with(
         "neovim",
         "nvim-lspconfig",
-        reference=COMMIT_SHA,
+        revision=COMMIT_SHA,
         fetch_submodules=True,
         github_token=expected_token,
     )
