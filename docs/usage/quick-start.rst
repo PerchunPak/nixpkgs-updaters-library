@@ -1,8 +1,8 @@
 Quick Start
 ===========
 
-Let's together create a simple example script, that loads GitHub URLs from an
-``input.csv`` file, and outputs last commit and hashes to an ``output.json``
+Let's together create a simple example script, that loads Git repositories from
+an ``input.csv`` file, and outputs last commit and hashes to an ``output.json``
 file.
 
 You can view the full code in the `example/simple`_ directory.
@@ -15,9 +15,8 @@ First, we need to implement :doc:`our models </usage/models>`.
 
   from __future__ import annotations
 
+  from nupd.fetchers.github import GithubRecipy
   from nupd.models import EntryInfo, Entry
-  from nupd.fetchers.github import GHRepository
-  from nupd.fetchers.nurl import NurlResult
 
 
   class MyEntryInfo(EntryInfo, frozen=True):
@@ -31,16 +30,13 @@ First, we need to implement :doc:`our models </usage/models>`.
 
   class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
       info: MyEntryInfo
-      fetched: GHRepository
-      nurl_result: NurlResult
+      fetched: GithubRecipy
 
-Wait, what is :class:`.GHRepository` and :class:`.NurlResult`? Nupd
-implements a bunch of helpers for you. This includes an :doc:`easy fetcher for
-GitHub repositories <./helpers/github>` and `a wrapper <./helpers/nurl>`_
-around `nurl <https://github.com/nix-community/nurl>`_ - THE prefetcher for Nix
-ecosystem.
+Wait, what is :class:`.GithubRecipy`? Nupd implements a bunch of helpers for
+you. This includes an :ref:`easy recipy-fetcher for GitHub repositories
+<github-recipy>`.
 
-Next, let's implement :func:`MyEntryInfo.fetch <.EntryInfo>`:
+Next, let's implement :func:`MyEntryInfo.fetch <nupd.models.EntryInfo>`:
 
 .. code-block:: python
 
@@ -50,20 +46,19 @@ Next, let's implement :func:`MyEntryInfo.fetch <.EntryInfo>`:
       async def fetch(self) -> MyEntry:
           logger.debug(f"Fetching {self.owner}/{self.repo}")
 
-          result = await github_fetch_rest(
-              self.owner, self.repo, github_token=None
-          )
+          # fetch all possible information about the entry
+          # this will also automatically use GitHub token from the `GITHUB_TOKEN`
+          # environment variable
+          result = await GithubRecipy.fetch(self.owner, self.repo)
 
-          # fetch latest commit info
-          result = await result.prefetch_commit()
-          # and latest tag version
-          result = await result.prefetch_latest_version()
-          # then run nurl to generate `fetchFromGitHub`
-          prefetched = await nurl.nurl(
-              result.url, submodules=bool(result.has_submodules)
-          )
+          # NOTE: We could also handle redirects like this
+          if (self.owner, self.repo) != (
+              result.fetched_repo.owner,
+              result.fetched_repo.repo,
+          ):
+              ...
 
-          return MyEntry(info=self, fetched=result, nurl_result=prefetched)
+          return MyEntry(info=self, fetched=result)
 
 We should also implement :class:`.MiniEntry`, which is just a minified version
 of our :class:`.Entry` so we won't bloat the result file with unnecessary
@@ -71,20 +66,26 @@ information:
 
 .. code-block:: python
 
+  from nupd.utils import FrozenDict
+
   class MyEntry:
       # ...
 
-      @t.override
       def minify(self) -> MyMiniEntry:
           return MyMiniEntry(
               info=self.info,
-              nurl=self.nurl_result,
+              version=self.fetched.version,
+              fetcher=self.fetched.fetcher,
+              fetcher_args=self.fetched.fetcher_args,
+              meta=self.fetched.meta,
           )
 
   class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
-      # this class will automatically include an `info` field, which points to
-      # `EntryInfo`
-      nurl: nurl.NurlResult
+      # this class will automatically include an `info` field, which points to `EntryInfo`
+      version: str
+      fetcher: str
+      fetcher_args: FrozenDict[str, t.Any]
+      meta: NixMetaInformation | None
 
 Implement core logic
 --------------------
@@ -210,15 +211,13 @@ And, finally, let's run the script!
 .. code-block::
 
   $ python script.py --log-level debug update
-  2026-06-07 14:31:11.455 | DEBUG    | nupd.logs:setup_logging:52 - Logging was setup!
-  2026-06-07 14:31:11.456 | INFO     | nupd.base:fetch_entries:159 - Going to fetch 3 entries with the limit of 32 simultaneously
-  2026-06-07 14:31:11.456 | DEBUG    | __main__:fetch:39 - Fetching nvim-treesitter/nvim-treesitter
-  2026-06-07 14:31:11.460 | DEBUG    | __main__:fetch:39 - Fetching folke/todo-comments.nvim
-  2026-06-07 14:31:11.461 | DEBUG    | __main__:fetch:39 - Fetching tpope/vim-surround
-  2026-06-07 14:31:12.262 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/folke/todo-comments.nvim
-  2026-06-07 14:31:12.433 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/tpope/vim-surround
-  2026-06-07 14:31:12.586 | DEBUG    | nupd.fetchers.nurl:nurl:69 - Running nurl on https://github.com/nvim-treesitter/nvim-treesitter
-  2026-06-07 14:31:12.719 | SUCCESS  | nupd.base:update_cmd:149 - Successfully updated 3 entries!
+  2026-06-24 14:41:08.607 | DEBUG    | nupd.logs:setup_logging:40 - Logging was setup!
+  2026-06-24 14:41:08.612 | INFO     | nupd.base:fetch_entries:314 - Going to fetch 3 entries with the limit of 20 simultaneously
+  2026-06-24 14:41:08.614 | DEBUG    | __main__:fetch:43 - Fetching nvim-treesitter/nvim-treesitter
+  2026-06-24 14:41:08.635 | DEBUG    | __main__:fetch:43 - Fetching folke/todo-comments.nvim
+  2026-06-24 14:41:08.650 | DEBUG    | __main__:fetch:43 - Fetching tpope/vim-surround
+  2026-06-24 14:41:08.669 | SUCCESS  | nupd.base:update_cmd:251 - Successfully fetched 3 entries!
+  2026-06-24 14:41:08.670 | SUCCESS  | nupd.base:update_cmd:304 - Successfully updated 3 entries!
 
 It is that simple! Now, let's check out our ``output.json``:
 
@@ -227,48 +226,57 @@ It is that simple! Now, let's check out our ``output.json``:
 
    {
      "nvim-treesitter": {
+       "fetcher": "fetchFromGitHub",
+       "fetcher_args": {
+         "hash": "sha256-PQR6tFt4lCrAZNQG7BLMD1IiCKja9wDS1S4laGJf/HE=",
+         "owner": "nvim-treesitter",
+         "repo": "nvim-treesitter",
+         "rev": "4916d6592ede8c07973490d9322f187e07dfefac"
+       },
        "info": {
          "owner": "nvim-treesitter",
          "repo": "nvim-treesitter"
        },
-       "nurl": {
-         "args": {
-           "hash": "sha256-ZQ3HJ3dhtMS75GpW9xxt/ERjqD6v/Fzw+NLyml2EuYM=",
-           "owner": "nvim-treesitter",
-           "repo": "nvim-treesitter",
-           "rev": "c1efc9a9058bb54cfcb6f0a4fc14a4ac8a66bdaa"
-         },
-         "fetcher": "fetchFromGitHub"
-       }
+       "meta": {
+         "description": "Nvim Treesitter configurations and abstraction layer",
+         "license": "Apache-2.0"
+       },
+       "version": "0.10.0-unstable-2026-04-03"
      },
      "todo-comments.nvim": {
+       "fetcher": "fetchFromGitHub",
+       "fetcher_args": {
+         "hash": "sha256-VGeIRfwQsHgSO89Pmn6yIP9na1F6mmYZx0HDLe9IKCQ=",
+         "owner": "folke",
+         "repo": "todo-comments.nvim",
+         "rev": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668"
+       },
        "info": {
          "owner": "folke",
          "repo": "todo-comments.nvim"
        },
-       "nurl": {
-         "args": {
-           "hash": "sha256-at9OSBtQqyiDdxKdNn2x6z4k8xrDD90sACKEK7uKNUM=",
-           "owner": "folke",
-           "repo": "todo-comments.nvim",
-           "rev": "304a8d204ee787d2544d8bc23cd38d2f929e7cc5"
-         },
-         "fetcher": "fetchFromGitHub"
-       }
+       "meta": {
+         "description": "\u2705  Highlight, list and search todo comments in your projects",
+         "license": "Apache-2.0"
+       },
+       "version": "1.5.0-unstable-2025-11-10"
      },
      "vim-surround": {
+       "fetcher": "fetchFromGitHub",
+       "fetcher_args": {
+         "hash": "sha256-DZE5tkmnT+lAvx/RQHaDEgEJXRKsy56KJY919xiH1lE=",
+         "owner": "tpope",
+         "repo": "vim-surround",
+         "rev": "3d188ed2113431cf8dac77be61b842acb64433d9"
+       },
        "info": {
          "owner": "tpope",
          "repo": "vim-surround"
        },
-       "nurl": {
-         "args": {
-           "hash": "sha256-DZE5tkmnT+lAvx/RQHaDEgEJXRKsy56KJY919xiH1lE=",
-           "owner": "tpope",
-           "repo": "vim-surround",
-           "rev": "3d188ed2113431cf8dac77be61b842acb64433d9"
-         },
-         "fetcher": "fetchFromGitHub"
-       }
+       "meta": {
+         "description": "Surround.vim: Delete/change/add parentheses/quotes/XML-tags/much more with ease",
+         "homepage": "https://www.vim.org/scripts/script.php?script_id=1697"
+       },
+       "version": "2.2-unstable-2022-10-25"
      }
    }

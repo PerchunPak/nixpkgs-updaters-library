@@ -49,6 +49,8 @@ tags. Example:
    :undoc-members:
    :show-inheritance:
 
+.. _github-recipy:
+
 GitHub recipy
 -------------
 

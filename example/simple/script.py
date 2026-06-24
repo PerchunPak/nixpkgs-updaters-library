@@ -9,15 +9,18 @@ from loguru import logger
 from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
-from nupd.fetchers import nurl
-from nupd.fetchers.github import GHRepository, github_full_fetch_auto
+from nupd.fetchers.github import GithubRecipy
+from nupd.helpers.recipy import (
+    NixMetaInformation,  # noqa: TC001 # pydantic needs this type during runtime
+)
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
-from nupd.utils import register_implementation_classes
+from nupd.utils import FrozenDict, register_implementation_classes
 
 if t.TYPE_CHECKING:
     import collections.abc as c
     import os
+
 
 ROOT = Path(__file__).parent.resolve()
 if "/nix/store" in str(ROOT):
@@ -29,10 +32,10 @@ class MyEntryInfo(EntryInfo, frozen=True):
     owner: str
     repo: str
 
+    # This is a property because we could, for example, implement aliases.
     @property
     @t.override
     def id(self) -> str:
-        # This is a property, because we could implement e.g. aliases
         return self.repo
 
     @t.override
@@ -42,34 +45,37 @@ class MyEntryInfo(EntryInfo, frozen=True):
         # fetch all possible information about the entry
         # this will also automatically use GitHub token from the `GITHUB_TOKEN`
         # environment variable
-        result = await github_full_fetch_auto(self.owner, self.repo)
+        result = await GithubRecipy.fetch(self.owner, self.repo)
 
         # NOTE: We could also handle redirects like this
-        if (self.owner, self.repo) != (result.owner, result.repo):
+        if (self.owner, self.repo) != (
+            result.fetched_repo.owner,
+            result.fetched_repo.repo,
+        ):
             ...
 
-        # then run nurl to generate `fetchFromGitHub`
-        prefetched = await nurl.nurl(
-            result.url, submodules=bool(result.has_submodules)
-        )
-
-        return MyEntry(info=self, fetched=result, nurl_result=prefetched)
+        return MyEntry(info=self, fetched=result)
 
 
 class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
-    nurl: nurl.NurlResult
+    version: str
+    fetcher: str
+    fetcher_args: FrozenDict[str, t.Any]
+    meta: NixMetaInformation | None
 
 
 class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
     info: MyEntryInfo
-    fetched: GHRepository
-    nurl_result: nurl.NurlResult
+    fetched: GithubRecipy
 
     @t.override
     def minify(self) -> MyMiniEntry:
         return MyMiniEntry(
             info=self.info,
-            nurl=self.nurl_result,
+            version=self.fetched.version,
+            fetcher=self.fetched.fetcher,
+            fetcher_args=self.fetched.fetcher_args,
+            meta=self.fetched.meta,
         )
 
 
