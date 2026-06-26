@@ -35,7 +35,10 @@ NIXPKGS_PLACEHOLDER = Path(f"/nixpkgs_{id(object())}")
 
 
 class _PydanticFrozenDictAnnotation[K, V]:
-    """https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166."""
+    """Fix frozendict type annotations for Pydantic.
+
+    See https://github.com/pydantic/pydantic/discussions/8721#discussioncomment-9753166.
+    """
 
     @classmethod
     def __get_pydantic_core_schema__(
@@ -70,7 +73,7 @@ type FrozenDict[K, V] = t.Annotated[
 
 
 def replace[T](obj: T, **changes: t.Any) -> T:
-    """Analogue for `copy.replace` that works with dataclasses and pydantic."""
+    """Analogue for :func:`copy.replace` that works with dataclasses and pydantic."""  # noqa: E501 # line too long
     result = copy.copy(obj)
 
     if dataclasses.is_dataclass(obj):
@@ -118,12 +121,21 @@ def cleanup_raw_string(arg: str | t.Any) -> str:
 def restore_docstring_from_memorized_function[R, **P](
     func: MemorizedFunc[P, R],
 ) -> MemorizedFunc[P, R]:
+    """Restore docstring from memoized function.
+
+    Memorized functions are created by joblib, our caching backend. Because the
+    decorator return a class, Sphinx inherits ``MemorizedFunc``'s docstring
+    instead of the actual docstring. This sets the docstring back to normal.
+    """
     func.__doc__ = func.func.__doc__  # pyright: ignore[reportAttributeAccessIssue]
     return func
 
 
 def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
-    """Never delete cache if ``revision`` argument was provided."""
+    """Never delete cache if ``revision`` argument was provided.
+
+    See also https://joblib.readthedocs.io/en/stable/memory.html#custom-cache-validation.
+    """
     if args["input_args"].get("revision"):
         return True
     return joblib.expires_after(hours=1)(args)
@@ -132,6 +144,20 @@ def cache_validate_by_revision(args: dict[str, t.Any]) -> bool:
 def register_implementation_classes(  # pragma: no cover
     impl: ImplClasses,
 ) -> None:
+    """Register your implementation, so nupd would know what to call.
+
+    Example:
+        .. code-block:: python
+
+           register_implementation_classes(
+               ImplClasses(
+                   base=MyImpl,
+                   mini_entry=MyMiniEntry,
+                   entry=MyEntry,
+                   entry_info=MyEntryInfo,
+               )
+           )
+    """
     register_implementation_classes.impl = impl  # pyright: ignore[reportFunctionMemberAccess]
 
 

@@ -30,7 +30,7 @@
   - [x] Git
 - [x] `to_fetcher_args`
 - [ ] Pipeline class instead of `ABCBase`
-- [ ] Documentation for `utils`
+- [x] Documentation for `utils`
 - [ ] Why `github_prefetch_commit` fetches submodules?
 
 ## Docs

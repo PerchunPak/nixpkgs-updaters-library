@@ -178,6 +178,8 @@ At last, we have to write some amount of boilerplate:
 
 .. code-block:: python
 
+  from nupd.utils import register_implementation_classes
+
   if __name__ == "__main__":
       # this is how we point out which implementation classes we use
       register_implementation_classes(
