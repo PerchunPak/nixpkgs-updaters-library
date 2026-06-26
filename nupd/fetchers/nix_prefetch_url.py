@@ -32,7 +32,7 @@ class URLPrefetchResult(NupdModel, frozen=True):
         }
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache
 async def prefetch_url(
     url: str,

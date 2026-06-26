@@ -40,7 +40,7 @@ class NurlResult(NupdModel, frozen=True):
     fetcher: FETCHERS | str
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(cache_validation_callback=utils.cache_validate_by_revision)
 async def nurl(
     url: str,

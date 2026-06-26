@@ -18,7 +18,7 @@ from ._models import (
 )
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(days=3),
@@ -129,7 +129,7 @@ async def github_fetch_graphql(
     )
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(days=3),
@@ -194,7 +194,7 @@ async def github_fetch_rest(
     )
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(hours=1),
@@ -227,7 +227,7 @@ async def github_prefetch_commit(
     )
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(days=3),
@@ -256,7 +256,7 @@ async def github_does_have_submodules(
     return response.status != 404
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(hours=1),
@@ -296,7 +296,7 @@ async def fetch_latest_release(
     )
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(hours=1),

@@ -115,7 +115,7 @@ def cleanup_raw_string(arg: str | t.Any) -> str:
     return cleanup_raw_string(result)
 
 
-def restore_docstring_from_memoized_function[R, **P](
+def restore_docstring_from_memorized_function[R, **P](
     func: MemorizedFunc[P, R],
 ) -> MemorizedFunc[P, R]:
     func.__doc__ = func.func.__doc__  # pyright: ignore[reportAttributeAccessIssue]

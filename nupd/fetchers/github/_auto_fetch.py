@@ -9,7 +9,7 @@ from . import _fetchers as fetchers  # pyright: ignore[reportPrivateUsage]
 from ._models import GHRepository
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=expires_after(days=3),

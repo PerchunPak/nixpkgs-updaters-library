@@ -67,7 +67,7 @@ class GithubPrefetchResult(NupdModel, frozen=True):
         return fetcher_args
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(
     ignore=["github_token"],
     cache_validation_callback=utils.cache_validate_by_revision,

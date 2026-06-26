@@ -31,7 +31,7 @@ class GitTag(NupdModel, frozen=True):
             return parse_version(self.reference)
 
 
-@utils.restore_docstring_from_memoized_function
+@utils.restore_docstring_from_memorized_function
 @utils.memory.cache(cache_validation_callback=expires_after(hours=3))
 async def list_git_tags(
     url: str, *, additional_arguments: c.Iterable[str] | None = None
