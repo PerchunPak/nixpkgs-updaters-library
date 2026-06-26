@@ -24,6 +24,19 @@ class GitPrefetchResult(NupdModel, frozen=True):
     leave_dot_git: bool
 
     def to_fetcher_args(self) -> dict[str, t.Any]:
+        """Transform this class to a dict, that can be passed to the Nix fetcher.
+
+        Example:
+            .. code-block:: python
+
+                print(GitPrefetchResult(...).to_fetcher_args())
+                {
+                    "url": "https://git.sr.ht/~sircmpwn/hare.vim",
+                    "rev": "e0d38c0563224aa7b0101f64640788691f6c15b9",
+                    "hash": "sha256-RuOMLGL7qzq3KXz7XfiHmuw0qJoOgx4fV8czNUQqTLM=",
+                    "fetchSubmodules": True,
+                }
+        """  # noqa: E501 # line too long
         fetcher_args: dict[str, t.Any] = {
             "url": self.url,
             "rev": self.rev,

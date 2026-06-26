@@ -37,6 +37,18 @@ EXAMPLE_RESPONSE_OBJ = GithubPrefetchResult(
 )
 
 
+class TestGithubPrefetchResult:
+    def test_to_fetcher_args(self) -> None:
+        obj = utils.replace(EXAMPLE_RESPONSE_OBJ, fetch_submodules=True)
+        assert obj.to_fetcher_args() == {
+            "owner": "SnapXL",
+            "repo": "SnapX",
+            "rev": "767e54d5e70518f186cbbe51e7b6933bddbb55bd",
+            "hash": "sha256-Vy9TUsMCgx0kh8ftz3fwylOjg/DQc/53TPeivkeUuGw=",
+            "fetchSubmodules": True,
+        }
+
+
 @pytest.mark.parametrize(
     "rev", ["767e54d5e70518f186cbbe51e7b6933bddbb55bd", None]
 )

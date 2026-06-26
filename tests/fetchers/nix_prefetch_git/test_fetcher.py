@@ -41,14 +41,15 @@ EXAMPLE_RESPONSE_OBJ = GitPrefetchResult(
 )
 
 
-def test_git_prefetch_result_to_fetcher_args() -> None:
-    response = utils.replace(EXAMPLE_RESPONSE_OBJ, fetch_submodules=True)
-    assert response.to_fetcher_args() == {
-        "url": "https://git.sr.ht/~sircmpwn/hare.vim",
-        "rev": "e0d38c0563224aa7b0101f64640788691f6c15b9",
-        "hash": "sha256-RuOMLGL7qzq3KXz7XfiHmuw0qJoOgx4fV8czNUQqTLM=",
-        "fetchSubmodules": True,
-    }
+class TestGitPrefetchResult:
+    def test_to_fetcher_args(self) -> None:
+        response = utils.replace(EXAMPLE_RESPONSE_OBJ, fetch_submodules=True)
+        assert response.to_fetcher_args() == {
+            "url": "https://git.sr.ht/~sircmpwn/hare.vim",
+            "rev": "e0d38c0563224aa7b0101f64640788691f6c15b9",
+            "hash": "sha256-RuOMLGL7qzq3KXz7XfiHmuw0qJoOgx4fV8czNUQqTLM=",
+            "fetchSubmodules": True,
+        }
 
 
 @pytest.mark.parametrize(

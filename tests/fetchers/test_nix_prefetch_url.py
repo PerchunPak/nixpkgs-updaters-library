@@ -16,6 +16,18 @@ if t.TYPE_CHECKING:
     import unittest.mock
 
 
+class TestUrlPrefetchResult:
+    def test_to_fetcher_args(self) -> None:
+        assert URLPrefetchResult(
+            url="https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
+            hash="079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7",
+            path="/nix/store/19zrmhm3m40xxaw81c8cqm6aljgrnwj2-0.8.tar.gz",
+        ).to_fetcher_args() == {
+            "url": "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
+            "sha256": "079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7",
+        }
+
+
 @pytest.mark.parametrize("unpack", [True, False])
 @pytest.mark.parametrize("name", [None, "test-123"])
 async def test_prefetch_url(
@@ -38,6 +50,7 @@ async def test_prefetch_url(
         unpack=unpack,
         name=name,
     ) == URLPrefetchResult(
+        url="https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
         hash="079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7",
         path="/nix/store/19zrmhm3m40xxaw81c8cqm6aljgrnwj2-0.8.tar.gz",
     )

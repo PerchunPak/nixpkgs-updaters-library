@@ -10,8 +10,26 @@ class URLPrefetchError(exc.NetworkError): ...
 
 
 class URLPrefetchResult(NupdModel, frozen=True):
+    url: str
     hash: str
     path: str
+
+    def to_fetcher_args(self) -> dict[str, t.Any]:
+        """Transform this class to a dict, that can be passed to the Nix fetcher.
+
+        Example:
+            .. code-block:: python
+
+                print(URLPrefetchResult(...).to_fetcher_args())
+                {
+                    "url": "https://github.com/NixOS/patchelf/archive/0.8.tar.gz",
+                    "sha256": "079agjlv0hrv7fxnx9ngipx14gyncbkllxrp9cccnh3a50fxcmy7",
+                }
+        """  # noqa: E501 # line too long
+        return {
+            "url": self.url,
+            "sha256": self.hash,
+        }
 
 
 @utils.restore_docstring_from_memoized_function
@@ -58,7 +76,7 @@ async def prefetch_url(
         )
 
     hash, path = stdout.decode().strip().split("\n")
-    return URLPrefetchResult(hash=hash, path=path)
+    return URLPrefetchResult(url=url, hash=hash, path=path)
 
 
 class Prefetchable(t.Protocol):

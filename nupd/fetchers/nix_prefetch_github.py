@@ -3,6 +3,7 @@ import collections.abc as c
 import datetime as dt
 import json
 import os
+import typing as t
 
 from loguru import logger
 from pydantic import ConfigDict, alias_generators
@@ -31,6 +32,39 @@ class GithubPrefetchResult(NupdModel, frozen=True):
     fetch_submodules: bool = False
     leave_dot_git: bool = False
     deep_clone: bool = False
+
+    def to_fetcher_args(self) -> dict[str, t.Any]:
+        """Transform this class to a dict, that can be passed to the Nix fetcher.
+
+        Example:
+            .. code-block:: python
+
+                print(GithubPrefetchResult(...).to_fetcher_args())
+                {
+                    "owner": "SnapXL",
+                    "repo": "SnapX",
+                    "rev": "767e54d5e70518f186cbbe51e7b6933bddbb55bd",
+                    "hash": "sha256-Vy9TUsMCgx0kh8ftz3fwylOjg/DQc/53TPeivkeUuGw=",
+                    "fetchSubmodules": True,
+                }
+        """  # noqa: E501 # line too long
+        fetcher_args: dict[str, t.Any] = {
+            "owner": self.owner,
+            "repo": self.repo,
+            "rev": self.rev,
+            "hash": self.hash,
+        }
+
+        # disable coverage, because testing these combinations would require
+        # a lot of useless parametrizing
+        if self.fetch_submodules:  # pragma: no cover
+            fetcher_args["fetchSubmodules"] = True
+        if self.leave_dot_git:  # pragma: no cover
+            fetcher_args["leaveDotGit"] = True
+        if self.deep_clone:  # pragma: no cover
+            fetcher_args["deepClone"] = True
+
+        return fetcher_args
 
 
 @utils.restore_docstring_from_memoized_function
