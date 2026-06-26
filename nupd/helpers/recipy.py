@@ -44,4 +44,4 @@ class ABCRecipy(NupdModel, abc.ABC, frozen=True):
     version: str
     fetcher: str
     fetcher_args: FrozenDict[str, t.Any]
-    meta: NixMetaInformation | None
+    meta: NixMetaInformation
