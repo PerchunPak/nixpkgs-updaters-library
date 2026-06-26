@@ -84,12 +84,12 @@ def replace[T](obj: T, **changes: t.Any) -> T:
         return result
 
     if isinstance(obj, BaseModel):
-        updated = obj.model_dump(mode="json")
+        updated = obj.model_dump()
         updated.update(changes)
         return type(obj)(**updated)
 
     raise TypeError(
-        "replace() can be called on dataclass or pydantic instances"
+        "replace() can only be called on dataclass or pydantic instances"
     )
 
 
