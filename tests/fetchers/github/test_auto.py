@@ -91,8 +91,8 @@ async def test_github_full_fetch_auto(
     )
 
     mock_fetch.assert_awaited_once_with("foo", "bar", github_token="123")
-    prefetch_commit.assert_awaited_once_with()
-    prefetch_last_version.assert_awaited_once_with()
+    prefetch_commit.assert_awaited_once_with(github_token="123")
+    prefetch_last_version.assert_awaited_once_with(github_token="123")
     if attribute_overrides:
         mock_replace.assert_called_once_with(
             mock_fetch.return_value, **attribute_overrides
