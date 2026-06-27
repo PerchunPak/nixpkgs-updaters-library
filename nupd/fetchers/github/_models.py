@@ -7,15 +7,12 @@ from pydantic import BeforeValidator
 from nupd import utils
 from nupd.models import NupdModel
 
-# mkdocstrings is not smart enough to resolve `t.Annotated` from a variable
-# TODO: is this still true?
-OptionalCleanedUpString = (
-    BeforeValidator(lambda x: utils.cleanup_raw_string(x) or None),
-)
-
 
 class GitHubRelease(NupdModel, frozen=True):
-    name: t.Annotated[str | None, OptionalCleanedUpString]
+    name: t.Annotated[
+        str | None,
+        BeforeValidator(lambda x: utils.cleanup_raw_string(x) or None),
+    ]
     tag_name: str
     created_at: datetime
 
