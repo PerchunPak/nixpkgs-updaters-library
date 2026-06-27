@@ -55,6 +55,6 @@ async def github_full_fetch_auto(
     result = await github_fetch_auto(owner, repo, github_token=github_token)
     if attribute_overrides:
         result = utils.replace(result, **attribute_overrides)
-    result = await result.prefetch_commit()
-    result = await result.prefetch_latest_version()
+    result = await result.prefetch_commit(github_token=github_token)
+    result = await result.prefetch_latest_version(github_token=github_token)
     return result
