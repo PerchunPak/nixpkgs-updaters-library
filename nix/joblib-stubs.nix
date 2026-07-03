@@ -7,13 +7,13 @@
 }:
 buildPythonPackage rec {
   pname = "joblib-stubs";
-  version = "1.5.0.1.20250510";
+  version = "1.5.3.1.20260117";
   pyproject = true;
 
   src = fetchPypi {
     pname = "joblib_stubs";
     inherit version;
-    hash = "sha256-jZsGD/3HMV4f3dXi1AfwelPauL3GHJ+3j+CEG7+vMIw=";
+    hash = "sha256-1CD54mY23wHhvahRv1vOmo29bbhPCK/h39uWPmZR5yQ=";
   };
 
   build-system = [
