@@ -206,8 +206,6 @@ class Nupd:
         old_len = len(all_entries)
         new_entries = await self.fetch_entries(entries_info)
 
-        logger.success(f"Successfully fetched {len(new_entries)} entries!")
-
         if autocommit:
             for entry in sorted(
                 new_entries.values(),
@@ -253,8 +251,6 @@ class Nupd:
 
         if not to_update:  # update all entries
             all_entries = await self.fetch_entries(all_entries_info.values())
-            logger.success(f"Successfully fetched {len(all_entries)} entries!")
-
             if autocommit:
                 message = self.impl.gen_autocommit_message_update_all()
                 logger.info(f"Committing with message {message!r}...")
@@ -279,9 +275,6 @@ class Nupd:
 
             if autocommit:
                 updated_entries = await self.fetch_entries(entries_info)
-                logger.success(
-                    f"Successfully fetched {len(updated_entries)} entries!"
-                )
 
                 for new_entry in sorted(
                     updated_entries.values(),
