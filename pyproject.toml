@@ -35,6 +35,9 @@ ignore = [
   "S101",    # Use of `assert` detected
   "S106",    # Possible hardcoded password assigned to argument
   "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "TC001",   # Move application import into a type-checking block
+  "TC002",   # Move third-party import into a type-checking block
+  "TC003",   # Move standard library import into a type-checking block
   "TD002",   # Missing author in TODO
   "TD003",   # Missing issue link for this TODO
   "TRY003",  # Avoid specifying long messages outside the exception class

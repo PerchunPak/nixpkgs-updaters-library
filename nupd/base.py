@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import abc
 import asyncio
+import collections.abc as c
 import dataclasses
 import functools
 import json
+import os
 import typing as t
 from collections import defaultdict
 from pathlib import Path
@@ -16,10 +18,6 @@ from loguru import logger
 from nupd import utils
 from nupd.injections import Config
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
-
-if t.TYPE_CHECKING:
-    import collections.abc as c
-    import os
 
 
 async def _fetch_entries_worker[T](

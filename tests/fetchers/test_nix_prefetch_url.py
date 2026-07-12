@@ -1,5 +1,5 @@
 import asyncio
-import typing as t
+import unittest.mock
 
 import pytest
 from pytest_mock import MockerFixture
@@ -11,9 +11,6 @@ from nupd.fetchers.nix_prefetch_url import (
     prefetch_obj,
     prefetch_url,
 )
-
-if t.TYPE_CHECKING:
-    import unittest.mock
 
 
 class TestUrlPrefetchResult:

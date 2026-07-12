@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import collections.abc as c
 import dataclasses
 import datetime as dt
+import os
 import typing as t
 from pathlib import Path
 
@@ -10,6 +12,7 @@ import inject
 import pytest
 from loguru import logger
 from pydantic import Field
+from pytest_mock import MockerFixture
 
 from nupd import utils
 from nupd.base import ABCBase, Nupd
@@ -17,14 +20,7 @@ from nupd.injections import Config
 from nupd.inputs.csv import CsvInput
 from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
 from nupd.utils import NIXPKGS_PLACEHOLDER
-
-if t.TYPE_CHECKING:
-    import collections.abc as c
-    import os
-
-    from pytest_mock import MockerFixture
-
-    from tests.conftest import MOCK_INJECT
+from tests.conftest import MOCK_INJECT
 
 
 class DumbEntryInfo(EntryInfo, frozen=True):

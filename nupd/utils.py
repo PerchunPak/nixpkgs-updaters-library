@@ -4,26 +4,22 @@ import asyncio
 import copy
 import dataclasses
 import typing as t
+from os import PathLike
 from pathlib import Path
 
 import joblib
 import platformdirs
+import pydantic
 import pydantic_core
 import rich.progress
 from frozendict import frozendict
+from joblib.memory import MemorizedFunc
 from pydantic import BaseModel
 from rich.console import Console
 
 from nupd.exc import GitError
 from nupd.executables import Executable
-
-if t.TYPE_CHECKING:
-    from os import PathLike
-
-    import pydantic
-    from joblib.memory import MemorizedFunc
-
-    from nupd.models import ImplClasses
+from nupd.models import ImplClasses
 
 console = Console(stderr=True)
 memory = joblib.Memory(
