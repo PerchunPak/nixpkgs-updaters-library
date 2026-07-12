@@ -23,7 +23,7 @@ First, we need to implement :doc:`our models </usage/models>`.
       owner: str
       repo: str
 
-      # This is a property because we could, for example, implement aliases.
+      # This is a property because we could, for example, implement aliases
       @property
       def id(self) -> str:
           return self.repo
@@ -50,13 +50,6 @@ Next, let's implement :func:`MyEntryInfo.fetch <nupd.models.EntryInfo>`:
           # this will also automatically use GitHub token from the `GITHUB_TOKEN`
           # environment variable
           result = await GithubRecipy.fetch(self.owner, self.repo)
-
-          # NOTE: We could also handle redirects like this
-          if (self.owner, self.repo) != (
-              result.fetched_repo.owner,
-              result.fetched_repo.repo,
-          ):
-              ...
 
           return MyEntry(info=self, fetched=result)
 
@@ -112,7 +105,7 @@ Implement core logic
       # commands!), we have to provide default values for input and output files
       # this way.
       _default_input_file: Path = dataclasses.field(
-          init=False, default=ROOT / "input.csv"# (1)!
+          init=False, default=ROOT / "input.csv"
       )
       # If you want to provide a path to nixpkgs, you can do so using
       # `nupd.utils.NIXPKGS_PLACEHOLDER / "your" / "path" / "file.csv"`. This

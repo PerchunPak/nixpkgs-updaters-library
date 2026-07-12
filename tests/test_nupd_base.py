@@ -32,23 +32,11 @@ class DumbEntryInfo(EntryInfo, frozen=True):
     def id(self) -> str:
         return self.name
 
-    @t.override
-    async def fetch(self) -> DumbEntry:
-        logger.debug(f"Fetching {self!r}")
-        return DumbEntry(info=self, hash="sha256-some/cool/hash")
+
+class FailingEntryInfo(DumbEntryInfo, frozen=True): ...
 
 
-class FailingEntryInfo(DumbEntryInfo, frozen=True):
-    @t.override
-    async def fetch(self) -> t.Never:
-        raise RuntimeError("oops")
-
-
-class TimeoutEntryInfo(DumbEntryInfo, frozen=True):
-    @t.override
-    async def fetch(self) -> t.Never:
-        await asyncio.sleep(10)
-        raise TimeoutError
+class TimeoutEntryInfo(DumbEntryInfo, frozen=True): ...
 
 
 class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
@@ -57,14 +45,6 @@ class DumbEntry(Entry[DumbEntryInfo, t.Any], frozen=True):
     some_date: dt.datetime = Field(
         default_factory=lambda: dt.datetime.fromtimestamp(0, dt.UTC)
     )
-
-    @t.override
-    def minify(self) -> DumbMiniEntry:
-        return DumbMiniEntry(
-            info=self.info,
-            hash=self.hash,
-            some_date=self.some_date,
-        )
 
 
 class DumbMiniEntry(MiniEntry[DumbEntryInfo], frozen=True):
@@ -91,6 +71,26 @@ class DumbBase(ABCBase[DumbEntry, DumbEntryInfo]):
     @t.override
     async def get_all_entries(self) -> c.Sequence[DumbEntryInfo]:
         return self.all_entries
+
+    @t.override
+    async def fetch_entry(self, entry_info: DumbEntryInfo) -> DumbEntry:
+        logger.debug(f"Fetching {entry_info!r}")
+        match entry_info:
+            case FailingEntryInfo():
+                raise RuntimeError("oops")
+            case TimeoutEntryInfo():
+                await asyncio.sleep(10)
+                raise TimeoutError
+            case DumbEntryInfo():
+                return DumbEntry(info=entry_info, hash="sha256-some/cool/hash")
+
+    @t.override
+    def minify_entry(self, entry: DumbEntry) -> DumbMiniEntry:
+        return DumbMiniEntry(
+            info=entry.info,
+            hash=entry.hash,
+            some_date=entry.some_date,
+        )
 
     @t.override
     def write_entries_info(
@@ -240,7 +240,7 @@ def test_write_entries_on_unminified(
 
     nupd.write_entries(entries)
     assert list(nupd.get_all_entries_from_the_output_file()) == [
-        entry.minify() for entry in entries
+        nupd.impl.minify_entry(entry) for entry in entries
     ]
 
 

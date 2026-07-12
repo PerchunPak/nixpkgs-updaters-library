@@ -33,24 +33,6 @@ class MyEntryInfo(EntryInfo, frozen=True):
     def id(self) -> str:
         return self.repo
 
-    @t.override
-    async def fetch(self) -> MyEntry:
-        logger.debug(f"Fetching {self.owner}/{self.repo}")
-
-        # fetch all possible information about the entry
-        # this will also automatically use GitHub token from the `GITHUB_TOKEN`
-        # environment variable
-        result = await GithubRecipy.fetch(self.owner, self.repo)
-
-        # NOTE: We could also handle redirects like this
-        if (self.owner, self.repo) != (
-            result.fetched_repo.owner,
-            result.fetched_repo.repo,
-        ):
-            ...
-
-        return MyEntry(info=self, fetched=result)
-
 
 class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
     version: str
@@ -62,16 +44,6 @@ class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
 class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
     info: MyEntryInfo
     fetched: GithubRecipy
-
-    @t.override
-    def minify(self) -> MyMiniEntry:
-        return MyMiniEntry(
-            info=self.info,
-            version=self.fetched.version,
-            fetcher=self.fetched.fetcher,
-            fetcher_args=self.fetched.fetcher_args,
-            meta=self.fetched.meta,
-        )
 
 
 @dataclasses.dataclass
@@ -87,6 +59,28 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
     async def get_all_entries(self) -> c.Iterable[MyEntryInfo]:
         return CsvInput[MyEntryInfo](self.input_file).read(
             lambda x: MyEntryInfo(**x)
+        )
+
+    # TODO: update docs
+    @t.override
+    async def fetch_entry(self, entry_info: MyEntryInfo) -> MyEntry:
+        logger.debug(f"Fetching {entry_info.owner}/{entry_info.repo}")
+
+        # fetch all possible information about the entry
+        # this will also automatically use GitHub token from the `GITHUB_TOKEN`
+        # environment variable
+        result = await GithubRecipy.fetch(entry_info.owner, entry_info.repo)
+
+        return MyEntry(info=entry_info, fetched=result)
+
+    @t.override
+    def minify_entry(self, entry: MyEntry) -> MyMiniEntry:
+        return MyMiniEntry(
+            info=entry.info,
+            version=entry.fetched.version,
+            fetcher=entry.fetched.fetcher,
+            fetcher_args=entry.fetched.fetcher_args,
+            meta=entry.fetched.meta,
         )
 
     @t.override

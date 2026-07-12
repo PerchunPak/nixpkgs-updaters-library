@@ -29,9 +29,11 @@
   - [x] GitHub
   - [x] Git
 - [x] `to_fetcher_args`
-- [ ] Pipeline class instead of `ABCBase`
+- [x] Pipeline class instead of `ABCBase`
 - [x] Documentation for `utils`
-- [ ] Why `github_prefetch_commit` fetches submodules?
+- [x] Why `github_prefetch_commit` fetches submodules?
+- [ ] Make `minify_entry` optional
+- [ ] Update quick start documentation
 
 ## Docs
 
@@ -42,6 +44,6 @@
 
 - [x] Support `fetchgit`
 - [ ] Plugin renames
-- [ ] Fetching latest git tags
+- [x] Fetching latest git tags
   - [x] Fetch latest release
-  - [ ] Update to tag only if current version is older
+- [ ] Update to tag only if current version is older

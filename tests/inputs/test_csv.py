@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from nupd.inputs.csv import CsvInput
-from nupd.models import Entry, EntryInfo
+from nupd.models import EntryInfo
 
 
 class CsvEntryInfo(EntryInfo, frozen=True):
@@ -15,10 +15,6 @@ class CsvEntryInfo(EntryInfo, frozen=True):
     @t.override
     def id(self) -> str:
         return self.name
-
-    @t.override
-    async def fetch(self) -> Entry[t.Any, t.Any]:
-        raise NotImplementedError
 
 
 @pytest.fixture

@@ -100,16 +100,22 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
         return Path(output_file).resolve()
 
     @abc.abstractmethod
+    def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
+        """Parse argument, that user provided as ID for the entry, to :class:`.EntryInfo`."""  # noqa: E501 # one character off...
+
+    @abc.abstractmethod
     async def get_all_entries(self, /) -> c.Iterable[GEntryInfo]: ...
+
+    @abc.abstractmethod
+    async def fetch_entry(self, entry_info: GEntryInfo, /) -> GEntry: ...
+
+    @abc.abstractmethod
+    def minify_entry(self, entry: GEntry, /) -> MiniEntry[t.Any]: ...
 
     @abc.abstractmethod
     def write_entries_info(
         self, entries_info: c.Iterable[GEntryInfo], /
     ) -> None: ...
-
-    @abc.abstractmethod
-    def parse_entry_id(self, unparsed_argument: str, /) -> GEntryInfo:
-        """Parse argument, that user provided as ID for the entry, to :class:`.EntryInfo`."""  # noqa: E501 # one character off...
 
     def gen_autocommit_message_add(self, entry: GEntry, /) -> str:  # pyright: ignore[reportUnusedParameter]
         """Generate commit message, when user adds a new entry.
@@ -328,7 +334,7 @@ class Nupd:
                             semaphore=semaphore,
                             progress=progress,
                             task_id=task_id,
-                            func=entry.fetch(),
+                            func=self.impl.fetch_entry(entry),
                         ),
                         name=entry.id,
                     )
@@ -375,7 +381,7 @@ class Nupd:
 
         for entry in entries:
             if isinstance(entry, Entry):
-                entry = entry.minify()  # noqa: PLW2901
+                entry = self.impl.minify_entry(entry)  # noqa: PLW2901
             data[entry.info.id] = entry.model_dump(
                 mode="json", exclude_none=True
             )

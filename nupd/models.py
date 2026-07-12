@@ -25,10 +25,6 @@ class EntryInfo(NupdModel, abc.ABC, frozen=True):
         aliases.
         """
 
-    @abc.abstractmethod
-    async def fetch(self) -> Entry[t.Any, t.Any]:
-        """Fetch all the information required for the :class:`.Entry`."""
-
 
 class Entry[GEntryInfo: EntryInfo, GMiniEntry: MiniEntry[t.Any]](
     NupdModel, abc.ABC, frozen=True
@@ -36,10 +32,6 @@ class Entry[GEntryInfo: EntryInfo, GMiniEntry: MiniEntry[t.Any]](
     """Fully fetched entry."""
 
     info: GEntryInfo
-
-    @abc.abstractmethod
-    def minify(self) -> GMiniEntry:
-        """Minify all information about the entry to :class:`MiniEntry`."""
 
 
 class MiniEntry[GEntryInfo: EntryInfo](NupdModel, abc.ABC, frozen=True):
