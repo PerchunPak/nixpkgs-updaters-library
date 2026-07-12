@@ -46,11 +46,11 @@ class MiniEntry[GEntryInfo: EntryInfo](NupdModel, abc.ABC, frozen=True):
 
 
 @t.final
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ImplClasses:
     """Settings, passed to `register_implementation_classes`."""
 
     base: type[ABCBase[t.Any, t.Any]]
-    mini_entry: type[MiniEntry[t.Any]]
+    mini_entry: type[MiniEntry[t.Any]] | None = None
     entry: type[Entry[t.Any, t.Any]]
     entry_info: type[EntryInfo]

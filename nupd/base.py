@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import asyncio
 import collections.abc as c
+import contextlib
 import dataclasses
 import functools
 import json
@@ -109,8 +110,8 @@ class ABCBase[GEntry: Entry[t.Any, t.Any], GEntryInfo: EntryInfo](abc.ABC):
     @abc.abstractmethod
     async def fetch_entry(self, entry_info: GEntryInfo, /) -> GEntry: ...
 
-    @abc.abstractmethod
-    def minify_entry(self, entry: GEntry, /) -> MiniEntry[t.Any]: ...
+    def minify_entry(self, entry: GEntry, /) -> MiniEntry[t.Any]:  # pyright: ignore[reportUnusedParameter]
+        raise NotImplementedError
 
     @abc.abstractmethod
     def write_entries_info(
@@ -364,7 +365,7 @@ class Nupd:
 
     def get_all_entries_from_the_output_file(
         self,
-    ) -> c.Iterable[MiniEntry[t.Any]]:
+    ) -> c.Iterable[Entry[t.Any, t.Any] | MiniEntry[t.Any]]:
         if not self.impl.output_file.exists():
             return
 
@@ -372,7 +373,10 @@ class Nupd:
             data = json.load(f)
 
         for entry in data.values():
-            yield self.impls.mini_entry(**entry)
+            if self.impls.mini_entry is not None:
+                yield self.impls.mini_entry(**entry)
+            else:
+                yield entry
 
     def write_entries(
         self, entries: c.Iterable[Entry[t.Any, t.Any] | MiniEntry[t.Any]]
@@ -381,7 +385,8 @@ class Nupd:
 
         for entry in entries:
             if isinstance(entry, Entry):
-                entry = self.impl.minify_entry(entry)  # noqa: PLW2901
+                with contextlib.suppress(NotImplementedError):
+                    entry = self.impl.minify_entry(entry)  # noqa: PLW2901
             data[entry.info.id] = entry.model_dump(
                 mode="json", exclude_none=True
             )

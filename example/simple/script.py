@@ -12,10 +12,9 @@ from nupd.base import ABCBase
 from nupd.cli import app
 from nupd.exc import InvalidArgumentError
 from nupd.fetchers.github import GithubRecipy
-from nupd.helpers.recipy import NixMetaInformation
 from nupd.inputs.csv import CsvInput
-from nupd.models import Entry, EntryInfo, ImplClasses, MiniEntry
-from nupd.utils import FrozenDict, register_implementation_classes
+from nupd.models import Entry, EntryInfo, ImplClasses
+from nupd.utils import register_implementation_classes
 
 ROOT = Path(__file__).parent.resolve()
 if "/nix/store" in str(ROOT):
@@ -27,21 +26,17 @@ class MyEntryInfo(EntryInfo, frozen=True):
     owner: str
     repo: str
 
-    # This is a property because we could, for example, implement aliases.
+    # This is a property because we could, for example, implement aliases
     @property
     @t.override
     def id(self) -> str:
         return self.repo
 
 
-class MyMiniEntry(MiniEntry[MyEntryInfo], frozen=True):
-    version: str
-    fetcher: str
-    fetcher_args: FrozenDict[str, t.Any]
-    meta: NixMetaInformation | None
-
-
-class MyEntry(Entry[EntryInfo, MyMiniEntry], frozen=True):
+# to keep this example simple, we intentionally do not implement `MiniEntry`,
+# so instead of our implementation we can just provide `Any` as a type argument.
+# you can also provide `MiniEntry` if you don't want to use `Any`
+class MyEntry(Entry[EntryInfo, t.Any], frozen=True):
     info: MyEntryInfo
     fetched: GithubRecipy
 
@@ -74,16 +69,6 @@ class MyImpl(ABCBase[MyEntry, MyEntryInfo]):
         return MyEntry(info=entry_info, fetched=result)
 
     @t.override
-    def minify_entry(self, entry: MyEntry) -> MyMiniEntry:
-        return MyMiniEntry(
-            info=entry.info,
-            version=entry.fetched.version,
-            fetcher=entry.fetched.fetcher,
-            fetcher_args=entry.fetched.fetcher_args,
-            meta=entry.fetched.meta,
-        )
-
-    @t.override
     def write_entries_info(self, entries_info: c.Iterable[MyEntryInfo]) -> None:
         CsvInput[MyEntryInfo](self.input_file).write(
             entries_info,
@@ -108,7 +93,6 @@ if __name__ == "__main__":
     register_implementation_classes(
         ImplClasses(
             base=MyImpl,
-            mini_entry=MyMiniEntry,
             entry=MyEntry,
             entry_info=MyEntryInfo,
         )
