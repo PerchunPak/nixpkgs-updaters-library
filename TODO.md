@@ -10,7 +10,6 @@
 - [x] Cache invalidation
 - [x] cyclopts
 - [x] progress bar
-- [ ] Some abstraction for implementing redirects & deprecations
 - [x] Use semaphores instead of chunks
 - [x] nurl FETCHERS | str
 - [x] Auto commit
@@ -34,6 +33,8 @@
 - [x] Make `minify_entry` optional
 - [x] AIOHttp session pooling
 - [ ] Update quick start documentation
+- [ ] Add mini entry to the documentation
+- [ ] Some abstraction for implementing redirects & deprecations
 
 ## Docs
 
