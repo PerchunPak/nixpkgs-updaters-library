@@ -31,7 +31,7 @@ class LoggingLevel(enum.Enum):
 def setup_logging(log_level: LoggingLevel) -> None:  # pragma: no cover
     logger.remove()
     _ = logger.add(
-        lambda s: utils.console.print(Text.from_ansi(s)),
+        lambda s: utils.console.print(Text.from_ansi(s), end=""),
         level=log_level.as_int(),
         colorize=utils.console.is_terminal,
         backtrace=True,
