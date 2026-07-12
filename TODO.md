@@ -32,7 +32,7 @@
 - [x] Documentation for `utils`
 - [x] Why `github_prefetch_commit` fetches submodules?
 - [x] Make `minify_entry` optional
-- [ ] AIOHttp session pooling
+- [x] AIOHttp session pooling
 - [ ] Update quick start documentation
 
 ## Docs

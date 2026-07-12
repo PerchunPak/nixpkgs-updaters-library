@@ -1,6 +1,7 @@
 import typing as t
 from pathlib import Path
 
+import aiohttp
 import inject
 
 from nupd.models import ImplClasses, NupdModel
@@ -22,6 +23,9 @@ def inject_configure(
     def wrapped(binder: inject.Binder) -> None:
         _ = binder.bind(Config, config)
         _ = binder.bind(ImplClasses, classes)
+        _ = binder.bind_to_constructor(
+            aiohttp.ClientSession, aiohttp.ClientSession
+        )
         _ = binder.bind(Shutdowner, shutdowner or Shutdowner())
 
     return wrapped
